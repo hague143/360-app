@@ -7,7 +7,7 @@ import sharp from "sharp";
 import { createApp } from "../server/app.js";
 import { validateGlb } from "../server/storage.js";
 import { triangleGlb, testConfig } from "./fixtures.js";
-let instance, server, base, dir, listing, photo, original, assetId;
+let instance, server, base, dir, listing, photo, original, assetId, fixtureRoot;
 const seller = { cookie: "" },
   other = { cookie: "" },
   anon = { cookie: "" },
@@ -40,7 +40,8 @@ const input = {
   description: "Automated workflow test only.",
 };
 before(async () => {
-  dir = await mkdtemp(path.join(tmpdir(), "carview-test-"));
+  fixtureRoot = await mkdtemp(path.join(tmpdir(), "carview-test-"));
+  dir = path.join(fixtureRoot, ".data");
   instance = await createApp({ dataDir: dir });
   server = instance.app.listen(0, "127.0.0.1");
   await new Promise((r) => server.once("listening", r));
@@ -55,7 +56,7 @@ before(async () => {
 after(async () => {
   await new Promise((r) => server.close(r));
   instance.db.close();
-  await rm(dir, { recursive: true, force: true });
+  await rm(fixtureRoot, { recursive: true, force: true });
 });
 test("catalog demo is explicit and has no invented photographs or substitute model", async () => {
   const l = await (await request("/api/listings/demo-corolla")).json();

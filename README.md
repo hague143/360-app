@@ -8,6 +8,14 @@ A functional inspection MVP: sellers upload a walk-around sequence and the app a
 
 No stock, AI-generated, or unrelated photographs are used as evidence. The default Corolla demonstration has no photos, is labelled as a demo, and is not an advertisement. Its vehicle details and price are illustrative.
 
+## Download-and-run local test
+
+[Download the local-test ZIP](https://github.com/hague143/360-app/raw/refs/heads/main/downloads/CarView-Pakistan-Local.zip), extract the complete folder, and install **Node.js 24 LTS**. On Windows double-click `START-WINDOWS.cmd`; on macOS/Linux use the matching starter or run `npm run local`. Read `READ-ME-FIRST.txt` for the short Roman Urdu guide.
+
+The ZIP includes the prebuilt frontend and full source. The first launch installs the correct production dependencies for your operating system and needs internet; later starts reuse them. The launcher serves only this computer, opens the browser, and stores accounts/photos in the extracted folder's `.data`. It forces local mode and needs no cloud account or API key. Keep the launcher window open while testing. Node modules, private data, real credentials and Git metadata are not included. Native Windows execution is not claimed; the launcher is tested on Linux and its Windows wrapper uses standard Node/cmd commands.
+
+For a source checkout, run `npm ci` and `npm run build` before `npm run local`. To regenerate the downloadable ZIP after building, use `python scripts/package-local.py`.
+
 ## Deploy on Vercel with Supabase
 
 The frontend **and** API now run on Vercel, with Supabase PostgreSQL and private Storage providing durable accounts/photos. No Render backend is required for this mode. Follow [the Supabase setup guide](docs/SUPABASE.md): create a project, run [`supabase/setup.sql`](supabase/setup.sql), add server-only settings in Vercel and redeploy. A static frontend import alone does not configure those services. Never use a temporary Function filesystem as the database.

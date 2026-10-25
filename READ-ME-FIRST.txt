@@ -1,0 +1,52 @@
+CARVIEW PAKISTAN — FREE LOCAL TEST
+================================
+
+Kisi hosting, Supabase account ya API key ki zaroorat nahin.
+App aapke apne computer par chalti hai.
+
+WINDOWS
+-------
+1. ZIP par right-click -> Extract All. Poora folder extract karein.
+   ZIP ke andar se start file na chalayein.
+2. Node.js 24 LTS install karein: https://nodejs.org/en/download
+   Node 24.x chahiye. Installation ke baad start file dobara kholein.
+3. Extracted folder mein START-WINDOWS.cmd par double-click karein.
+4. Pehli dafa packages install honge; internet chahiye. Window khuli rakhein.
+5. Tayyar hone par browser khud khulega. Agar na khule to window mein
+   READY ke saamne jo address ho, usay apne browser mein kholein.
+6. Testing ke dauran start wali window khuli rakhein. Band karne ke liye
+   Ctrl+C dabayein. Dobara chalane ke liye wahi start file kholein.
+
+MAC / LINUX
+-----------
+Node.js 24 LTS install karein. Extracted folder mein Terminal khol kar:
+  npm run local
+Mac ke liye START-MAC.command aur Linux ke liye START-LINUX.sh bhi hain.
+
+APP TEST KARNE KA TAREEQA
+------------------------
+1. Sell your car -> Create an account. Apni local testing email use karein;
+   yahan email verification nahin hoti. Password kam az kam 10 characters.
+2. Add a car -> details fill karein -> Save draft & add photos.
+3. 360 photo view -> Add photos.
+4. Car ke gird ek direction mein li hui 12–24 photos best hain.
+   View ka preview automatically banega. Photos ka order check karein.
+5. Puri lap ho aur kam az kam 12 photos hon to 360 loop confirm karein.
+   Kam photos par partial sequence rahegi; missing angles generate nahin honge.
+6. Confirm -> Publish listing. Drag/swipe/slider aur zoom test karein.
+
+IMPORTANT
+---------
+- Is package mein ready-built screen aur full source code dono hain.
+  node_modules saath nahin: pehli dafa aapke computer ke mutabiq install honge.
+- First setup ke baad app ko cloud account ki zaroorat nahin. Installed
+  packages aur built screen hon to dobara start ke liye internet nahin chahiye.
+- Photos, accounts aur listings isi folder ke .data directory mein save hain.
+  .data delete na karein. Backup ke liye poora folder, .data samait, copy karein.
+- ZIP mein koi personal photos, database, password ya cloud keys nahin hain.
+- Demo listing mein photos nahin hain. Apni actual photos upload karke test karein.
+- Yeh local computer test hai. Iska address internet par public website nahin.
+- Agar port busy ho, launcher dusra free local port use karega.
+- Package source user ke liye: npm ci, npm run build, phir npm run local.
+- Node.js 24 aur modern browser zaroori hain. Windows launcher Linux par
+  syntax/source review hua hai; native Windows execution yahan available nahin.

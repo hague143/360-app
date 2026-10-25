@@ -218,7 +218,17 @@ export async function createApp(options = {}) {
     res.cookie("carview_session", token, {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure:
+        process.env.NODE_ENV === "production" &&
+        !(
+          process.env.CARVIEW_LOCAL_ONLY === "1" &&
+          !storage.directUploads &&
+          deploymentOrigin &&
+          new URL(deploymentOrigin).protocol === "http:" &&
+          ["localhost", "127.0.0.1", "[::1]"].includes(
+            new URL(deploymentOrigin).hostname,
+          )
+        ),
       maxAge: 7 * 86400000,
       path: "/",
     });
@@ -703,7 +713,11 @@ export async function createApp(options = {}) {
     res.setHeader("Cache-Control", "private, no-store");
     if (storage.signedUrl)
       return res.redirect(302, await storage.signedUrl(p[req.params.kind]));
-    res.type("webp").sendFile(storage.resolve(p[req.params.kind]));
+    // This exact generated key is authorized above. The private data root may
+    // be a hidden .data folder; do not expose it as a static directory.
+    res
+      .type("webp")
+      .sendFile(storage.resolve(p[req.params.kind]), { dotfiles: "allow" });
   });
   app.get("/api/photos/:id/original", auth, async (req, res) => {
     const p = await photo(req.params.id, req.user, true);
@@ -719,6 +733,7 @@ export async function createApp(options = {}) {
       .download(
         storage.resolve(p.original),
         `carview-${p.id}.${p.mime.split("/")[1]}`,
+        { dotfiles: "allow" },
       );
   });
   app.post("/api/listings/:id/markers", auth, async (req, res) => {
@@ -918,7 +933,7 @@ export async function createApp(options = {}) {
       .setHeader("Cache-Control", "private, no-store");
     if (storage.signedUrl)
       return res.redirect(302, await storage.signedUrl(a.filename));
-    res.sendFile(storage.resolve(a.filename));
+    res.sendFile(storage.resolve(a.filename), { dotfiles: "allow" });
   });
   registerDirectUploads(app, {
     db,

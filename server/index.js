@@ -6,10 +6,13 @@ const server = app.listen(
   () =>
     console.log(`CarView API listening on port ${process.env.PORT || 3001}`),
 );
+let closing = false;
 for (const signal of ["SIGTERM", "SIGINT"])
-  process.on(signal, () =>
+  process.on(signal, () => {
+    if (closing) return;
+    closing = true;
     server.close(async () => {
       await db.close();
       process.exit(0);
-    }),
-  );
+    });
+  });
