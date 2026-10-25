@@ -1,0 +1,77 @@
+{
+  "checked_on": "2026-10-25",
+  "approved_assets": [],
+  "candidates": [
+    {
+      "title": "Toyota Corolla E170 2017",
+      "source_url": "https://sketchfab.com/3d-models/toyota-corolla-e170-2017-d87af59849814c5cb35a0c233f2c2f19",
+      "creator": null,
+      "license": null,
+      "required_attribution": null,
+      "commercial_web_distribution_verified": false,
+      "vehicle_compatibility": "Unverified; Pakistan specification, facelift, body shape and trim must be checked.",
+      "format": null,
+      "size_bytes": null,
+      "verification_status": "BLOCKED: HTTPS proxy CONNECT returned HTTP 403. No file downloaded or used.",
+      "known_differences_or_limitations": "Unknown. Name/year is only a lead and does not establish exact geometry or use rights."
+    },
+    {
+      "title": "Honda Civic 2016",
+      "source_url": "https://sketchfab.com/3d-models/2016-honda-civic-test-07da828d14664b1eaac8ab78e50e5df7",
+      "creator": null,
+      "license": null,
+      "required_attribution": null,
+      "commercial_web_distribution_verified": false,
+      "vehicle_compatibility": "Unverified; Pakistan specification, facelift, body shape and trim must be checked.",
+      "format": null,
+      "size_bytes": null,
+      "verification_status": "BLOCKED: HTTPS proxy CONNECT returned HTTP 403. No file downloaded or used.",
+      "known_differences_or_limitations": "Unknown. Name/year is only a lead and does not establish exact geometry or use rights."
+    },
+    {
+      "title": "Honda Civic 2022",
+      "source_url": "https://www.artstation.com/marketplace/p/r58AR/2022-honda-civic-3d-model-free",
+      "creator": null,
+      "license": null,
+      "required_attribution": null,
+      "commercial_web_distribution_verified": false,
+      "vehicle_compatibility": "Unverified; Pakistan specification, facelift, body shape and trim must be checked.",
+      "format": null,
+      "size_bytes": null,
+      "verification_status": "BLOCKED: HTTPS proxy CONNECT returned HTTP 403. No file downloaded or used.",
+      "known_differences_or_limitations": "Unknown. Name/year is only a lead and does not establish exact geometry or use rights."
+    },
+    {
+      "title": "Suzuki Alto 660cc",
+      "source_url": "https://sketchfab.com/3d-models/suzuki-alto-660cc-97068cad2b614b4abfe6a7aded6e5c82",
+      "creator": null,
+      "license": null,
+      "required_attribution": null,
+      "commercial_web_distribution_verified": false,
+      "vehicle_compatibility": "Unverified; Pakistan specification, facelift, body shape and trim must be checked.",
+      "format": null,
+      "size_bytes": null,
+      "verification_status": "BLOCKED: HTTPS proxy CONNECT returned HTTP 403. No file downloaded or used.",
+      "known_differences_or_limitations": "Unknown. Name/year is only a lead and does not establish exact geometry or use rights."
+    },
+    {
+      "title": "Suzuki Mehran",
+      "source_url": "https://sketchfab.com/3d-models/mehran-low-poly-model-d6343b36cd7046e09e5a93a7413aae62",
+      "creator": null,
+      "license": null,
+      "required_attribution": null,
+      "commercial_web_distribution_verified": false,
+      "vehicle_compatibility": "Unverified; Pakistan specification, facelift, body shape and trim must be checked.",
+      "format": null,
+      "size_bytes": null,
+      "verification_status": "BLOCKED: HTTPS proxy CONNECT returned HTTP 403. No file downloaded or used.",
+      "known_differences_or_limitations": "Unknown. Name/year is only a lead and does not establish exact geometry or use rights."
+    }
+  ],
+  "schematic": {
+    "creator": "Original CarView implementation",
+    "format": "Inline SVG",
+    "purpose": "Generic two-dimensional parts-navigation diagram only. Not a vehicle asset or reconstruction."
+  },
+  "runtime_registry": "Imported immutable asset versions and their verified declarations are stored in SQLite assets and shown in the administrator registry."
+}
