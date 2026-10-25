@@ -15,7 +15,7 @@ if not (ROOT / 'dist' / 'index.html').is_file():
 source_dirs = {'src', 'server', 'public', 'api', 'supabase', 'docs', 'tests', 'scripts'}
 root_files = {
     '.env.example', '.gitignore', '.gitattributes', '.vercelignore', '.dockerignore', 'Dockerfile',
-    'README.md', 'READ-ME-FIRST.txt', 'START-WINDOWS.cmd', 'START-MAC.command',
+    'README.md', 'READ-ME-FIRST.txt', 'THIRD-PARTY-LICENSES.txt', 'START-WINDOWS.cmd', 'START-MAC.command',
     'START-LINUX.sh', 'package.json', 'package-lock.json', 'index.html',
     'tsconfig.json', 'vite.config.ts', 'vercel.json', 'render.yaml',
 }
