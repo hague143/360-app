@@ -1,20 +1,28 @@
+import { parseApiResponse, SERVICE_UNAVAILABLE } from "./api-response";
 export async function api<T = any>(
   url: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await fetch("/api" + url, {
-    ...options,
-    headers: {
-      ...(options.body instanceof FormData
-        ? {}
-        : { "Content-Type": "application/json" }),
-      "X-CarView-Request": "1",
-      ...options.headers,
-    },
-  });
-  const body = await response.json();
-  if (!response.ok) throw new Error(body.error || "Request failed.");
-  return body;
+  let response: Response;
+  try {
+    response = await fetch("/api" + url, {
+      ...options,
+      headers: {
+        ...(options.body instanceof FormData
+          ? {}
+          : { "Content-Type": "application/json" }),
+        "X-CarView-Request": "1",
+        ...options.headers,
+      },
+    });
+  } catch {
+    throw new Error(SERVICE_UNAVAILABLE);
+  }
+  return parseApiResponse(
+    await response.text(),
+    response.headers.get("Content-Type"),
+    response.status,
+  );
 }
 export const send = (url: string, body: unknown, method = "POST") =>
   api(url, { method, body: JSON.stringify(body) });
@@ -34,10 +42,15 @@ export function upload(
       e.lengthComputable && onProgress(Math.round((e.loaded / e.total) * 100));
     xhr.onload = () => {
       try {
-        const data = JSON.parse(xhr.responseText);
-        xhr.status < 300 ? resolve(data) : reject(new Error(data.error));
-      } catch {
-        reject(new Error("Upload failed. Please try again."));
+        resolve(
+          parseApiResponse(
+            xhr.responseText,
+            xhr.getResponseHeader("Content-Type"),
+            xhr.status,
+          ),
+        );
+      } catch (error) {
+        reject(error);
       }
     };
     xhr.onerror = () => reject(new Error("Connection lost. Please retry."));

@@ -96,6 +96,26 @@ export async function createApp({
     db = openDb(path.resolve(dataDir)),
     storage = new LocalStorage(path.join(path.resolve(dataDir), "private"));
   await storage.init();
+  const deploymentOrigin =
+    process.env.APP_ORIGIN || process.env.RENDER_EXTERNAL_URL;
+  if (deploymentOrigin) {
+    let parsed;
+    try {
+      parsed = new URL(deploymentOrigin);
+    } catch {
+      throw new Error("APP_ORIGIN must be a complete HTTP(S) origin.");
+    }
+    if (
+      !["http:", "https:"].includes(parsed.protocol) ||
+      parsed.origin !== deploymentOrigin ||
+      parsed.username ||
+      parsed.password
+    ) {
+      throw new Error(
+        "APP_ORIGIN must be an HTTP(S) origin without a path, query, credentials or trailing slash.",
+      );
+    }
+  }
   app.disable("x-powered-by");
   app.use(
     helmet({
@@ -127,8 +147,8 @@ export async function createApp({
       if (req.get("X-CarView-Request") !== "1")
         return next(fail(403, "Invalid request. Refresh and try again."));
       const origin = req.get("Origin");
-      const allowed = process.env.APP_ORIGIN
-        ? [process.env.APP_ORIGIN]
+      const allowed = deploymentOrigin
+        ? [deploymentOrigin]
         : [
             `http://${req.get("host")}`,
             "http://localhost:5173",

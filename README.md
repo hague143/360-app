@@ -8,6 +8,10 @@ A functional inspection MVP: sellers upload a walk-around sequence and the app a
 
 No stock, AI-generated, or unrelated photographs are used as evidence. The default Corolla demonstration has no photos, is labelled as a demo, and is not an advertisement. Its vehicle details and price are illustrative.
 
+## Deploying after a Vercel import
+
+A static Vercel import deploys only this app’s frontend. Accounts, listings and uploads require the persistent backend. Follow [the deployment guide](docs/DEPLOYMENT.md) for the supplied Render blueprint (paid disk required), Docker/VPS deployment, or the requirements for keeping a Vercel frontend. Do not use temporary serverless files as the production database.
+
 ## Run locally
 
 Requires **Node.js 24+** and npm. No external credentials or services are needed.
@@ -71,7 +75,7 @@ npm run build
 NODE_ENV=production APP_ORIGIN=https://your-carview-host.example DATA_DIR=/persistent/carview npm start
 ```
 
-Terminate HTTPS at a trusted reverse proxy and forward to port 3001. `APP_ORIGIN` must be the exact public origin, without a trailing slash. Production cookies are Secure, HttpOnly and SameSite=Lax. Configure an appropriate request body size (at least 26 MB for asset imports, up to 61 MB for batch image requests), request timeouts, connection limits and IP throttling at the proxy. Never publish the data directory as static files. Install/start should run as a non-root account with a private writable data volume. Database schema is in [migration 001](server/migrations/001_initial.sql) and [photo-spin migration 002](server/migrations/002_photo_spins.sql), applied idempotently on startup. Existing listings and uploads are preserved.
+Terminate HTTPS at a trusted reverse proxy and forward to port 3001. `APP_ORIGIN` must be the exact public origin, without a trailing slash. On Render, its injected `RENDER_EXTERNAL_URL` is used when `APP_ORIGIN` is not explicitly set. Production cookies are Secure, HttpOnly and SameSite=Lax. Configure an appropriate request body size (at least 26 MB for asset imports, up to 61 MB for batch image requests), request timeouts, connection limits and IP throttling at the proxy. Never publish the data directory as static files. Install/start should run as a non-root account with a private writable data volume. Database schema is in [migration 001](server/migrations/001_initial.sql) and [photo-spin migration 002](server/migrations/002_photo_spins.sql), applied idempotently on startup. Existing listings and uploads are preserved.
 
 The `LocalStorage` adapter in `server/storage.js` writes private files with generated keys. This MVP supports persistent local disk; no S3/CDN integration is claimed. A persistent volume is a working production option for one app instance. For multiple instances, implement an object-store adapter with private original buckets, authorized streaming/signed access, and a shared database; replace local `resolve`/`sendFile` calls at the media boundary. Do not make original-object URLs public. For public derivatives retain the authorization check, since drafts can become private after publication.
 

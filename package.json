@@ -10,9 +10,10 @@
     "dev": "concurrently -k -n api,web \"node --watch server/index.js\" \"vite --host 0.0.0.0\"",
     "build": "tsc --noEmit && vite build",
     "start": "NODE_ENV=production node server/index.js",
-    "test": "node --test --test-concurrency=1 tests/api.test.js",
-    "test:browser": "node tests/browser.mjs && node tests/spin-browser.mjs",
-    "create-admin": "node server/create-admin.js"
+    "test": "node --test --test-concurrency=1 tests/api.test.js tests/deployment.test.js",
+    "test:browser": "node tests/browser.mjs && node tests/spin-browser.mjs && node tests/deployment-browser.mjs",
+    "create-admin": "node server/create-admin.js",
+    "build:vercel": "npm run build && node scripts/build-vercel.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

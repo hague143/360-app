@@ -1,0 +1,26 @@
+# IMPORTANT: this blueprint uses a PAID web service and persistent disk.
+# Review Render's displayed price before approving creation. No service is
+# provisioned merely by committing this file.
+services:
+  - type: web
+    name: carview-backend
+    runtime: node
+    plan: starter
+    buildCommand: npm ci --include=dev --no-audit --no-fund && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    disk:
+      name: carview-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: DATA_DIR
+        value: /var/data/carview
+      - key: APP_ORIGIN
+        sync: false
