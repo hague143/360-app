@@ -4,15 +4,16 @@ CARVIEW PAKISTAN - BROWSER EDITION
 1. ZIP ko right-click karke "Extract All" karein.
 2. CarView-Pakistan.html par double-click karein.
    Chrome ya Microsoft Edge mein file khul jayegi.
-3. "Upload photos" se apni car ki JPG, PNG ya WebP photos select karein.
-4. Photo par left/right drag karein, arrow buttons ya Play use karein.
+3. Photos tab se JPG/PNG/WebP photos, ya Video tab se walk-around video lein.
+4. Rotate car mein left/right drag karein. Pinch, wheel ya + se zoom karein.
+5. Inspect details mein drag se mirror, doors aur lights ki taraf move karein.
 
 Node.js, setup, cloud account ya internet ki zaroorat nahi.
 HTML file ko akele bhi copy karke chala sakte hain.
 
 360 VIEW KAISE BANAYEIN
 ----------------------
-Car ke gird ek direction mein 12-24 photos lein. Camera ki height aur
+Car ke gird ek direction mein 36-72 photos lein. Camera ki height aur
 distance lagbhag ek jaisi rakhein. File names 01.jpg, 02.jpg, 03.jpg rakhein.
 Photos automatically filename order mein aayengi. Thumbnail select karke
 "Move earlier" / "Move later" se order badal sakte hain.
@@ -21,6 +22,37 @@ Photos automatically filename order mein aayengi. Thumbnail select karke
 tick karein. Kam photos par bhi view chalega, lekin sequence end par rukegi.
 Yeh aapki asli photos ko sequence mein dikhata hai; missing angles ya 3D
 model generate nahi karta.
+
+VIDEO SE VIEW BANANA
+-------------------
+Park ki hui car ke gird ek poora chakkar record karein, takreeban 20-60
+seconds. Camera stable, car poori frame mein aur focus clear rakhein.
+Video tab > Choose video. MP4 (H.264) recommended hai. MOV/WebM aur doosre
+formats tabhi chalenge agar browser unhein decode kar sakta hai.
+
+Preview se Start / End time mein ek poora chakkar choose karein. Start
+here / End here buttons video ke current time se trim set karte hain.
+36, 72 ya 120 frames choose karke Create photo view dabayein. App isi
+computer par frames nikalti hai. Koi upload ya video converter install nahi.
+
+Successful video import current sequence replace karta hai. Agar pehle
+photos hain to app pehle confirmation legi. Cancel/error par purana sequence
+mehfooz rehta hai. Original video apni jagah rehti hai. Imported frames ka
+order aur coverage check karke Enable 360 looping tick karein.
+
+Video max 500 MB / 3 minutes. Processing time device aur video par depend
+karta hai. Unsupported codec aaye to MP4 (H.264) clip use karein.
+
+ZOOM AUR DETAIL INSPECTION
+-------------------------
+Rotate car: ek finger/mouse drag se car ke gird angle badlega.
+Pinch, mouse wheel, + / - ya double-click se 1x-6x zoom hota hai.
+Inspect details: zoom ke baad drag se enlarged photo mein move kar sakte
+hain, bina angle change kiye. Mirrors, doors ya lights ki taraf move karein.
+Zoom rakh kar angle badalne ke liye Rotate car, arrows ya slider use karein.
+Fit car ya keyboard 0 se poori car dobara frame mein aayegi.
+Touch gestures viewer ke andar hain; page scroll karne ke liye bahar swipe
+karein. Zoom ki clarity original photos/video ki resolution par depend hai.
 
 PHOTOS SAVE KARNA
 ----------------
@@ -33,8 +65,10 @@ kar lein. Us file ko double-click karein to aapki photos phir khul jayengi.
 Is copy ko doosre computer par bhi Chrome/Edge mein khol sakte hain.
 Browser data clear hone se saved HTML copy ki photos nahi mitti.
 
-Space bachane ke liye display photos 1600px tak resize/compress hoti hain.
-Original files apni jagah rehti hain. Har photo max 10 MB, total 60 photos.
+Space bachane ke liye display photos normally 1600px tak resize hoti hain.
+Import se pehle Photo detail mein 2560px choose karke zyada detail rakh
+sakte hain. Original files apni jagah rehti hain. Har photo max 10 MB,
+total 120 photos/frames. Video frames bhi saved HTML copy mein shamil hain.
 App photos kisi server par upload nahi karti. Share ki hui HTML copy mein
 photos aur notes shamil hote hain.
 

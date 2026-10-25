@@ -14,6 +14,8 @@
     @media(max-width:1050px){.steps{display:none}.workspace{grid-template-columns:minmax(0,1fr) 280px}.wrap{padding:0 25px}.stage{height:340px}.header-label{display:none}.drag-hint{font-size:9px;right:10px}.selection-tools{flex-wrap:wrap}.selection-tools>span{width:100%;margin-bottom:3px}}
     @media(max-width:760px){.wrap{padding:0 17px}.header-inner{min-height:75px;gap:10px}.brand-name{font-size:24px}.brand-icon{width:35px;height:35px}.brand-country{font-size:7px;letter-spacing:4px}.header-actions{gap:7px}.header-actions>.pill{display:none}.header-actions .button{font-size:10px;min-height:36px;padding:8px 10px}.header-actions .button svg{width:14px;height:14px}.intro{padding-top:26px;padding-bottom:21px}h1{font-size:28px;letter-spacing:-1px}.subtitle{font-size:12px}.workspace{grid-template-columns:minmax(0,1fr);gap:18px}.stage{height:340px}.aside{display:grid;grid-template-columns:1fr 1fr;gap:15px}.aside-card+.aside-card{margin:0}.aside-card{padding:18px}.footer-inner{font-size:9px}.guide{margin-top:5px}.intro .eyebrow{font-size:9px}.caption-row{padding:0 14px 14px}.controls{padding:11px;gap:6px}.controls input[type=range]{margin:0 2px}.controls .divider{margin:0}.viewer-top{padding:0 14px}.mobile-help{display:inline}.footer-right{max-width:45%;text-align:right}}
     @media(max-width:460px){.stage{height:300px}.empty h2{font-size:20px}.empty p{font-size:11px}.empty-art{margin-bottom:12px}.aside{grid-template-columns:1fr}.drag-hint{bottom:auto;top:12px}.frame-badge{bottom:12px;left:12px}.zoom-label{min-width:25px;font-size:9px}.icon-button{width:30px;height:30px}.controls{gap:4px}.selection-tools .button{padding:7px}.film-header h2 span{display:none}.selection-tools{gap:5px}.header-actions .button{max-width:132px}.guide p{font-size:10px}.header-inner{gap:5px}.thumb{width:91px;flex-basis:91px}.thumb img{width:79px;height:55px}}
+    .stage.has-photos{touch-action:none}.stage>img{transition:none}.viewer-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:9px 14px;border-bottom:1px solid var(--line)}.mode-button{border:1px solid var(--line);border-radius:5px;padding:7px 10px;font-size:10px;background:white}.mode-button[aria-pressed=true]{color:var(--green);background:var(--mint);border-color:#b8d7c7}.gesture-help{font-size:10px;color:var(--muted);margin-left:auto;line-height:1.6}.source-tabs{display:flex;padding:4px;background:#f0f4ed;border-radius:7px;gap:4px;margin:15px 0}.source-tabs button{flex:1;padding:9px 5px;border-radius:5px;font-size:12px}.source-tabs button[aria-selected=true]{background:white;color:var(--green);font-weight:700;box-shadow:0 1px 5px #243c2210}.field select{font:inherit;color:var(--ink);background:white;border:1px solid var(--line);border-radius:6px;padding:9px;width:100%;font-size:11px}.video-preview{width:100%;max-height:180px;background:#e8eee6;border-radius:6px;margin:12px 0 8px}.video-name{font-size:10px;color:var(--muted);overflow-wrap:anywhere;line-height:1.6}.trim-tools{display:flex;gap:8px;margin-top:9px}.trim-tools button{font-size:10px;flex:1;min-height:30px;padding:5px}.video-panel .field-pair{grid-template-columns:1fr 1fr}.video-panel p{font-size:10px}.video-help{margin-top:10px}.busy-controls{display:flex;gap:10px;align-items:center;justify-content:space-between}.video-create{margin-top:14px}.fit-button{margin-left:3px}.stage-fullscreen-exit{display:none;position:absolute;top:14px;left:14px;z-index:2}.stage:fullscreen .stage-fullscreen-exit{display:inline-flex}.stage:fullscreen .drag-hint{top:16px;bottom:auto}.video-meta-line{margin-top:8px;font-size:10px;line-height:1.6;color:var(--muted)}
+    @media(max-width:760px){.viewer-tools{padding:8px 11px}.gesture-help{width:100%;margin-left:0;font-size:9px}.mode-button{font-size:10px}.source-tabs{margin:12px 0}.caption-row{flex-wrap:wrap;gap:5px}.caption-row .filename{max-width:100%}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
   </style>
 </head>
@@ -48,11 +50,13 @@
       <section aria-label="Your car photo viewer">
         <div class="card">
           <div class="viewer-top"><span class="viewer-label"><svg aria-hidden="true"><use href="#icon-camera"/></svg><span id="view-mode">PHOTO WALK-AROUND</span></span><span class="angle-total" id="angle-total">Ready for your photos</span></div>
-          <div class="stage" id="stage" tabindex="0" role="group" aria-label="Photo viewer. Use left and right arrow keys, or drag horizontally, to change photos.">
-            <div class="empty" id="empty"><div class="empty-art"><svg aria-hidden="true" viewBox="0 0 160 80"><use href="#icon-car"/></svg><span>360°</span></div><h2>Take a walk around your car.</h2><p>Car ke gird photos lein, phir yahan select karein.<br>12–24 photos se view zyada behtar banega.</p><button class="button primary" data-upload><svg aria-hidden="true"><use href="#icon-upload"/></svg> Choose car photos</button><small>Or drag and drop photos here</small></div>
+          <div class="viewer-tools" aria-label="Viewer interaction"><button class="mode-button" id="rotate-mode" aria-pressed="true" disabled>↔ Rotate car</button><button class="mode-button" id="inspect-mode" aria-pressed="false" disabled>⊕ Inspect details</button><button class="mode-button fit-button" id="fit" disabled>Fit car</button><span class="gesture-help" id="gesture-help">Drag to rotate · Pinch or scroll to zoom</span></div>
+          <div class="stage" id="stage" tabindex="0" role="group" aria-label="Interactive car viewer. Drag to rotate, pinch or scroll to zoom. In Inspect details mode, drag to move around the enlarged photo. Arrow keys change angle; 0 fits the car.">
+            <div class="empty" id="empty"><div class="empty-art"><svg aria-hidden="true" viewBox="0 0 160 80"><use href="#icon-car"/></svg><span>360°</span></div><h2>Take a walk around your car.</h2><p>Photos select karein ya car ke gird banayi video lein.<br>36–72 clear angles se rotation zyada smooth lagegi.</p><button class="button primary" data-upload><svg aria-hidden="true"><use href="#icon-upload"/></svg> Choose car photos</button><button class="text-button" data-video style="margin-top:10px">Or choose a walk-around video</button><small>Photos and video stay on this device</small></div>
             <img id="photo" alt="" draggable="false" hidden>
             <div class="frame-badge" id="frame-badge" aria-live="polite" hidden><b id="frame-number">01</b> <span id="frame-count">/ 01 photos</span></div>
             <span class="drag-hint" id="drag-hint" hidden>↔ Drag or swipe to explore</span>
+            <button class="button stage-fullscreen-exit" id="exit-fullscreen">Exit fullscreen</button>
           </div>
           <div class="controls">
             <button class="icon-button" id="previous" aria-label="Previous photo" disabled><svg aria-hidden="true"><use href="#icon-left"/></svg></button>
@@ -64,21 +68,27 @@
           </div>
           <div class="caption-row"><span class="filename" id="filename">Your actual photos, in your chosen order.</span><span id="sequence-status">Partial sequences stop at the ends.</span></div>
         </div>
-        <div id="busy" class="busy-line" role="status" hidden><span id="busy-text">Preparing photos…</span><progress class="progress" id="progress" max="1" value="0"></progress></div>
+        <div id="busy" class="busy-line" role="status" hidden><div class="busy-controls"><span id="busy-text">Preparing photos…</span><button class="button" id="cancel-import" hidden>Cancel</button></div><progress class="progress" id="progress" max="1" value="0"></progress></div>
         <div class="film-header"><h2>Your photo sequence <span id="sequence-count">0 photos</span></h2><div class="film-actions"><button id="sort" disabled>Sort by filename</button><button data-upload>+ Add photos</button></div></div>
         <div class="filmstrip" id="filmstrip" aria-label="Choose a photo"><div class="empty-film">Your photos will appear here. Use filenames like 01-front.jpg, 02-front-left.jpg, 03-left.jpg to keep them in order.</div></div>
         <div class="selection-tools" id="selection-tools" hidden><span id="selected-label">Selected photo</span><button class="button" id="move-left"><svg aria-hidden="true"><use href="#icon-left"/></svg> Move earlier</button><button class="button" id="move-right">Move later <svg aria-hidden="true"><use href="#icon-right"/></svg></button><button class="button remove" id="remove"><svg aria-hidden="true"><use href="#icon-trash"/></svg> Remove</button></div>
         <div class="guide"><svg aria-hidden="true"><use href="#icon-info"/></svg><div><h3>A smoother view starts with a steady walk.</h3><p>Park the car, then photograph one complete lap in the same direction. Keep the camera at a similar height and distance. This view plays your real photos in order; unseen angles are not generated. <button class="text-button" id="help">Quick guide</button></p></div></div>
       </section>
       <aside class="aside" aria-label="Photo upload and car details">
-        <div class="card aside-card"><div class="aside-eyebrow">LET’S GET STARTED</div><h2>Your photos. Your view.</h2><p>Apni car ki photos ek saath select karein. Filename ke order mein view khud tayyar ho jayega.</p><button class="button primary wide upload" data-upload><svg aria-hidden="true"><use href="#icon-upload"/></svg> Upload photos</button><p class="formats">JPG, PNG, WebP · 10 MB each · 60 photos max</p><div class="loop-option"><input type="checkbox" id="loop" disabled><label for="loop">These photos cover one complete lap. Enable 360° looping.</label></div><p class="loop-help" id="loop-help">Add at least 12 photos, then check their order and coverage.</p><div class="storage"><svg aria-hidden="true"><use href="#icon-check"/></svg><span id="storage-status" role="status">Opening browser storage…</span></div></div>
+        <div class="card aside-card"><div class="aside-eyebrow">TWO WAYS TO CREATE YOUR VIEW</div><h2>Your car. All around.</h2>
+          <div class="source-tabs" role="tablist" aria-label="Choose upload type"><button id="photos-tab" role="tab" aria-selected="true" aria-controls="photos-panel">Photos</button><button id="video-tab" role="tab" aria-selected="false" aria-controls="video-panel" tabindex="-1">Video</button></div>
+          <div id="photos-panel" role="tabpanel" aria-labelledby="photos-tab"><p>Car ke gird ek direction mein 36–72 photos lein. Filename ke order mein view tayyar ho jayega.</p><button class="button primary wide upload" data-upload><svg aria-hidden="true"><use href="#icon-upload"/></svg> Upload photos</button><p class="formats">JPG, PNG, WebP · 10 MB each · 120 photos max</p></div>
+          <div id="video-panel" class="video-panel" role="tabpanel" aria-labelledby="video-tab" hidden><p>Park ki hui car ke gird ek poora chakkar lagate hue video lein. Camera ki height aur distance ek jaisi rakhein.</p><button class="button primary wide upload" data-video><svg aria-hidden="true"><use href="#icon-upload"/></svg> Choose video</button><p class="formats">MP4 (H.264) recommended · up to 500 MB / 3 min</p><div id="video-settings" hidden><video id="video-preview" class="video-preview" controls playsinline muted preload="auto" aria-label="Walk-around video preview"></video><div id="video-name" class="video-name"></div><div class="field-pair"><div class="field"><label for="video-start">Start (seconds)</label><input id="video-start" type="number" min="0" step="0.1" value="0"></div><div class="field"><label for="video-end">End (seconds)</label><input id="video-end" type="number" min="0" step="0.1"></div></div><div class="trim-tools"><button class="button" id="set-video-start">Start here</button><button class="button" id="set-video-end">End here</button></div><div class="field"><label for="video-frames">Frames to extract</label><select id="video-frames"><option value="36">36 · smaller file</option><option value="72" selected>72 · smoother rotation</option><option value="120">120 · more frames</option></select></div><button class="button primary wide video-create" id="create-video">Create photo view from video</button><p class="video-help">Start/end par sirf ek poora chakkar rakhein. Successful import current sequence ko replace karega. Video ki original file apni jagah rehti hai.</p></div></div>
+          <div class="field"><label for="detail-quality">Photo detail</label><select id="detail-quality"><option value="1600" selected>1600 px · save space</option><option value="2560">2560 px · inspect more detail</option></select></div>
+          <div class="loop-option"><input type="checkbox" id="loop" disabled><label for="loop">These photos cover one complete lap. Enable 360° looping.</label></div><p class="loop-help" id="loop-help">Add at least 12 photos, then check their order and coverage.</p><div class="storage"><svg aria-hidden="true"><use href="#icon-check"/></svg><span id="storage-status" role="status">Opening browser storage…</span></div></div>
         <div class="card aside-card"><div class="aside-eyebrow">MAKE IT YOURS</div><h2>Car details</h2><form id="details" autocomplete="off"><div class="field"><label for="car-title">Make &amp; model</label><input id="car-title" name="title" maxlength="90" placeholder="e.g. Toyota Corolla GLi"></div><div class="field-pair"><div class="field"><label for="car-year">Year</label><input id="car-year" name="year" maxlength="4" inputmode="numeric" placeholder="2020"></div><div class="field"><label for="car-city">City</label><input id="car-city" name="city" maxlength="60" placeholder="Lahore"></div></div><div class="field"><label for="car-notes">Your notes</label><textarea id="car-notes" name="notes" maxlength="1500" placeholder="Add anything you want to remember…"></textarea></div></form><p style="margin-top:14px">Save HTML copy se photos aur details wali file download karein. Us file ko dobara double-click karke khol sakte hain.</p></div>
       </aside>
     </div>
   </main>
   <footer class="footer"><div class="wrap footer-inner"><span>Made for Pakistan. Built for a closer look.</span><span class="footer-right">Offline · No installation · Photos stay on this device</span></div></footer>
   <input class="file-input" id="files" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" multiple aria-label="Choose car photographs">
-  <dialog class="help-dialog" id="help-dialog"><h2>Open. Upload. Explore.</h2><ol><li><strong>Photos lein:</strong> car ke gird ek direction mein 12–24 photos lein. Car poori frame mein rakhein.</li><li><strong>Upload karein:</strong> photos filename ke order mein aayengi. Thumbnail select karke Move earlier / Move later se order change karein.</li><li><strong>View dekhein:</strong> photo par left/right drag karein, ya arrow buttons, keyboard aur slider use karein. Play se sequence chalegi.</li><li><strong>Poora chakkar?</strong> Kam az kam 12 photos hon aur poori car ka chakkar cover ho to 360 looping ka checkbox tick karein.</li><li><strong>Copy rakhein:</strong> Save HTML copy se photos wali file save karein. Kisi Chrome/Edge browser mein double-click karke khol lein.</li></ol><p>Browser storage isi browser/profile par hoti hai; clear karne se photos hat sakti hain. Saved HTML copy mein photos rehti hain. Display photos ko 1600px tak resize kiya jata hai, taake space kam lage.</p><p style="margin-top:10px">Yeh local photo studio hai. Public listings, online accounts aur 3D reconstruction is edition mein shamil nahi hain.</p><button class="button primary wide" id="close-help">Got it</button></dialog>
+  <input class="file-input" id="video-file" type="file" accept="video/*,.mp4,.mov,.webm" aria-label="Choose a car walk-around video">
+  <dialog class="help-dialog" id="help-dialog"><h2>Photos or video. Every angle.</h2><ol><li><strong>Photos:</strong> car ke gird ek direction mein 36–72 clear photos lein. Upload photos se select karein. Filenames ke order mein view banega; Move earlier / Move later se order theek karein.</li><li><strong>Video:</strong> parked car ke gird ek poora chakkar record karein, takreeban 20–60 seconds. Video tab se file select karein. Preview mein start/end time set karein, 36 / 72 / 120 frames choose karke Create photo view dabayein. MP4 (H.264) sab se zyada compatible hai; doosre formats browser support par depend karte hain.</li><li><strong>Rotate:</strong> Rotate car mode mein ek ungli se drag karein. Arrows, keyboard ya slider se bhi angle badalta hai.</li><li><strong>Inspect:</strong> do ungliyon se pinch, mouse wheel, + button ya double-click se zoom karein. Inspect details mein drag karke mirror, doors ya lights dekhein. Zoom rakh kar angle badalne ke liye Rotate car ya slider use karein. Fit car / keyboard 0 se reset hota hai.</li><li><strong>Poora chakkar:</strong> sequence ka order aur coverage check karein. 12+ frames hon aur ek full lap cover ho to Enable 360 looping tick karein. Video import khud coverage verify nahi karta.</li><li><strong>Save:</strong> Save HTML copy se photos/frames aur details wali file save karein. Dobara Chrome/Edge mein double-click se khol sakte hain; original video ki zaroorat nahi hogi.</li></ol><p>Normal quality 1600px tak display copies banati hai. More detail ke liye import se pehle 2560px choose karein. Zoom source photo/video ki available detail dikhata hai. Steady camera, clear focus aur similar distance se result behtar hota hai.</p><p style="margin-top:10px">Browser storage isi profile par hoti hai; clear karne se photos hat sakti hain. Saved HTML copy mein frames rehti hain. Yeh captured angles ka interactive photo viewer hai; unseen sides ya freely movable 3D scene generate nahi hota.</p><button class="button primary wide" id="close-help">Got it</button></dialog>
   <script type="application/json" id="carview-data">null</script>
   <script>
   (() => {
@@ -89,11 +99,15 @@
     const uid = () => globalThis.crypto?.randomUUID?.() || Date.now().toString(36) + Math.random().toString(36).slice(2);
     const initial = () => ({version:1,id:uid(),title:'',year:'',city:'',notes:'',loop:false,photos:[]});
     let state = initial(), frame = 0, zoom = 1, timer = null, processing = false, db = null, storageKey = 'workspace';
-    let saveTimer = null, saveQueue = Promise.resolve(), revision = 0, drag = null;
+    let saveTimer = null, saveQueue = Promise.resolve(), revision = 0;
+    let panX = 0, panY = 0, interaction = 'rotate', gesture = null;
+    const pointers = new Map();
+    let videoURL = null, videoName = '', videoLoading = false, importController = null, videoLoadController = null;
+    let lastPhotoId = '', warmed = [];
     const collator = new Intl.Collator(undefined, {numeric:true,sensitivity:'base'});
     const imagePattern = /^data:image\/(?:jpeg|webp|png);base64,[A-Za-z0-9+/=]+$/;
     function validated(value) {
-      if (!value || value.version !== 1 || !Array.isArray(value.photos) || value.photos.length > 60) throw new Error('This saved file has an unsupported photo format.');
+      if (!value || value.version !== 1 || !Array.isArray(value.photos) || value.photos.length > 120) throw new Error('This saved file has an unsupported photo format.');
       const result = initial();
       if (typeof value.id === 'string' && value.id.length <= 100) result.id = value.id;
       for (const [key,max] of [['title',90],['year',4],['city',60],['notes',1500]]) result[key] = typeof value[key] === 'string' ? value[key].slice(0,max) : '';
@@ -175,12 +189,73 @@
       frame = count ? state.loop ? ((index % count) + count) % count : Math.min(count-1,Math.max(0,index)) : 0;
       renderViewer();
     }
+    function clampPan() {
+      const stage = $('stage'), image = $('photo');
+      const scale = image.naturalWidth ? Math.min(stage.clientWidth/image.naturalWidth,stage.clientHeight/image.naturalHeight) : 1;
+      const maxX = Math.max(0,((image.naturalWidth || stage.clientWidth)*scale*zoom-stage.clientWidth)/2);
+      const maxY = Math.max(0,((image.naturalHeight || stage.clientHeight)*scale*zoom-stage.clientHeight)/2);
+      panX = Math.max(-maxX,Math.min(maxX,panX));
+      panY = Math.max(-maxY,Math.min(maxY,panY));
+    }
+    function renderTransform() {
+      clampPan();
+      $('photo').style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
+      $('zoom-label').textContent = Number(zoom.toFixed(2)) + '×';
+      $('zoom-out').disabled = !state.photos.length || zoom <= 1;
+      $('zoom-in').disabled = !state.photos.length || zoom >= 6;
+      $('rotate-mode').disabled = $('inspect-mode').disabled = $('fit').disabled = !state.photos.length;
+      $('rotate-mode').setAttribute('aria-pressed',String(interaction === 'rotate'));
+      $('inspect-mode').setAttribute('aria-pressed',String(interaction === 'inspect'));
+      $('gesture-help').textContent = interaction === 'inspect' ? 'Drag to move photo · Arrows/slider change angle · Pinch to zoom' : 'Drag to rotate · Pinch or scroll to zoom';
+      $('drag-hint').textContent = interaction === 'inspect' ? '↔ Drag to inspect · Slider changes angle' : '↔ Drag or swipe to rotate';
+    }
+    function setZoom(value, point = null) {
+      stop();
+      const box = $('stage').getBoundingClientRect();
+      const x = point ? point.x-box.left-box.width/2 : 0, y = point ? point.y-box.top-box.height/2 : 0;
+      const next = Math.max(1,Math.min(6,value)), ratio = next/zoom;
+      panX = x-(x-panX)*ratio; panY = y-(y-panY)*ratio; zoom = next;
+      interaction = zoom > 1 ? 'inspect' : 'rotate';
+      if (zoom === 1) panX = panY = 0;
+      renderTransform();
+    }
+    function fitCar() {
+      stop(); zoom = 1; panX = panY = 0; interaction = 'rotate'; renderTransform();
+    }
+    function beginGesture() {
+      const points = Array.from(pointers.values());
+      if (points.length >= 2) {
+        const a = points[0], b = points[1], box = $('stage').getBoundingClientRect();
+        const x = (a.x+b.x)/2-box.left-box.width/2, y = (a.y+b.y)/2-box.top-box.height/2;
+        gesture = {kind:'pinch',distance:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),zoom,anchorX:(x-panX)/zoom,anchorY:(y-panY)/zoom};
+      } else if (points.length === 1) {
+        gesture = {kind:interaction === 'inspect' && zoom > 1 ? 'pan' : 'rotate',x:points[0].x,y:points[0].y,frame,panX,panY};
+      } else gesture = null;
+    }
+    function moveGesture(event) {
+      if (!pointers.has(event.pointerId)) return;
+      pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+      if (!gesture) return;
+      const points = Array.from(pointers.values());
+      if (gesture.kind === 'pinch' && points.length >= 2) {
+        const a = points[0], b = points[1], box = $('stage').getBoundingClientRect();
+        zoom = Math.max(1,Math.min(6,gesture.zoom*Math.hypot(a.x-b.x,a.y-b.y)/gesture.distance));
+        panX = (a.x+b.x)/2-box.left-box.width/2-gesture.anchorX*zoom;
+        panY = (a.y+b.y)/2-box.top-box.height/2-gesture.anchorY*zoom;
+        interaction = zoom > 1 ? 'inspect' : 'rotate'; renderTransform();
+      } else if (gesture.kind === 'pan') {
+        panX = gesture.panX+points[0].x-gesture.x; panY = gesture.panY+points[0].y-gesture.y; renderTransform();
+      } else if (gesture.kind === 'rotate') {
+        const step = Math.max(3,$('stage').clientWidth/Math.max(state.photos.length,12));
+        choose(gesture.frame+Math.round((gesture.x-points[0].x)/step));
+      }
+    }
     function renderViewer() {
       const count = state.photos.length, photo = state.photos[frame];
       $('empty').hidden = !!count;
       $('photo').hidden = !count;
       $('frame-badge').hidden = !count;
-      $('drag-hint').hidden = count < 2;
+      $('drag-hint').hidden = !count;
       $('stage').classList.toggle('has-photos',!!count);
       $('angle-total').textContent = count ? count + ' actual photos' : 'Ready for your photos';
       $('view-mode').textContent = state.loop ? '360° PHOTO VIEW' : 'PHOTO WALK-AROUND';
@@ -188,7 +263,6 @@
         if ($('photo').getAttribute('src') !== photo.src) $('photo').src = photo.src;
         $('photo').alt = 'Your photograph ' + (frame+1) + ' of ' + count + ': ' + photo.name;
       } else { $('photo').removeAttribute('src'); $('photo').alt = ''; }
-      $('photo').style.transform = 'scale(' + zoom + ')';
       $('frame-number').textContent = String(frame+1).padStart(2,'0');
       $('frame-count').textContent = '/ ' + String(count).padStart(2,'0') + ' photos';
       $('angle').max = Math.max(0,count-1); $('angle').value = frame;
@@ -196,9 +270,6 @@
       $('previous').disabled = !count || (!state.loop && frame === 0);
       $('next').disabled = !count || (!state.loop && frame === count-1);
       $('play').disabled = count < 2;
-      $('zoom-out').disabled = !count || zoom <= 1;
-      $('zoom-in').disabled = !count || zoom >= 2.5;
-      $('zoom-label').textContent = Number(zoom.toFixed(2)) + '×';
       $('fullscreen').disabled = !count;
       $('filename').textContent = photo ? photo.name : 'Your actual photos, in your chosen order.';
       $('filename').title = photo ? photo.name : '';
@@ -222,6 +293,11 @@
         const left = selected.getBoundingClientRect().left - film.getBoundingClientRect().left + film.scrollLeft;
         if (left < film.scrollLeft) film.scrollLeft = left;
         else if (left + selected.offsetWidth > film.scrollLeft + film.clientWidth) film.scrollLeft = left + selected.offsetWidth - film.clientWidth;
+      }
+      renderTransform();
+      if (photo && photo.id !== lastPhotoId) {
+        lastPhotoId = photo.id;
+        warmed = [frame-1,frame+1].map(index => state.loop ? (index+count)%count : index).filter(index => index >= 0 && index < count).map(index => { const image = new Image(); image.src = state.photos[index].src; return image; });
       }
     }
     function renderFilmstrip() {
@@ -266,29 +342,129 @@
         try { await new Promise((resolve,reject) => { image.onload = resolve; image.onerror = reject; image.src = url; }); } catch(e) { cleanup(); throw e; }
       }
       try {
-        const width = image.width, height = image.height;
-        if (!width || !height || width*height > 40000000) throw new Error('Photo 40 megapixels se bari hai');
-        const canvas = document.createElement('canvas'), ratio = Math.min(1,1600/Math.max(width,height));
-        canvas.width = Math.max(1,Math.round(width*ratio)); canvas.height = Math.max(1,Math.round(height*ratio));
-        const context = canvas.getContext('2d');
-        context.fillStyle = '#ffffff'; context.fillRect(0,0,canvas.width,canvas.height);
-        context.drawImage(image,0,0,canvas.width,canvas.height);
-        const src = canvas.toDataURL('image/jpeg',.86);
-        const thumbnail = document.createElement('canvas'), thumbRatio = Math.min(1,180/Math.max(width,height));
-        thumbnail.width = Math.max(1,Math.round(width*thumbRatio)); thumbnail.height = Math.max(1,Math.round(height*thumbRatio));
-        thumbnail.getContext('2d').drawImage(canvas,0,0,thumbnail.width,thumbnail.height);
-        return {id:uid(),name:file.name.slice(0,180),src,thumb:thumbnail.toDataURL('image/jpeg',.72)};
+        return encodePhoto(image,file.name);
       } finally { cleanup(); }
+    }
+    function encodePhoto(image, name) {
+      const width = image.videoWidth || image.width, height = image.videoHeight || image.height;
+      if (!width || !height || width*height > 40000000) throw new Error('Image 40 megapixels se bari hai');
+      const limit = $('detail-quality').value === '2560' ? 2560 : 1600;
+      const canvas = document.createElement('canvas'), ratio = Math.min(1,limit/Math.max(width,height));
+      canvas.width = Math.max(1,Math.round(width*ratio)); canvas.height = Math.max(1,Math.round(height*ratio));
+      const context = canvas.getContext('2d');
+      context.fillStyle = '#ffffff'; context.fillRect(0,0,canvas.width,canvas.height);
+      context.drawImage(image,0,0,canvas.width,canvas.height);
+      const src = canvas.toDataURL('image/jpeg',limit === 2560 ? .9 : .86);
+      const thumbnail = document.createElement('canvas'), thumbRatio = Math.min(1,180/Math.max(width,height));
+      thumbnail.width = Math.max(1,Math.round(width*thumbRatio)); thumbnail.height = Math.max(1,Math.round(height*thumbRatio));
+      thumbnail.getContext('2d').drawImage(canvas,0,0,thumbnail.width,thumbnail.height);
+      return {id:uid(),name:name.slice(0,180),src,thumb:thumbnail.toDataURL('image/jpeg',.72)};
+    }
+    function selectSource(source) {
+      for (const value of ['photos','video']) {
+        const selected = value === source;
+        $(value+'-tab').setAttribute('aria-selected',String(selected));
+        $(value+'-tab').tabIndex = selected ? 0 : -1;
+        $(value+'-panel').hidden = !selected;
+      }
+    }
+    function setBusy(active, cancellable = false) {
+      processing = active;
+      $('busy').hidden = !active;
+      $('cancel-import').hidden = !active || !cancellable;
+      document.querySelectorAll('[data-upload],[data-video],#photos-tab,#video-tab,#detail-quality,#video-start,#video-end,#video-frames,#set-video-start,#set-video-end,#export').forEach(button => button.disabled = active);
+      $('create-video').disabled = active || !videoURL || videoLoading;
+      $('video-preview').controls = !active;
+      renderViewer();
+    }
+    function releaseVideo() {
+      videoLoadController?.abort(); videoLoadController = null;
+      const video = $('video-preview'); video.pause(); video.removeAttribute('src'); video.load();
+      if (videoURL) URL.revokeObjectURL(videoURL);
+      videoURL = null; videoName = ''; $('video-settings').hidden = true;
+    }
+    function waitMedia(video, check, events, signal, action = null, checkImmediately = true) {
+      return new Promise((resolve,reject) => {
+        let timeout;
+        const clear = () => { clearTimeout(timeout); for (const event of events) video.removeEventListener(event,ready); video.removeEventListener('error',failed); signal?.removeEventListener('abort',aborted); };
+        const finish = error => { clear(); error ? reject(error) : resolve(); };
+        const ready = () => { if (check()) finish(); };
+        const failed = () => finish(new Error('Video decode nahi ho saki. MP4 (H.264) ya is browser mein chalne wali video use karein.'));
+        const aborted = () => finish(new DOMException('Import cancelled','AbortError'));
+        if (signal?.aborted) { aborted(); return; }
+        for (const event of events) video.addEventListener(event,ready);
+        video.addEventListener('error',failed); signal?.addEventListener('abort',aborted,{once:true});
+        timeout = setTimeout(() => finish(new Error('Video read karne mein zyada waqt lag raha hai. Chhoti MP4 (H.264) clip try karein.')),20000);
+        try { action?.(); if (checkImmediately) ready(); } catch(error) { finish(error); }
+      });
+    }
+    async function selectVideo(file) {
+      if (!file || processing) return;
+      if (file.size > 500*1024*1024) { notice('Video 500 MB se bari hai. Ek chhoti walk-around clip select karein.',true); return; }
+      stop(); releaseVideo(); selectSource('video');
+      const controller = new AbortController(); importController = videoLoadController = controller;
+      videoLoading = true; setBusy(true,true); $('progress').value = 0; $('progress').max = 1;
+      $('busy-text').textContent = 'Opening video on this device…';
+      try {
+        const video = $('video-preview'); videoURL = URL.createObjectURL(file); videoName = file.name;
+        await waitMedia(video,() => Number.isFinite(video.duration) && video.duration > 0 && video.videoWidth > 0,['loadedmetadata','loadeddata','durationchange'],controller.signal,() => { video.src = videoURL; video.load(); });
+        if (video.duration > 180 || video.videoWidth*video.videoHeight > 40000000) throw new Error('3 minute tak ki, 40 megapixels se kam resolution wali video select karein.');
+        $('video-settings').hidden = false;
+        $('video-name').textContent = file.name + ' · ' + video.duration.toFixed(1) + ' s · ' + video.videoWidth + ' × ' + video.videoHeight;
+        $('video-start').value = '0'; $('video-end').value = String(Math.floor(video.duration*1000)/1000);
+        $('video-start').max = $('video-end').max = video.duration;
+        notice('Video ready. Start/end mein ek chakkar choose karein, phir Create photo view dabayein.');
+      } catch(error) {
+        releaseVideo();
+        notice(error.name === 'AbortError' ? 'Video opening cancelled. Aapki current photos mehfooz hain.' : error.message,true);
+      } finally {
+        importController = null; videoLoading = false; $('video-file').value = ''; setBusy(false);
+      }
+    }
+    async function seekPresentedFrame(video, time, signal) {
+      // currentTime changes synchronously, before the decoder necessarily seeks.
+      // Require the actual seeked event, not just the new currentTime/readiness.
+      await waitMedia(video,() => !video.seeking && video.readyState >= 2,
+        ['seeked'],signal,() => { video.currentTime = time; },false);
+      // Let the decoded frame settle before reading pixels. This also works
+      // when the preview is off screen and paused-video callbacks do not fire.
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      if (signal.aborted) throw new DOMException('Import cancelled','AbortError');
+    }
+    async function createFromVideo() {
+      if (processing || !videoURL) return;
+      const video = $('video-preview'), start = Number($('video-start').value), end = Number($('video-end').value), count = Number($('video-frames').value);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end > video.duration+.001 || end-start < .2 || ![36,72,120].includes(count)) { notice('Start/end check karein: end start se kam az kam 0.2 seconds aage aur video ki duration ke andar hona chahiye.',true); return; }
+      if (state.photos.length && !confirm('Video se naya sequence banega. Successful import ke baad current photos replace hongi. Continue?')) return;
+      stop(); video.pause(); const controller = new AbortController(); importController = controller;
+      setBusy(true,true); $('progress').value = 0; $('progress').max = count;
+      const added = [];
+      try {
+        for (let i=0; i<count; i++) {
+          if (controller.signal.aborted) throw new DOMException('Import cancelled','AbortError');
+          // End is exclusive: a full lap's final duplicate of the first frame is omitted.
+          const time = start+(end-start)*i/count;
+          $('busy-text').textContent = 'Extracting frame ' + (i+1) + ' of ' + count + ' · ' + time.toFixed(2) + ' s';
+          await seekPresentedFrame(video,time,controller.signal);
+          added.push(encodePhoto(video,String(i+1).padStart(3,'0')+'-video-'+time.toFixed(2)+'s.jpg'));
+          $('progress').value = i+1;
+          await new Promise(resolve => setTimeout(resolve,0));
+        }
+        if (controller.signal.aborted) throw new DOMException('Import cancelled','AbortError');
+        state.photos = added; state.loop = false; frame = 0; zoom = 1; panX = panY = 0; interaction = 'rotate';
+        renderFilmstrip(); scheduleSave();
+        notice(count + ' original-video frames ready. Order aur poora chakkar check karke Enable 360 looping tick karein. Pinch/scroll se zoom, phir drag se details dekhein.');
+      } catch(error) {
+        notice(error.name === 'AbortError' ? 'Video processing cancelled. Aapki pehli photos mehfooz hain.' : error.message,true);
+      } finally { importController = null; setBusy(false); }
     }
     async function addFiles(list) {
       if (processing) return;
-      const files = Array.from(list).sort((a,b) => collator.compare(a.name,b.name)), remaining = 60-state.photos.length;
+      const files = Array.from(list).sort((a,b) => collator.compare(a.name,b.name)), remaining = 120-state.photos.length;
       if (!files.length) return;
-      if (!remaining) { notice('60 photos ki limit poori ho gayi. Nayi photos se pehle kuch photos remove karein.',true); return; }
-      stop(); processing = true; renderViewer();
-      $('busy').hidden = false; $('progress').max = Math.min(remaining,files.length); $('progress').value = 0;
-      document.querySelectorAll('[data-upload]').forEach(b => b.disabled = true);
-      $('export').disabled = true;
+      if (!remaining) { notice('120 photos ki limit poori ho gayi. Nayi photos se pehle kuch photos remove karein.',true); return; }
+      stop(); setBusy(true);
+      $('progress').max = Math.min(remaining,files.length); $('progress').value = 0;
       const errors = [], added = [];
       try {
         for (const file of files.slice(0,remaining)) {
@@ -298,16 +474,14 @@
         }
         if (added.length) {
           const firstNew = state.photos.length; state.photos.push(...added);
-          state.loop = false; frame = firstNew; zoom = 1;
+          state.loop = false; frame = firstNew; zoom = 1; panX = panY = 0; interaction = 'rotate';
           renderFilmstrip(); scheduleSave();
         }
         if (errors.length) notice(added.length + ' photo(s) added. Kuch files skip hui:\n' + errors.slice(0,4).join('\n') + (errors.length > 4 ? '\nAur ' + (errors.length-4) + ' invalid files.' : ''),true);
-        else if (files.length > remaining) notice('60-photo limit ki wajah se sirf pehli ' + remaining + ' photos add hui.');
+        else if (files.length > remaining) notice('120-photo limit ki wajah se sirf pehli ' + remaining + ' photos add hui.');
         else if (added.length) notice(added.length + ' photos ready. Drag/swipe karke view dekhein; thumbnails se order check karein.');
       } finally {
-        processing = false; $('busy').hidden = true; $('files').value = '';
-        document.querySelectorAll('[data-upload]').forEach(b => b.disabled = false);
-        $('export').disabled = false; renderViewer();
+        $('files').value = ''; setBusy(false);
       }
     }
     function reorder(direction) {
@@ -332,9 +506,25 @@
         notice('HTML copy ka download shuru ho gaya. Save hone ke baad us file ko double-click karke photos samait khol sakte hain.');
       } catch(e) { notice('Copy ban nahi saki. Browser mein thori memory khali karke dobara try karein.',true); }
     }
+    function importFiles(list) {
+      const files = Array.from(list);
+      const videos = files.filter(file => file.type.startsWith('video/') || /\.(mp4|mov|webm|m4v|mkv|avi)$/i.test(file.name));
+      if (videos.length && files.length !== 1) { notice('Ek waqt mein sirf ek video select karein, ya sirf photos ka batch lein.',true); return; }
+      if (videos.length) void selectVideo(videos[0]); else void addFiles(files);
+    }
     function attachEvents() {
       document.querySelectorAll('[data-upload]').forEach(button => button.onclick = () => $('files').click());
+      document.querySelectorAll('[data-video]').forEach(button => button.onclick = () => { selectSource('video'); $('video-file').click(); });
       $('files').onchange = event => { void addFiles(event.target.files); };
+      $('video-file').onchange = event => { void selectVideo(event.target.files[0]); };
+      $('photos-tab').onclick = () => selectSource('photos'); $('video-tab').onclick = () => selectSource('video');
+      for (const source of ['photos','video']) $(source+'-tab').onkeydown = event => {
+        if (['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) { event.preventDefault(); const next = event.key === 'Home' ? 'photos' : event.key === 'End' ? 'video' : source === 'photos' ? 'video' : 'photos'; selectSource(next); $(next+'-tab').focus(); }
+      };
+      $('create-video').onclick = () => { void createFromVideo(); };
+      $('set-video-start').onclick = () => $('video-start').value = String(Math.floor($('video-preview').currentTime*10)/10);
+      $('set-video-end').onclick = () => $('video-end').value = String(Math.floor($('video-preview').currentTime*10)/10);
+      $('cancel-import').onclick = () => importController?.abort();
       $('dismiss').onclick = () => $('notice').hidden = true;
       $('previous').onclick = () => choose(frame-1); $('next').onclick = () => choose(frame+1);
       $('angle').oninput = event => choose(Number(event.target.value));
@@ -346,34 +536,43 @@
           if (!state.loop && frame >= state.photos.length-1) { stop(); return; }
           choose(frame+1,true);
           if (!state.loop && frame === state.photos.length-1) stop();
-        },400);
+        },Math.max(70,Math.round(4800/state.photos.length)));
       };
-      $('zoom-out').onclick = () => { zoom = Math.max(1,zoom-.25); renderViewer(); };
-      $('zoom-in').onclick = () => { zoom = Math.min(2.5,zoom+.25); renderViewer(); };
+      $('zoom-out').onclick = () => setZoom(zoom-.25);
+      $('zoom-in').onclick = () => setZoom(zoom+.25);
+      $('fit').onclick = fitCar;
+      $('rotate-mode').onclick = () => { stop(); interaction = 'rotate'; renderTransform(); };
+      $('inspect-mode').onclick = () => { stop(); if (zoom === 1) setZoom(2); interaction = 'inspect'; renderTransform(); };
       $('fullscreen').onclick = async () => {
         try { if (!$('stage').requestFullscreen) throw new Error(); await $('stage').requestFullscreen(); }
         catch { notice('Is browser mein full screen available nahi. Browser zoom ya landscape view use karein.'); }
       };
+      $('exit-fullscreen').onclick = () => { void document.exitFullscreen?.(); };
       $('stage').onkeydown = e => {
         if (!state.photos.length || e.target !== $('stage')) return;
-        if (['ArrowLeft','ArrowRight','Home','End',' '].includes(e.key)) e.preventDefault();
+        if (['ArrowLeft','ArrowRight','Home','End',' ','+','=','-','0'].includes(e.key)) e.preventDefault();
         if (e.key === 'ArrowLeft') choose(frame-1);
         if (e.key === 'ArrowRight') choose(frame+1);
         if (e.key === 'Home') choose(0);
         if (e.key === 'End') choose(state.photos.length-1);
         if (e.key === ' ') $('play').click();
+        if (e.key === '+' || e.key === '=') setZoom(zoom+.25);
+        if (e.key === '-') setZoom(zoom-.25);
+        if (e.key === '0') fitCar();
       };
       $('stage').onpointerdown = e => {
         if (!state.photos.length || e.button !== 0 || e.target.closest('button')) return;
-        stop(); drag = {x:e.clientX,start:frame}; $('stage').setPointerCapture(e.pointerId);
+        stop(); pointers.set(e.pointerId,{x:e.clientX,y:e.clientY}); $('stage').setPointerCapture(e.pointerId); beginGesture();
       };
-      $('stage').onpointermove = e => { if (drag) choose(drag.start + Math.round((drag.x-e.clientX)/Math.max(16,$('stage').clientWidth/Math.max(state.photos.length,12)))); };
-      for (const event of ['pointerup','pointercancel','lostpointercapture']) $('stage').addEventListener(event,() => drag = null);
+      $('stage').onpointermove = moveGesture;
+      for (const event of ['pointerup','pointercancel','lostpointercapture']) $('stage').addEventListener(event,e => { if (pointers.delete(e.pointerId)) beginGesture(); });
+      $('stage').ondblclick = event => { if (state.photos.length && !event.target.closest('button')) setZoom(zoom > 1 ? 1 : 2.5,{x:event.clientX,y:event.clientY}); };
+      $('stage').addEventListener('wheel',event => { if (!state.photos.length) return; event.preventDefault(); setZoom(zoom*Math.exp(-Math.max(-300,Math.min(300,event.deltaY))*.002),{x:event.clientX,y:event.clientY}); },{passive:false});
       $('stage').ondragover = e => { e.preventDefault(); $('stage').classList.add('drag-over'); };
       $('stage').ondragleave = () => $('stage').classList.remove('drag-over');
-      $('stage').ondrop = e => { e.preventDefault(); $('stage').classList.remove('drag-over'); void addFiles(e.dataTransfer.files); };
+      $('stage').ondrop = e => { e.preventDefault(); $('stage').classList.remove('drag-over'); importFiles(e.dataTransfer.files); };
       document.addEventListener('dragover',e => { if (e.dataTransfer?.types.includes('Files')) e.preventDefault(); });
-      document.addEventListener('drop',e => { if (e.target !== $('stage') && !$('stage').contains(e.target) && e.dataTransfer?.files.length) { e.preventDefault(); void addFiles(e.dataTransfer.files); } });
+      document.addEventListener('drop',e => { if (e.target !== $('stage') && !$('stage').contains(e.target) && e.dataTransfer?.files.length) { e.preventDefault(); importFiles(e.dataTransfer.files); } });
       $('move-left').onclick = () => reorder(-1); $('move-right').onclick = () => reorder(1);
       $('remove').onclick = () => {
         if (processing) return; stop(); state.photos.splice(frame,1); frame = Math.max(0,Math.min(frame,state.photos.length-1));
@@ -389,12 +588,15 @@
       $('export').onclick = exportHTML;
       $('help').onclick = () => $('help-dialog').showModal(); $('close-help').onclick = () => $('help-dialog').close();
       $('photo').onerror = () => notice('Yeh photo display nahi ho saki. Original photo dobara upload karke try karein.',true);
+      $('photo').onload = renderTransform;
+      if (globalThis.ResizeObserver) new ResizeObserver(renderTransform).observe($('stage'));
+      else window.addEventListener('resize',renderTransform);
       document.addEventListener('visibilitychange',() => { if (document.hidden) { stop(); if (saveTimer) saveNow(); } });
       window.addEventListener('pagehide',() => { if (saveTimer) saveNow(); });
     }
     async function boot() {
       // Keep interaction disabled until a stored/embedded project has been restored.
-      document.querySelectorAll('button,input,textarea').forEach(element => element.disabled = true);
+      document.querySelectorAll('button,input,textarea,select').forEach(element => element.disabled = true);
       let embedded = null;
       try { const value = JSON.parse($('carview-data').textContent); if (value) { embedded = validated(value); storageKey = 'export:' + embedded.id; state = embedded; } }
       catch(e) { notice('Saved photo data read nahi ho saka. Fresh photos upload kar sakte hain.',true); }
@@ -408,8 +610,8 @@
         storageStatus('Session only · save an HTML copy');
         notice('Browser storage available nahi. Photos yahan test kar sakte hain; band karne se pehle “Save HTML copy” kar lein.');
       }
-      document.querySelectorAll('button,input,textarea').forEach(element => element.disabled = false);
-      attachEvents(); renderDetails(); renderFilmstrip();
+      document.querySelectorAll('button,input,textarea,select').forEach(element => element.disabled = false);
+      attachEvents(); renderDetails(); renderFilmstrip(); setBusy(false);
       if (embedded && db) scheduleSave();
       document.documentElement.dataset.ready = 'true';
     }
