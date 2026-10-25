@@ -9,10 +9,10 @@ import {
   createHash,
 } from "node:crypto";
 import path from "node:path";
-import { openDb } from "./db.js";
+import { createRuntime } from "./runtime.js";
 import { LocalStorage, processPhoto, validateGlb } from "./storage.js";
 import { areas, recommended } from "./taxonomy.js";
-
+import { registerDirectUploads } from "./direct-uploads.js";
 export function passwordHash(password) {
   const salt = randomBytes(16).toString("hex");
   return salt + ":" + scryptSync(password, salt, 64).toString("hex");
@@ -89,15 +89,13 @@ function validateConfig(config) {
     throw fail(400, "Invalid camera preset.");
   return config;
 }
-export async function createApp({
-  dataDir = process.env.DATA_DIR || ".data",
-} = {}) {
-  const app = express(),
-    db = openDb(path.resolve(dataDir)),
-    storage = new LocalStorage(path.join(path.resolve(dataDir), "private"));
-  await storage.init();
+export async function createApp(options = {}) {
+  const app = express();
   const deploymentOrigin =
-    process.env.APP_ORIGIN || process.env.RENDER_EXTERNAL_URL;
+    process.env.APP_ORIGIN ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? "https://" + process.env.VERCEL_PROJECT_PRODUCTION_URL
+      : process.env.RENDER_EXTERNAL_URL);
   if (deploymentOrigin) {
     let parsed;
     try {
@@ -116,6 +114,14 @@ export async function createApp({
       );
     }
   }
+  const { db, storage } = await createRuntime(options);
+  if (db.withContext) app.use((req, res, next) => db.withContext(() => next()));
+  try {
+    await storage.init();
+  } catch (error) {
+    if (!options.db) await db.close();
+    throw error;
+  }
   app.disable("x-powered-by");
   app.use(
     helmet({
@@ -126,8 +132,16 @@ export async function createApp({
                 defaultSrc: ["'self'"],
                 scriptSrc: ["'self'"],
                 styleSrc: ["'self'", "'unsafe-inline'"],
-                imgSrc: ["'self'", "blob:", "data:"],
-                connectSrc: ["'self'"],
+                imgSrc: [
+                  "'self'",
+                  "blob:",
+                  "data:",
+                  ...(storage.origin ? [storage.origin] : []),
+                ],
+                connectSrc: [
+                  "'self'",
+                  ...(storage.origin ? [storage.origin] : []),
+                ],
                 workerSrc: ["'self'", "blob:"],
                 objectSrc: ["'none'"],
                 upgradeInsecureRequests: null,
@@ -142,7 +156,7 @@ export async function createApp({
     res.setHeader("Cache-Control", "no-store");
     next();
   });
-  app.use((req, res, next) => {
+  app.use(async (req, res, next) => {
     if (!["GET", "HEAD", "OPTIONS"].includes(req.method)) {
       if (req.get("X-CarView-Request") !== "1")
         return next(fail(403, "Invalid request. Refresh and try again."));
@@ -163,7 +177,7 @@ export async function createApp({
       .find((x) => x.startsWith("carview_session="))
       ?.slice(16);
     if (cookie) {
-      const row = db
+      const row = await db
         .prepare(
           "SELECT u.id,u.name,u.email,u.role FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token=? AND s.expires>?",
         )
@@ -195,14 +209,12 @@ export async function createApp({
       next();
     };
   }
-  function session(res, user) {
+  async function session(res, user) {
     const token = randomBytes(32).toString("hex");
-    db.prepare("DELETE FROM sessions WHERE expires<?").run(Date.now());
-    db.prepare("INSERT INTO sessions VALUES(?,?,?)").run(
-      digest(token),
-      user.id,
-      Date.now() + 7 * 86400000,
-    );
+    await db.prepare("DELETE FROM sessions WHERE expires<?").run(Date.now());
+    await db
+      .prepare("INSERT INTO sessions VALUES(?,?,?)")
+      .run(digest(token), user.id, Date.now() + 7 * 86400000);
     res.cookie("carview_session", token, {
       httpOnly: true,
       sameSite: "lax",
@@ -211,16 +223,16 @@ export async function createApp({
       path: "/",
     });
   }
-  function listing(id, user, owner = false) {
-    const l = db.prepare("SELECT * FROM listings WHERE id=?").get(id);
+  async function listing(id, user, owner = false) {
+    const l = await db.prepare("SELECT * FROM listings WHERE id=?").get(id);
     if (!l || ((owner || l.status !== "published") && l.seller_id !== user?.id))
       throw fail(404, "Listing not found.");
     return l;
   }
-  function photo(id, user, owner = false) {
-    const p = db.prepare("SELECT * FROM photos WHERE id=?").get(id);
+  async function photo(id, user, owner = false) {
+    const p = await db.prepare("SELECT * FROM photos WHERE id=?").get(id);
     if (!p) throw fail(404, "Photo not found.");
-    listing(p.listing_id, user, owner);
+    await listing(p.listing_id, user, owner);
     return p;
   }
   function assetRow(a) {
@@ -228,33 +240,34 @@ export async function createApp({
       ? { ...a, config: JSON.parse(a.config), approved: !!a.approved }
       : null;
   }
-  function listingData(l) {
-    const vehicle = db
+  async function listingData(l) {
+    const vehicle = await db
       .prepare("SELECT * FROM catalog WHERE id=?")
       .get(l.catalog_id);
-    const photos = db
+    const rawPhotos = await db
       .prepare(
         "SELECT id,note,sort_order FROM photos WHERE listing_id=? ORDER BY sort_order,id",
       )
-      .all(l.id)
-      .map((p) => ({
-        ...p,
-        areas: db
-          .prepare("SELECT area_id FROM photo_areas WHERE photo_id=?")
-          .all(p.id)
-          .map((a) => a.area_id),
-      }));
-    const markers = db
-      .prepare("SELECT * FROM markers WHERE listing_id=?")
-      .all(l.id)
-      .map((m) => ({
-        ...m,
-        damage: !!m.damage,
-        position: JSON.parse(m.position),
-      }));
+      .all(l.id);
+    const links = await db
+      .prepare(
+        "SELECT pa.photo_id,pa.area_id FROM photo_areas pa JOIN photos p ON p.id=pa.photo_id WHERE p.listing_id=?",
+      )
+      .all(l.id);
+    const photos = rawPhotos.map((p) => ({
+      ...p,
+      areas: links.filter((a) => a.photo_id === p.id).map((a) => a.area_id),
+    }));
+    const markers = (
+      await db.prepare("SELECT * FROM markers WHERE listing_id=?").all(l.id)
+    ).map((m) => ({
+      ...m,
+      damage: !!m.damage,
+      position: JSON.parse(m.position),
+    }));
     const asset = l.asset_id
       ? assetRow(
-          db
+          await db
             .prepare("SELECT * FROM assets WHERE id=? AND approved=1")
             .get(l.asset_id),
         )
@@ -267,18 +280,23 @@ export async function createApp({
       markers,
       asset,
       spin: {
-        confirmed: !!db
-          .prepare("SELECT confirmed FROM photo_spins WHERE listing_id=?")
-          .get(l.id)?.confirmed,
-        loop: !!db
-          .prepare("SELECT loop FROM photo_spins WHERE listing_id=?")
-          .get(l.id)?.loop,
-        ids: db
-          .prepare(
-            "SELECT photo_id FROM spin_frames WHERE listing_id=? ORDER BY frame_order",
-          )
-          .all(l.id)
-          .map((f) => f.photo_id),
+        confirmed: !!(
+          await db
+            .prepare("SELECT confirmed FROM photo_spins WHERE listing_id=?")
+            .get(l.id)
+        )?.confirmed,
+        loop: !!(
+          await db
+            .prepare("SELECT loop FROM photo_spins WHERE listing_id=?")
+            .get(l.id)
+        )?.loop,
+        ids: (
+          await db
+            .prepare(
+              "SELECT photo_id FROM spin_frames WHERE listing_id=? ORDER BY frame_order",
+            )
+            .all(l.id)
+        ).map((f) => f.photo_id),
       },
       unavailable: JSON.parse(l.unavailable),
       coverage: recommended.filter((id) =>
@@ -287,15 +305,14 @@ export async function createApp({
       recommended: recommended.length,
     };
   }
-  function areaIds(values, l) {
+  async function areaIds(values, l) {
     if (!Array.isArray(values) || values.length > 60)
       throw fail(400, "Select up to 60 photo labels.");
     const valid = new Set([
       ...areas.map((a) => a.id),
-      ...db
-        .prepare("SELECT id FROM markers WHERE listing_id=?")
-        .all(l.id)
-        .map((m) => m.id),
+      ...(
+        await db.prepare("SELECT id FROM markers WHERE listing_id=?").all(l.id)
+      ).map((m) => m.id),
     ]);
     if (values.some((id) => !valid.has(id)))
       throw fail(400, "Unknown photo area.");
@@ -303,9 +320,9 @@ export async function createApp({
   }
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
   app.get("/api/taxonomy", (_req, res) => res.json({ areas, recommended }));
-  app.get("/api/catalog", (_req, res) =>
+  app.get("/api/catalog", async (_req, res) =>
     res.json(
-      db
+      await db
         .prepare(
           "SELECT c.*, EXISTS(SELECT 1 FROM assets a WHERE a.catalog_id=c.id AND a.approved=1) AS supported FROM catalog c ORDER BY make,model",
         )
@@ -313,7 +330,7 @@ export async function createApp({
     ),
   );
   app.get("/api/me", (req, res) => res.json(req.user || null));
-  app.post("/api/auth/register", limit(12), (req, res) => {
+  app.post("/api/auth/register", limit(12), async (req, res) => {
     const name = str(req.body.name, 80),
       email = str(req.body.email, 180).toLowerCase(),
       password = str(req.body.password, 128);
@@ -322,66 +339,63 @@ export async function createApp({
         400,
         "Use a valid email and a password of at least 10 characters.",
       );
-    if (db.prepare("SELECT id FROM users WHERE email=?").get(email))
+    if (await db.prepare("SELECT id FROM users WHERE email=?").get(email))
       throw fail(409, "An account already exists with that email.");
     const user = { id: randomUUID(), name, email, role: "seller" };
-    db.prepare("INSERT INTO users(id,name,email,password) VALUES(?,?,?,?)").run(
-      user.id,
-      name,
-      email,
-      passwordHash(password),
-    );
-    session(res, user);
+    await db
+      .prepare("INSERT INTO users(id,name,email,password) VALUES(?,?,?,?)")
+      .run(user.id, name, email, passwordHash(password));
+    await session(res, user);
     res.status(201).json(user);
   });
-  app.post("/api/auth/login", limit(25), (req, res) => {
-    const u = db
+  app.post("/api/auth/login", limit(25), async (req, res) => {
+    const u = await db
       .prepare("SELECT * FROM users WHERE email=?")
       .get(str(req.body.email, 180).toLowerCase());
     const password = str(req.body.password, 128);
     if (!u || !passwordValid(password, u.password))
       throw fail(401, "Email or password is incorrect.");
-    session(res, u);
+    await session(res, u);
     const { password: _, ...user } = u;
     res.json(user);
   });
-  app.post("/api/auth/logout", (req, res) => {
+  app.post("/api/auth/logout", async (req, res) => {
     const token = req.headers.cookie
       ?.split(";")
       .map((x) => x.trim())
       .find((x) => x.startsWith("carview_session="))
       ?.slice(16);
     if (token)
-      db.prepare("DELETE FROM sessions WHERE token=?").run(digest(token));
+      await db.prepare("DELETE FROM sessions WHERE token=?").run(digest(token));
     res.clearCookie("carview_session", { path: "/" });
     res.json({ ok: true });
   });
-  app.get("/api/listings", (req, res) => {
+  app.get("/api/listings", async (req, res) => {
     const page = integer(req.query.page || 1, 1, 10000),
       mine = req.query.mine === "1";
     if (mine && !req.user) throw fail(401, "Please sign in.");
     const rows = mine
-      ? db
+      ? await db
           .prepare(
             "SELECT * FROM listings WHERE seller_id=? ORDER BY created_at DESC LIMIT 20 OFFSET ?",
           )
           .all(req.user.id, (page - 1) * 20)
-      : db
+      : await db
           .prepare(
             "SELECT * FROM listings WHERE status='published' ORDER BY demo,created_at DESC LIMIT 20 OFFSET ?",
           )
           .all((page - 1) * 20);
     res.json({
-      items: rows.map(listingData),
+      items: await Promise.all(rows.map(listingData)),
       page,
       hasMore: rows.length === 20,
     });
   });
-  app.get("/api/listings/:id", (req, res) =>
-    res.json(listingData(listing(req.params.id, req.user))),
+  app.get("/api/listings/:id", async (req, res) =>
+    res.json(await listingData(await listing(req.params.id, req.user))),
   );
-  function fields(body) {
-    const c = db
+  async function fields(body) {
+    const c = await db
       .prepare("SELECT * FROM catalog WHERE id=?")
       .get(str(body.catalog_id));
     if (!c) throw fail(400, "Choose a catalog vehicle.");
@@ -395,56 +409,60 @@ export async function createApp({
       description: str(body.description, 5000),
     };
   }
-  app.post("/api/listings", auth, (req, res) => {
-    const f = fields(req.body),
+  app.post("/api/listings", auth, async (req, res) => {
+    const f = await fields(req.body),
       id = randomUUID(),
-      asset = db
+      asset = await db
         .prepare(
           "SELECT id FROM assets WHERE catalog_id=? AND approved=1 ORDER BY version DESC LIMIT 1",
         )
         .get(f.catalog_id);
-    db.prepare(
-      "INSERT INTO listings(id,seller_id,catalog_id,asset_id,title,year,price,mileage,city,description) VALUES(?,?,?,?,?,?,?,?,?,?)",
-    ).run(
-      id,
-      req.user.id,
-      f.catalog_id,
-      asset?.id || null,
-      f.title,
-      f.year,
-      f.price,
-      f.mileage,
-      f.city,
-      f.description,
-    );
-    res.status(201).json(listingData(listing(id, req.user)));
+    await db
+      .prepare(
+        "INSERT INTO listings(id,seller_id,catalog_id,asset_id,title,year,price,mileage,city,description) VALUES(?,?,?,?,?,?,?,?,?,?)",
+      )
+      .run(
+        id,
+        req.user.id,
+        f.catalog_id,
+        asset?.id || null,
+        f.title,
+        f.year,
+        f.price,
+        f.mileage,
+        f.city,
+        f.description,
+      );
+    res.status(201).json(await listingData(await listing(id, req.user)));
   });
-  app.patch("/api/listings/:id", auth, (req, res) => {
-    const l = listing(req.params.id, req.user, true),
-      f = fields(req.body);
+  app.patch("/api/listings/:id", auth, async (req, res) => {
+    const l = await listing(req.params.id, req.user, true),
+      f = await fields(req.body);
     if (l.catalog_id !== f.catalog_id)
       throw fail(
         400,
         "Vehicle identity cannot be changed after creation. Create a new listing.",
       );
-    const unavailable = areaIds(req.body.unavailable || [], l);
-    db.prepare(
-      "UPDATE listings SET title=?,year=?,price=?,mileage=?,city=?,description=?,unavailable=? WHERE id=?",
-    ).run(
-      f.title,
-      f.year,
-      f.price,
-      f.mileage,
-      f.city,
-      f.description,
-      JSON.stringify(unavailable),
-      l.id,
-    );
-    res.json(listingData(listing(l.id, req.user)));
+    const unavailable = await areaIds(req.body.unavailable || [], l);
+    await db
+      .prepare(
+        "UPDATE listings SET title=?,year=?,price=?,mileage=?,city=?,description=?,unavailable=? WHERE id=?",
+      )
+      .run(
+        f.title,
+        f.year,
+        f.price,
+        f.mileage,
+        f.city,
+        f.description,
+        JSON.stringify(unavailable),
+        l.id,
+      );
+    res.json(await listingData(await listing(l.id, req.user)));
   });
-  app.post("/api/listings/:id/publish", auth, (req, res) => {
-    const l = listing(req.params.id, req.user, true);
-    const photos = db
+  app.post("/api/listings/:id/publish", auth, async (req, res) => {
+    const l = await listing(req.params.id, req.user, true);
+    const photos = await db
       .prepare("SELECT id FROM photos WHERE listing_id=?")
       .all(l.id);
     if (!photos.length)
@@ -453,26 +471,24 @@ export async function createApp({
         "Upload and label at least one actual photo before publishing.",
       );
     if (
-      photos.some(
-        (p) =>
-          !db.prepare("SELECT 1 FROM photo_areas WHERE photo_id=?").get(p.id) &&
-          !db
-            .prepare(
-              "SELECT 1 FROM spin_frames f JOIN photo_spins s ON s.listing_id=f.listing_id WHERE f.photo_id=? AND s.confirmed=1",
-            )
-            .get(p.id),
-      )
+      await db
+        .prepare(
+          "SELECT p.id FROM photos p WHERE p.listing_id=? AND NOT EXISTS(SELECT 1 FROM photo_areas pa WHERE pa.photo_id=p.id) AND NOT EXISTS(SELECT 1 FROM spin_frames f JOIN photo_spins s ON s.listing_id=f.listing_id WHERE f.photo_id=p.id AND s.confirmed=1) LIMIT 1",
+        )
+        .get(l.id)
     )
       throw fail(
         400,
         "Confirm an area label for each photo, or include it in a confirmed photo walk-around.",
       );
-    db.prepare("UPDATE listings SET status='published' WHERE id=?").run(l.id);
-    res.json(listingData(listing(l.id, req.user)));
+    await db
+      .prepare("UPDATE listings SET status='published' WHERE id=?")
+      .run(l.id);
+    res.json(await listingData(await listing(l.id, req.user)));
   });
-  app.post("/api/listings/:id/unpublish", auth, (req, res) => {
-    const l = listing(req.params.id, req.user, true);
-    db.prepare("UPDATE listings SET status='draft' WHERE id=?").run(l.id);
+  app.post("/api/listings/:id/unpublish", auth, async (req, res) => {
+    const l = await listing(req.params.id, req.user, true);
+    await db.prepare("UPDATE listings SET status='draft' WHERE id=?").run(l.id);
     res.json({ ok: true });
   });
   const uploads = multer({
@@ -483,9 +499,9 @@ export async function createApp({
     "/api/listings/:id/photos",
     auth,
     limit(100, 3600000),
-    (req, res, next) => {
+    async (req, res, next) => {
       try {
-        listing(req.params.id, req.user, true);
+        await listing(req.params.id, req.user, true);
         next();
       } catch (e) {
         next(e);
@@ -493,12 +509,14 @@ export async function createApp({
     },
     uploads,
     async (req, res) => {
-      const l = listing(req.params.id, req.user, true),
+      const l = await listing(req.params.id, req.user, true),
         files = req.files || [];
       if (!files.length) throw fail(400, "Select at least one image.");
-      const count = db
-        .prepare("SELECT count(*) n FROM photos WHERE listing_id=?")
-        .get(l.id).n;
+      const count = (
+        await db
+          .prepare("SELECT count(*) n FROM photos WHERE listing_id=?")
+          .get(l.id)
+      ).n;
       if (count + files.length > 60)
         throw fail(400, "Maximum 60 photos per listing.");
       const created = [];
@@ -519,32 +537,41 @@ export async function createApp({
         );
       }
       try {
-        db.exec("BEGIN");
+        await db.exec("BEGIN");
         // Recheck inside the write transaction after asynchronous image processing.
-        const currentCount = db
-          .prepare("SELECT count(*) n FROM photos WHERE listing_id=?")
-          .get(l.id).n;
+        if (db.isPostgres)
+          await db
+            .prepare("SELECT id FROM listings WHERE id=? FOR UPDATE")
+            .get(l.id);
+        const currentCount = (
+          await db
+            .prepare("SELECT count(*) n FROM photos WHERE listing_id=?")
+            .get(l.id)
+        ).n;
         if (currentCount + created.length > 60)
           throw fail(400, "Maximum 60 photos per listing.");
-        created.forEach((p, i) =>
-          db
-            .prepare(
-              "INSERT INTO photos(id,listing_id,original,display,thumbnail,mime,size,sort_order) VALUES(?,?,?,?,?,?,?,?)",
-            )
-            .run(
-              p.id,
-              l.id,
-              p.original,
-              p.display,
-              p.thumbnail,
-              p.mime,
-              p.size,
-              currentCount + i,
-            ),
+        await Promise.all(
+          created.map(
+            async (p, i) =>
+              await db
+                .prepare(
+                  "INSERT INTO photos(id,listing_id,original,display,thumbnail,mime,size,sort_order) VALUES(?,?,?,?,?,?,?,?)",
+                )
+                .run(
+                  p.id,
+                  l.id,
+                  p.original,
+                  p.display,
+                  p.thumbnail,
+                  p.mime,
+                  p.size,
+                  currentCount + i,
+                ),
+          ),
         );
-        db.exec("COMMIT");
+        await db.exec("COMMIT");
       } catch (e) {
-        db.exec("ROLLBACK");
+        await db.exec("ROLLBACK");
         await Promise.all(
           created
             .flatMap((p) => [p.original, p.display, p.thumbnail])
@@ -552,37 +579,41 @@ export async function createApp({
         );
         throw e;
       }
-      res.status(201).json(listingData(listing(l.id, req.user)));
+      res.status(201).json(await listingData(await listing(l.id, req.user)));
     },
   );
-  app.patch("/api/photos/:id", auth, (req, res) => {
-    const p = photo(req.params.id, req.user, true),
-      l = listing(p.listing_id, req.user, true),
-      ids = areaIds(req.body.areas, l),
+  app.patch("/api/photos/:id", auth, async (req, res) => {
+    const p = await photo(req.params.id, req.user, true),
+      l = await listing(p.listing_id, req.user, true),
+      ids = await areaIds(req.body.areas, l),
       note = typeof req.body.note === "string" ? req.body.note.trim() : "";
     if (note.length > 1000)
       throw fail(400, "Keep notes under 1,000 characters.");
-    db.exec("BEGIN");
+    await db.exec("BEGIN");
     try {
-      db.prepare("UPDATE photos SET note=? WHERE id=?").run(note, p.id);
-      db.prepare("DELETE FROM photo_areas WHERE photo_id=?").run(p.id);
-      ids.forEach((id) =>
-        db.prepare("INSERT INTO photo_areas VALUES(?,?)").run(p.id, id),
+      await db.prepare("UPDATE photos SET note=? WHERE id=?").run(note, p.id);
+      await db.prepare("DELETE FROM photo_areas WHERE photo_id=?").run(p.id);
+      await Promise.all(
+        ids.map(
+          async (id) =>
+            await db
+              .prepare("INSERT INTO photo_areas VALUES(?,?)")
+              .run(p.id, id),
+        ),
       );
-      db.exec("COMMIT");
+      await db.exec("COMMIT");
     } catch (e) {
-      db.exec("ROLLBACK");
+      await db.exec("ROLLBACK");
       throw e;
     }
     res.json({ ok: true });
   });
-  app.post("/api/listings/:id/reorder", auth, (req, res) => {
-    const l = listing(req.params.id, req.user, true),
+  app.post("/api/listings/:id/reorder", auth, async (req, res) => {
+    const l = await listing(req.params.id, req.user, true),
       ids = req.body.ids,
-      actual = db
-        .prepare("SELECT id FROM photos WHERE listing_id=?")
-        .all(l.id)
-        .map((p) => p.id);
+      actual = (
+        await db.prepare("SELECT id FROM photos WHERE listing_id=?").all(l.id)
+      ).map((p) => p.id);
     if (
       !Array.isArray(ids) ||
       new Set(ids).size !== actual.length ||
@@ -590,13 +621,18 @@ export async function createApp({
       ids.some((id) => !actual.includes(id))
     )
       throw fail(400, "Provide every photo exactly once.");
-    ids.forEach((id, i) =>
-      db.prepare("UPDATE photos SET sort_order=? WHERE id=?").run(i, id),
+    await Promise.all(
+      ids.map(
+        async (id, i) =>
+          await db
+            .prepare("UPDATE photos SET sort_order=? WHERE id=?")
+            .run(i, id),
+      ),
     );
     res.json({ ok: true });
   });
-  app.put("/api/listings/:id/spin", auth, (req, res) => {
-    const l = listing(req.params.id, req.user, true),
+  app.put("/api/listings/:id/spin", auth, async (req, res) => {
+    const l = await listing(req.params.id, req.user, true),
       { ids, confirmed, loop } = req.body;
     if (
       !Array.isArray(ids) ||
@@ -611,10 +647,9 @@ export async function createApp({
         "Provide unique photo IDs and boolean confirmation/loop settings.",
       );
     const owned = new Set(
-      db
-        .prepare("SELECT id FROM photos WHERE listing_id=?")
-        .all(l.id)
-        .map((p) => p.id),
+      (
+        await db.prepare("SELECT id FROM photos WHERE listing_id=?").all(l.id)
+      ).map((p) => p.id),
     );
     if (ids.some((id) => !owned.has(id)))
       throw fail(400, "Every frame must belong to this listing.");
@@ -625,44 +660,60 @@ export async function createApp({
         400,
         "A full 360 loop needs at least 12 photos and seller confirmation of one complete, ordered lap.",
       );
-    db.exec("BEGIN");
+    await db.exec("BEGIN");
     try {
-      db.prepare(
-        "INSERT INTO photo_spins(listing_id,confirmed,loop) VALUES(?,?,?) ON CONFLICT(listing_id) DO UPDATE SET confirmed=excluded.confirmed,loop=excluded.loop",
-      ).run(l.id, confirmed ? 1 : 0, loop ? 1 : 0);
-      db.prepare("DELETE FROM spin_frames WHERE listing_id=?").run(l.id);
-      ids.forEach((photoId, i) =>
-        db
-          .prepare("INSERT INTO spin_frames VALUES(?,?,?)")
-          .run(l.id, photoId, i),
+      await db
+        .prepare(
+          "INSERT INTO photo_spins(listing_id,confirmed,loop) VALUES(?,?,?) ON CONFLICT(listing_id) DO UPDATE SET confirmed=excluded.confirmed,loop=excluded.loop",
+        )
+        .run(l.id, confirmed ? 1 : 0, loop ? 1 : 0);
+      await db.prepare("DELETE FROM spin_frames WHERE listing_id=?").run(l.id);
+      await Promise.all(
+        ids.map(
+          async (photoId, i) =>
+            await db
+              .prepare("INSERT INTO spin_frames VALUES(?,?,?)")
+              .run(l.id, photoId, i),
+        ),
       );
-      db.exec("COMMIT");
+      await db.exec("COMMIT");
     } catch (e) {
-      db.exec("ROLLBACK");
+      await db.exec("ROLLBACK");
       throw e;
     }
-    res.json(listingData(listing(l.id, req.user)));
+    res.json(await listingData(await listing(l.id, req.user)));
   });
   app.delete("/api/photos/:id", auth, async (req, res) => {
-    const p = photo(req.params.id, req.user, true);
-    db.prepare(
-      "UPDATE photo_spins SET confirmed=0,loop=0 WHERE listing_id IN(SELECT listing_id FROM spin_frames WHERE photo_id=?)",
-    ).run(p.id);
-    db.prepare("DELETE FROM photos WHERE id=?").run(p.id);
+    const p = await photo(req.params.id, req.user, true);
+    await db
+      .prepare(
+        "UPDATE photo_spins SET confirmed=0,loop=0 WHERE listing_id IN(SELECT listing_id FROM spin_frames WHERE photo_id=?)",
+      )
+      .run(p.id);
+    await db.prepare("DELETE FROM photos WHERE id=?").run(p.id);
     await Promise.all(
       [p.original, p.display, p.thumbnail].map((k) => storage.remove(k)),
     );
     res.json({ ok: true });
   });
-  app.get("/media/photos/:id/:kind", (req, res) => {
-    const p = photo(req.params.id, req.user);
+  app.get("/media/photos/:id/:kind", async (req, res) => {
+    const p = await photo(req.params.id, req.user);
     if (!["display", "thumbnail"].includes(req.params.kind))
       throw fail(404, "Image not found.");
     res.setHeader("Cache-Control", "private, no-store");
+    if (storage.signedUrl)
+      return res.redirect(302, await storage.signedUrl(p[req.params.kind]));
     res.type("webp").sendFile(storage.resolve(p[req.params.kind]));
   });
-  app.get("/api/photos/:id/original", auth, (req, res) => {
-    const p = photo(req.params.id, req.user, true);
+  app.get("/api/photos/:id/original", auth, async (req, res) => {
+    const p = await photo(req.params.id, req.user, true);
+    if (storage.signedUrl)
+      return res.redirect(
+        302,
+        await storage.signedUrl(p.original, {
+          download: `carview-${p.id}.${p.mime.split("/")[1]}`,
+        }),
+      );
     res
       .type(p.mime)
       .download(
@@ -670,8 +721,8 @@ export async function createApp({
         `carview-${p.id}.${p.mime.split("/")[1]}`,
       );
   });
-  app.post("/api/listings/:id/markers", auth, (req, res) => {
-    const l = listing(req.params.id, req.user, true);
+  app.post("/api/listings/:id/markers", auth, async (req, res) => {
+    const l = await listing(req.params.id, req.user, true);
     if (!l.asset_id)
       throw fail(
         400,
@@ -680,61 +731,68 @@ export async function createApp({
     if (!vec(req.body.position))
       throw fail(400, "Choose a valid model-local position.");
     if (
-      db.prepare("SELECT count(*) n FROM markers WHERE listing_id=?").get(l.id)
-        .n >= 30
+      (
+        await db
+          .prepare("SELECT count(*) n FROM markers WHERE listing_id=?")
+          .get(l.id)
+      ).n >= 30
     )
       throw fail(400, "Maximum 30 custom markers.");
     const id = "detail_" + randomUUID();
-    db.prepare("INSERT INTO markers VALUES(?,?,?,?,?,?)").run(
-      id,
-      l.id,
-      l.asset_id,
-      str(req.body.label, 100),
-      req.body.damage ? 1 : 0,
-      JSON.stringify(req.body.position),
-    );
+    await db
+      .prepare("INSERT INTO markers VALUES(?,?,?,?,?,?)")
+      .run(
+        id,
+        l.id,
+        l.asset_id,
+        str(req.body.label, 100),
+        req.body.damage ? 1 : 0,
+        JSON.stringify(req.body.position),
+      );
     res.status(201).json({ id });
   });
-  app.delete("/api/listings/:id/markers/:marker", auth, (req, res) => {
-    const l = listing(req.params.id, req.user, true);
-    db.prepare(
-      "DELETE FROM photo_areas WHERE area_id IN(SELECT id FROM markers WHERE id=? AND listing_id=?)",
-    ).run(req.params.marker, l.id);
-    db.prepare("DELETE FROM markers WHERE id=? AND listing_id=?").run(
-      req.params.marker,
-      l.id,
-    );
+  app.delete("/api/listings/:id/markers/:marker", auth, async (req, res) => {
+    const l = await listing(req.params.id, req.user, true);
+    await db
+      .prepare(
+        "DELETE FROM photo_areas WHERE area_id IN(SELECT id FROM markers WHERE id=? AND listing_id=?)",
+      )
+      .run(req.params.marker, l.id);
+    await db
+      .prepare("DELETE FROM markers WHERE id=? AND listing_id=?")
+      .run(req.params.marker, l.id);
     res.json({ ok: true });
   });
-  app.get("/api/admin/assets", auth, admin, (_req, res) =>
+  app.get("/api/admin/assets", auth, admin, async (_req, res) =>
     res.json(
-      db
-        .prepare("SELECT * FROM assets ORDER BY created_at DESC")
-        .all()
-        .map(assetRow),
+      (
+        await db.prepare("SELECT * FROM assets ORDER BY created_at DESC").all()
+      ).map(assetRow),
     ),
   );
-  app.post("/api/admin/catalog", auth, admin, (req, res) => {
+  app.post("/api/admin/catalog", auth, admin, async (req, res) => {
     const b = req.body,
       id = randomUUID();
     const from = integer(b.year_from, 1950, 2035),
       to = integer(b.year_to, from, 2035);
-    db.prepare("INSERT INTO catalog VALUES(?,?,?,?,?,?,?,?,?)").run(
-      id,
-      str(b.make, 80),
-      str(b.model, 80),
-      str(b.generation, 120),
-      from,
-      to,
-      str(b.facelift, 120),
-      str(b.variant, 120),
-      str(b.market, 120),
-    );
+    await db
+      .prepare("INSERT INTO catalog VALUES(?,?,?,?,?,?,?,?,?)")
+      .run(
+        id,
+        str(b.make, 80),
+        str(b.model, 80),
+        str(b.generation, 120),
+        from,
+        to,
+        str(b.facelift, 120),
+        str(b.variant, 120),
+        str(b.market, 120),
+      );
     res.status(201).json({ id });
   });
-  app.patch("/api/admin/catalog/:id", auth, admin, (req, res) => {
+  app.patch("/api/admin/catalog/:id", auth, admin, async (req, res) => {
     if (
-      db
+      await db
         .prepare("SELECT id FROM listings WHERE catalog_id=? LIMIT 1")
         .get(req.params.id)
     )
@@ -745,19 +803,21 @@ export async function createApp({
     const b = req.body,
       from = integer(b.year_from, 1950, 2035),
       to = integer(b.year_to, from, 2035);
-    db.prepare(
-      "UPDATE catalog SET make=?,model=?,generation=?,year_from=?,year_to=?,facelift=?,variant=?,market=? WHERE id=?",
-    ).run(
-      str(b.make, 80),
-      str(b.model, 80),
-      str(b.generation, 120),
-      from,
-      to,
-      str(b.facelift, 120),
-      str(b.variant, 120),
-      str(b.market, 120),
-      req.params.id,
-    );
+    await db
+      .prepare(
+        "UPDATE catalog SET make=?,model=?,generation=?,year_from=?,year_to=?,facelift=?,variant=?,market=? WHERE id=?",
+      )
+      .run(
+        str(b.make, 80),
+        str(b.model, 80),
+        str(b.generation, 120),
+        from,
+        to,
+        str(b.facelift, 120),
+        str(b.variant, 120),
+        str(b.market, 120),
+        req.params.id,
+      );
     res.json({ ok: true });
   });
   const assetUpload = multer({
@@ -777,7 +837,9 @@ export async function createApp({
     } catch (e) {
       throw fail(400, e.message);
     }
-    if (!db.prepare("SELECT id FROM catalog WHERE id=?").get(b.catalog_id))
+    if (
+      !(await db.prepare("SELECT id FROM catalog WHERE id=?").get(b.catalog_id))
+    )
       throw fail(400, "Unknown catalog vehicle.");
     let config;
     try {
@@ -790,61 +852,84 @@ export async function createApp({
       throw fail(400, "Use an HTTPS provenance URL.");
     const id = randomUUID(),
       key = id + ".glb",
-      version = db
-        .prepare(
-          "SELECT COALESCE(MAX(version),0)+1 n FROM assets WHERE catalog_id=?",
-        )
-        .get(b.catalog_id).n;
+      version = (
+        await db
+          .prepare(
+            "SELECT COALESCE(MAX(version),0)+1 n FROM assets WHERE catalog_id=?",
+          )
+          .get(b.catalog_id)
+      ).n;
     const creator = str(b.creator, 200),
       license = str(b.license, 1000),
       attribution = str(b.attribution, 1000),
       limitations = str(b.limitations, 2000);
     await storage.put(key, req.file.buffer);
     try {
-      db.prepare(
-        "INSERT INTO assets(id,catalog_id,version,filename,size,source_url,creator,license,attribution,limitations,config) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-      ).run(
-        id,
-        b.catalog_id,
-        version,
-        key,
-        req.file.size,
-        source,
-        creator,
-        license,
-        attribution,
-        limitations,
-        JSON.stringify(config),
-      );
+      await db
+        .prepare(
+          "INSERT INTO assets(id,catalog_id,version,filename,size,source_url,creator,license,attribution,limitations,config) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+        )
+        .run(
+          id,
+          b.catalog_id,
+          version,
+          key,
+          req.file.size,
+          source,
+          creator,
+          license,
+          attribution,
+          limitations,
+          JSON.stringify(config),
+        );
     } catch (e) {
       await storage.remove(key);
       throw e;
     }
     res
       .status(201)
-      .json(assetRow(db.prepare("SELECT * FROM assets WHERE id=?").get(id)));
+      .json(
+        assetRow(await db.prepare("SELECT * FROM assets WHERE id=?").get(id)),
+      );
   });
-  app.post("/api/admin/assets/:id/approve", auth, admin, (req, res) => {
+  app.post("/api/admin/assets/:id/approve", auth, admin, async (req, res) => {
     if (req.body.confirmed !== true)
       throw fail(
         400,
         "Confirm license rights and exact Pakistani vehicle geometry after testing.",
       );
-    if (!db.prepare("SELECT id FROM assets WHERE id=?").get(req.params.id))
+    if (
+      !(await db.prepare("SELECT id FROM assets WHERE id=?").get(req.params.id))
+    )
       throw fail(404, "Asset not found.");
-    db.prepare("UPDATE assets SET approved=1 WHERE id=?").run(req.params.id);
+    await db
+      .prepare("UPDATE assets SET approved=1 WHERE id=?")
+      .run(req.params.id);
     res.json({ ok: true });
   });
-  app.get("/media/assets/:id", (req, res) => {
-    const a = db.prepare("SELECT * FROM assets WHERE id=?").get(req.params.id);
+  app.get("/media/assets/:id", async (req, res) => {
+    const a = await db
+      .prepare("SELECT * FROM assets WHERE id=?")
+      .get(req.params.id);
     if (!a || (!a.approved && req.user?.role !== "admin"))
       throw fail(404, "Asset not found.");
     res
       .type("model/gltf-binary")
-      .setHeader("Cache-Control", "private, max-age=3600");
+      .setHeader("Cache-Control", "private, no-store");
+    if (storage.signedUrl)
+      return res.redirect(302, await storage.signedUrl(a.filename));
     res.sendFile(storage.resolve(a.filename));
   });
-  if (process.env.NODE_ENV === "production") {
+  registerDirectUploads(app, {
+    db,
+    storage,
+    auth,
+    listing,
+    listingData,
+    assetRow,
+    validateConfig,
+  });
+  if (process.env.NODE_ENV === "production" && !process.env.VERCEL) {
     app.use(express.static(path.resolve("dist")));
     app.get("/{*splat}", (req, res, next) =>
       req.path.startsWith("/api/") || req.path.startsWith("/media/")
@@ -856,7 +941,11 @@ export async function createApp({
   app.use((err, req, res, next) => {
     if (res.headersSent) return next(err);
     const status = err instanceof multer.MulterError ? 400 : err.status || 500;
-    if (status >= 500) console.error(err);
+    if (status >= 500)
+      console.error("CarView request failed", {
+        name: err.name,
+        code: err.code,
+      });
     res.status(status).json({
       error:
         err instanceof multer.MulterError

@@ -8,8 +8,8 @@ const server = app.listen(
 );
 for (const signal of ["SIGTERM", "SIGINT"])
   process.on(signal, () =>
-    server.close(() => {
-      db.close();
+    server.close(async () => {
+      await db.close();
       process.exit(0);
     }),
   );

@@ -8,13 +8,13 @@ A functional inspection MVP: sellers upload a walk-around sequence and the app a
 
 No stock, AI-generated, or unrelated photographs are used as evidence. The default Corolla demonstration has no photos, is labelled as a demo, and is not an advertisement. Its vehicle details and price are illustrative.
 
-## Deploying after a Vercel import
+## Deploy on Vercel with Supabase
 
-A static Vercel import deploys only this app’s frontend. Accounts, listings and uploads require the persistent backend. Follow [the deployment guide](docs/DEPLOYMENT.md) for the supplied Render blueprint (paid disk required), Docker/VPS deployment, or the requirements for keeping a Vercel frontend. Do not use temporary serverless files as the production database.
+The frontend **and** API now run on Vercel, with Supabase PostgreSQL and private Storage providing durable accounts/photos. No Render backend is required for this mode. Follow [the Supabase setup guide](docs/SUPABASE.md): create a project, run [`supabase/setup.sql`](supabase/setup.sql), add server-only settings in Vercel and redeploy. A static frontend import alone does not configure those services. Never use a temporary Function filesystem as the database.
 
 ## Run locally
 
-Requires **Node.js 24+** and npm. No external credentials or services are needed.
+Requires **Node.js 24+** and npm. No external credentials or services are needed for the local SQLite mode.
 
 ```sh
 cd /workspace/360-app
@@ -30,7 +30,7 @@ The frontend runs on port 5173 and proxies the API on port 3001. `/api/health` r
 4. Preview the inspection page. Publishing requires at least one photograph. Each photograph must either have a manually confirmed part/angle label or be included in a seller-confirmed photo sequence.
 5. Publish, then copy the listing URL. Other users can see display derivatives but cannot access your originals or modify your listing. Unpublish to make it private again.
 
-`.env.example` documents configuration. Environment values must be exported by the host (the scripts do not implicitly load a `.env` file). Data defaults to `.data/carview.sqlite` and `.data/private/`. Both are ignored by Git. The filesystem, not browser localStorage, is authoritative.
+`.env.example` documents configuration. Environment values must be exported by the host (the scripts do not implicitly load a `.env` file). Data defaults to `.data/carview.sqlite` and `.data/private/`. Both are ignored by Git. Vercel mode uses Supabase instead. Local mode uses the filesystem; Supabase mode uses PostgreSQL/private Storage. Browser localStorage is never the database.
 
 ## Automatic photo walk-around / 360 view
 
@@ -48,6 +48,7 @@ Confirm, publish, and share the listing URL. Buyers get this photo view by defau
 npm run build         # strict TypeScript check and production frontend build
 npm test              # API/database/storage/security workflow tests
 npm run test:browser  # build first; uses /usr/bin/chromium by default
+npm run test:supabase # real disposable PostgreSQL + Storage SDK HTTP fixture; requires Docker
 ```
 
 Set `CHROMIUM_PATH` to your installed Chromium/Chrome executable when necessary. Browser tests serve the built app with production headers using a temporary database and ephemeral port; no running development server is required. Tests remove their accounts, fixtures, originals and databases afterward. Screenshots are written to ignored `test-results/`. The generated test images are plain geometric color fixtures, not car photographs. The GLB test fixture is a triangle explicitly labelled **TEST GEOMETRY — NOT A VEHICLE** and is never imported into the live demo.
@@ -75,9 +76,9 @@ npm run build
 NODE_ENV=production APP_ORIGIN=https://your-carview-host.example DATA_DIR=/persistent/carview npm start
 ```
 
-Terminate HTTPS at a trusted reverse proxy and forward to port 3001. `APP_ORIGIN` must be the exact public origin, without a trailing slash. On Render, its injected `RENDER_EXTERNAL_URL` is used when `APP_ORIGIN` is not explicitly set. Production cookies are Secure, HttpOnly and SameSite=Lax. Configure an appropriate request body size (at least 26 MB for asset imports, up to 61 MB for batch image requests), request timeouts, connection limits and IP throttling at the proxy. Never publish the data directory as static files. Install/start should run as a non-root account with a private writable data volume. Database schema is in [migration 001](server/migrations/001_initial.sql) and [photo-spin migration 002](server/migrations/002_photo_spins.sql), applied idempotently on startup. Existing listings and uploads are preserved.
+Terminate HTTPS at a trusted reverse proxy and forward to port 3001. `APP_ORIGIN` must be the exact public origin, without a trailing slash. On Render, its injected `RENDER_EXTERNAL_URL` is used when `APP_ORIGIN` is not explicitly set. Production cookies are Secure, HttpOnly and SameSite=Lax. Configure an appropriate request body size (at least 26 MB for asset imports, up to 61 MB for batch image requests), request timeouts, connection limits and IP throttling at the proxy. Never publish the data directory as static files. Install/start should run as a non-root account with a private writable data volume. Local database schema is in [migration 001](server/migrations/001_initial.sql), [photo-spin migration 002](server/migrations/002_photo_spins.sql) and [direct-upload migration 003](server/migrations/003_direct_uploads.sql), applied idempotently on startup. Supabase is initialized with its separate SQL setup file. Existing listings and uploads are preserved.
 
-The `LocalStorage` adapter in `server/storage.js` writes private files with generated keys. This MVP supports persistent local disk; no S3/CDN integration is claimed. A persistent volume is a working production option for one app instance. For multiple instances, implement an object-store adapter with private original buckets, authorized streaming/signed access, and a shared database; replace local `resolve`/`sendFile` calls at the media boundary. Do not make original-object URLs public. For public derivatives retain the authorization check, since drafts can become private after publication.
+The `LocalStorage` adapter writes private files with generated keys for one persistent server. The `SupabaseStorage` adapter stores the same originals/derivatives in a private bucket, with PostgreSQL metadata and authorized short-lived signed delivery. Supabase mode supports independent Vercel Function instances. Uploaded originals bypass the Function request-size limit via scoped direct-upload tickets. No original-object URL is public by default. See [cloud setup](docs/SUPABASE.md) for the data model, private bucket guard, TLS settings and operational limits.
 
 Back up SQLite and its WAL consistently (SQLite backup API or a stopped service), together with the private object directory. Restrict backups as they contain private originals and password hashes. Test restores. `schema_migrations` records the applied version; add explicit forward migrations for later schema changes. Processes and network connections do not survive environment snapshots; restart the app in new tasks.
 
@@ -88,12 +89,12 @@ Back up SQLite and its WAL consistently (SQLite backup API or a stopped service)
 - Mutations require a same-origin custom header and validate the browser Origin. CORS is not enabled. React escapes seller text; production has Helmet security headers and a restrictive CSP.
 - Images: up to 6 per request, 10 MB each, 40 million pixels, 60 per listing. Actual decoding, not claimed MIME alone, determines validity. Single-frame JPEG/PNG/WebP only. Safe UUID storage names, private originals, metadata-free thumbnails/display copies. Auto-orientation and proportional resizing are the only transforms; no retouching or reconstruction. Originals are retained byte-for-byte.
 - GLB: admin-only, 25 MB limit, GLB 2.0 header validation, JSON/geometry limits and no resource URIs or required extensions. Only self-contained core GLB is supported. Admins must additionally inspect geometry, texture sizes, mobile performance, ownership/license and exact match before approval. See asset guide.
-- Rate limits cover registration, login and uploads. They are in-memory and per-process; use shared gateway rate limiting before broad public launch.
+- Registration/login rate limits are per process; use shared gateway rate limiting before broad public launch. Supabase upload tickets additionally enforce durable account-level pending/recent limits, and completion locks the listing row before checking the photo quota.
 
 ## Scope and remaining work
 
 Complete local flows: automatic upload-to-photo-spin assembly with manual order/loop confirmation, buyer inspection, seller accounts/drafts/upload/mapping/notes/reordering/replacement/deletion/preview/publishing, catalog management, versioned asset imports and manual approvals, custom detail/damage markers on approved models, and resilient photo navigation without WebGL.
 
-Before a public launch: procure and verify exact licensed Pakistan-spec assets, manually calibrate their hotpots and cameras, test on physical target phones, set up HTTPS/persistent volumes/backups/monitoring and abuse controls. Multi-instance storage, email verification/password recovery, contact messaging, image moderation/virus scanning and Urdu translations are not implemented. English strings are concentrated in the presentation layer and taxonomy; they have not yet been extracted to a translation catalog. Asset configuration uses validated JSON rather than a visual mesh editor. Existing listing versions cannot be silently migrated; an explicit audited migration tool is future work.
+Before a public launch: procure and verify exact licensed Pakistan-spec assets, manually calibrate their hotpots and cameras, test on physical target phones, set up HTTPS/persistent volumes/backups/monitoring and abuse controls. Hosted Supabase/Vercel live verification is pending project configuration. Email verification/password recovery, contact messaging, image moderation/virus scanning and Urdu translations are not implemented. English strings are concentrated in the presentation layer and taxonomy; they have not yet been extracted to a translation catalog. Asset configuration uses validated JSON rather than a visual mesh editor. Existing listing versions cannot be silently migrated; an explicit audited migration tool is future work.
 
 Photo coverage is never a condition score, authenticity check, ownership proof or inspection certification. Photographs can be old or misleading; arrange an independent inspection.

@@ -16,6 +16,12 @@ export function openDb(dir) {
       "utf8",
     ),
   );
+  db.exec(
+    readFileSync(
+      new URL("./migrations/003_direct_uploads.sql", import.meta.url),
+      "utf8",
+    ),
+  );
   if (!db.prepare("SELECT id FROM catalog LIMIT 1").get()) {
     const add = db.prepare("INSERT INTO catalog VALUES(?,?,?,?,?,?,?,?,?)");
     add.run(

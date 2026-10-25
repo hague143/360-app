@@ -6,3 +6,6 @@ dist/
 test-results/
 
 .vercel/
+
+.env.*
+!.env.example
