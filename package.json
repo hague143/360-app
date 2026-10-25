@@ -17,7 +17,8 @@
     "test:supabase": "node --test --test-concurrency=1 tests/supabase.test.js && node tests/supabase-browser.mjs",
     "local": "node scripts/start-local.mjs",
     "test:local-package": "node tests/local-package.mjs",
-    "test:browser-file": "python scripts/package-browser.py && node tests/browser-file.mjs"
+    "test:browser-file": "python scripts/package-browser.py && node tests/browser-file.mjs",
+    "package:ai-demo": "node scripts/package-ai-demo.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
