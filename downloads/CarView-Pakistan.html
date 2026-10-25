@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="CarView Pakistan: a free, offline photo walk-around. Open this file in your browser. No installation or account required.">
+  <title>CarView Pakistan · Browser Edition</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2318796b'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-size='38' fill='white' font-family='Arial'%3EC%3C/text%3E%3C/svg%3E">
+  <style>
+    :root{--ink:#1a3039;--muted:#728079;--green:#18796b;--dark:#105b51;--line:#e2e8e1;--bg:#f6f8f4;--mint:#eaf2eb;--white:#fff;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--bg);font-synthesis:none}
+    *{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit}button{cursor:pointer;color:inherit}button:disabled{cursor:not-allowed;opacity:.4}button,input,textarea,a{touch-action:manipulation}button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:3px solid #91c8b6;outline-offset:3px}button{border:0;background:none}a{color:var(--green)}[hidden]{display:none!important}svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}h1,h2,h3,p{margin:0}img{max-width:100%;display:block}.sprite{position:absolute;width:0;height:0;overflow:hidden}.wrap{max-width:1280px;margin:auto;padding:0 36px}.header{background:white;border-bottom:1px solid var(--line)}.header-inner{min-height:90px;display:flex;align-items:center;gap:36px}.brand{display:flex;align-items:center;gap:11px}.brand-icon{display:grid;place-items:center;background:var(--green);color:white;border-radius:12px;width:41px;height:41px;transform:rotate(-4deg)}.brand-icon svg{width:27px;height:27px}.brand-name{font-size:27px;font-weight:800;letter-spacing:-1.4px}.brand-country{font-size:8px;font-weight:600;letter-spacing:5px;margin:4px 0 0 2px}.header-label{font-size:13px;color:var(--muted);border-left:1px solid var(--line);padding-left:28px}.header-actions{margin-left:auto;display:flex;align-items:center;gap:14px}.pill{display:inline-flex;align-items:center;gap:7px;background:var(--mint);color:var(--green);font-size:11px;font-weight:700;letter-spacing:.2px;padding:7px 10px;border-radius:30px;white-space:nowrap}.dot{width:6px;height:6px;border-radius:50%;background:currentColor}.button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;border:1px solid var(--line);border-radius:7px;background:white;padding:10px 15px;font-size:12px;font-weight:600;text-decoration:none}.button:hover{background:#f2f6f1}.button.primary{background:var(--green);color:white;border-color:var(--green)}.button.primary:hover{background:var(--dark)}.button svg{width:17px;height:17px}.button.wide{width:100%}.text-button{padding:5px 0;color:var(--green);font-weight:600;font-size:12px;text-decoration:underline;text-underline-offset:3px}.intro{padding-top:36px;padding-bottom:27px;display:flex;align-items:flex-end;gap:20px}.eyebrow{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--green)}h1{font-size:36px;letter-spacing:-1.4px;line-height:1.2;margin:10px 0 11px}.subtitle{font-size:13px;color:var(--muted);line-height:1.7}.steps{display:flex;gap:22px;margin-left:auto;padding-bottom:6px;white-space:nowrap}.step{display:flex;gap:7px;align-items:center;font-size:11px;color:var(--muted)}.step b{display:grid;place-items:center;width:25px;height:25px;border:1px solid var(--line);border-radius:50%;font-size:10px;color:var(--green);background:white}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:22px;align-items:start}.card{background:white;border:1px solid var(--line);border-radius:11px;overflow:hidden}.viewer-top{min-height:55px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 20px;border-bottom:1px solid var(--line)}.viewer-label{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:1.2px}.viewer-label svg{width:15px;height:15px;color:var(--green)}.angle-total{font-size:11px;color:var(--muted)}.stage{height:370px;position:relative;background:radial-gradient(ellipse at 50% 45%,#fff 0%,#f3f6f2 75%);overflow:hidden;touch-action:pan-y;outline-offset:-4px;user-select:none}.stage.has-photos{cursor:grab;background:#edf0eb}.stage.has-photos:active{cursor:grabbing}.stage.drag-over{box-shadow:inset 0 0 0 3px var(--green);background:#eaf5ed}.stage>img{position:absolute;width:100%;height:100%;object-fit:contain;pointer-events:none;transform-origin:center;transition:transform .12s}.empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:25px}.empty-art{width:150px;height:83px;position:relative;margin-bottom:16px;color:#8caaa0}.empty-art>svg{width:142px;height:77px;stroke-width:1.2}.empty-art span{position:absolute;right:-8px;top:0;background:white;border:1px solid var(--line);padding:5px 8px;border-radius:20px;font-size:10px;font-weight:700;color:var(--green)}.empty h2{font-size:22px;letter-spacing:-.7px;margin-bottom:10px}.empty p{font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:18px}.empty small{color:var(--muted);font-size:10px;margin-top:12px}.frame-badge{position:absolute;bottom:16px;left:18px;background:#fffef3ee;padding:7px 10px;border:1px solid #e1e4d9;border-radius:5px;font-size:11px;font-weight:700}.frame-badge span{font-weight:400;color:var(--muted)}.drag-hint{position:absolute;bottom:18px;right:18px;font-size:10px;background:#ffffffec;color:#586d61;padding:7px 10px;border-radius:20px;pointer-events:none}.controls{padding:13px 17px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}.icon-button{display:inline-grid;place-items:center;width:33px;height:33px;flex-shrink:0;border:1px solid var(--line);border-radius:6px;background:white}.icon-button:hover:not(:disabled){background:var(--mint)}.icon-button svg{width:16px;height:16px}.play{background:var(--mint);border-color:var(--mint);color:var(--green)}.controls input[type=range]{min-width:40px;width:100%;accent-color:var(--green);margin:0 8px}.zoom-label{font-size:10px;color:var(--muted);min-width:32px;text-align:center}.divider{height:22px;width:1px;background:var(--line);margin:0 3px}.caption-row{display:flex;gap:12px;justify-content:space-between;padding:0 20px 16px;font-size:10px;color:var(--muted)}.filename{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:65%}.film-header{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:19px 0 11px}.film-header h2{font-size:13px}.film-header h2 span{color:var(--muted);font-weight:400;margin-left:6px;font-size:11px}.film-actions{display:flex;align-items:center;gap:15px}.film-actions button{font-size:11px;color:var(--green);padding:4px 0}.filmstrip{display:flex;gap:9px;overflow:auto;padding:4px 3px 12px;scrollbar-width:thin;min-height:98px}.thumb{width:101px;flex:0 0 101px;background:white;border:2px solid transparent;border-radius:7px;padding:4px;text-align:left;position:relative}.thumb.selected{border-color:var(--green)}.thumb img{width:89px;height:61px;object-fit:cover;border-radius:3px;background:#e9ede6;pointer-events:none}.thumb span{display:block;font-size:9px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:6px 2px 1px}.thumb b{position:absolute;top:8px;left:8px;background:#ffffffeb;border-radius:3px;padding:2px 4px;font-size:9px;font-weight:500}.empty-film{width:100%;border:1px dashed #cfdad0;border-radius:8px;color:var(--muted);font-size:11px;padding:27px 18px;line-height:1.7}.selection-tools{display:flex;align-items:center;gap:7px;padding:7px 0 17px}.selection-tools>span{font-size:11px;color:var(--muted);margin-right:auto}.selection-tools .button{min-height:32px;padding:7px 10px;font-size:10px}.selection-tools .button svg{width:13px;height:13px}.selection-tools .remove{color:#a14435}.aside-card{padding:21px}.aside-card+.aside-card{margin-top:17px}.aside-eyebrow{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--green);margin-bottom:11px}.aside-card h2{font-size:18px;letter-spacing:-.5px;margin-bottom:9px}.aside-card p{font-size:11px;line-height:1.8;color:var(--muted)}.aside-card .upload{margin:17px 0 9px}.formats{text-align:center;font-size:9px!important}.field{display:flex;flex-direction:column;gap:6px;margin-top:14px}.field label{font-size:11px;font-weight:600}.field input,.field textarea{width:100%;min-width:0;border:1px solid var(--line);background:#fcfdfb;padding:10px;border-radius:6px;color:var(--ink);font-size:12px;outline-offset:2px}.field textarea{resize:vertical;min-height:65px;max-height:180px}.field-pair{display:grid;grid-template-columns:90px 1fr;gap:12px}.loop-option{display:flex;align-items:flex-start;gap:8px;border-top:1px solid var(--line);padding-top:16px;margin-top:19px}.loop-option input{accent-color:var(--green);margin:1px 0 0}.loop-option label{font-size:11px;line-height:1.6;font-weight:600}.loop-help{font-size:10px!important;margin-top:7px}.storage{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted);margin-top:17px;line-height:1.6}.storage svg{width:13px;height:13px}.guide{display:flex;align-items:flex-start;gap:12px;padding:19px;background:var(--mint);border-radius:9px;margin:10px 0 24px}.guide svg{width:18px;height:18px;color:var(--green)}.guide h3{font-size:12px;margin-bottom:5px}.guide p{font-size:11px;color:#647a6c;line-height:1.8}.footer{border-top:1px solid var(--line);padding:20px 0 24px;margin-top:10px}.footer-inner{display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--muted);gap:15px}.notice{display:flex;align-items:flex-start;gap:10px;background:#fff5e7;border:1px solid #eed6ad;border-radius:7px;padding:12px 15px;font-size:12px;line-height:1.7;color:#744919;margin-bottom:18px;white-space:pre-line}.notice.error{background:#fff2ef;border-color:#efc5b8;color:#8d3d2d}.notice>span{flex:1;overflow-wrap:anywhere}.notice button{padding:0 3px;font-size:18px;line-height:1.3}.progress{height:4px;width:100%;accent-color:var(--green);margin-top:8px}.busy-line{color:var(--green);font-size:11px;padding:10px 0}.stage:fullscreen{height:100%;width:100%;background:#e9eee7}.stage:fullscreen .drag-hint:after{content:' · Esc to exit'}.help-dialog{max-width:480px;width:calc(100% - 32px);border:1px solid var(--line);border-radius:12px;padding:26px;color:var(--ink);box-shadow:0 16px 70px #193a3526}.help-dialog::backdrop{background:#102d275c}.help-dialog h2{font-size:21px;margin-bottom:15px}.help-dialog p,.help-dialog li{font-size:13px;line-height:1.9;color:#536a5d}.help-dialog ol{padding-left:22px}.help-dialog .button{margin-top:18px}.help-dialog strong{color:var(--ink)}.file-input{display:none}.no-script{padding:30px;background:#fff1dd;color:#713e11}.mobile-help{display:none}
+    @media(min-width:1450px){.intro{padding-top:49px}.stage{height:405px}}
+    @media(max-width:1050px){.steps{display:none}.workspace{grid-template-columns:minmax(0,1fr) 280px}.wrap{padding:0 25px}.stage{height:340px}.header-label{display:none}.drag-hint{font-size:9px;right:10px}.selection-tools{flex-wrap:wrap}.selection-tools>span{width:100%;margin-bottom:3px}}
+    @media(max-width:760px){.wrap{padding:0 17px}.header-inner{min-height:75px;gap:10px}.brand-name{font-size:24px}.brand-icon{width:35px;height:35px}.brand-country{font-size:7px;letter-spacing:4px}.header-actions{gap:7px}.header-actions>.pill{display:none}.header-actions .button{font-size:10px;min-height:36px;padding:8px 10px}.header-actions .button svg{width:14px;height:14px}.intro{padding-top:26px;padding-bottom:21px}h1{font-size:28px;letter-spacing:-1px}.subtitle{font-size:12px}.workspace{grid-template-columns:minmax(0,1fr);gap:18px}.stage{height:340px}.aside{display:grid;grid-template-columns:1fr 1fr;gap:15px}.aside-card+.aside-card{margin:0}.aside-card{padding:18px}.footer-inner{font-size:9px}.guide{margin-top:5px}.intro .eyebrow{font-size:9px}.caption-row{padding:0 14px 14px}.controls{padding:11px;gap:6px}.controls input[type=range]{margin:0 2px}.controls .divider{margin:0}.viewer-top{padding:0 14px}.mobile-help{display:inline}.footer-right{max-width:45%;text-align:right}}
+    @media(max-width:460px){.stage{height:300px}.empty h2{font-size:20px}.empty p{font-size:11px}.empty-art{margin-bottom:12px}.aside{grid-template-columns:1fr}.drag-hint{bottom:auto;top:12px}.frame-badge{bottom:12px;left:12px}.zoom-label{min-width:25px;font-size:9px}.icon-button{width:30px;height:30px}.controls{gap:4px}.selection-tools .button{padding:7px}.film-header h2 span{display:none}.selection-tools{gap:5px}.header-actions .button{max-width:132px}.guide p{font-size:10px}.header-inner{gap:5px}.thumb{width:91px;flex-basis:91px}.thumb img{width:79px;height:55px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="icon-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3m8 0h3a1 1 0 0 1 1 1v3M4 16v3a1 1 0 0 0 1 1h3m8 0h3a1 1 0 0 0 1-1v-3M9 12h6"/></symbol>
+    <symbol id="icon-camera" viewBox="0 0 24 24"><path d="M4 6h3l2-3h6l2 3h3a1 1 0 0 1 1 1v13H3V7a1 1 0 0 1 1-1Z"/><circle cx="12" cy="12.5" r="4"/></symbol>
+    <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v6h16v-6"/></symbol>
+    <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+    <symbol id="icon-left" viewBox="0 0 24 24"><path d="m14 5-7 7 7 7"/></symbol>
+    <symbol id="icon-right" viewBox="0 0 24 24"><path d="m10 5 7 7-7 7"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="m8 4 13 8-13 8Z"/></symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M8 4v16M16 4v16"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="icon-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="icon-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.2"/></symbol>
+    <symbol id="icon-car" viewBox="0 0 160 80"><path d="m17 49 11-5 16-22q3-4 9-4h43q6 0 11 5l18 21 17 4q6 2 6 8v9h-12m-19 0H51m-20 0H15V53q0-3 2-4ZM46 26 34 44h78L97 26ZM67 26v18m20-18 7 18M20 53h11m99 0h12M68 51h10"/><circle cx="41" cy="63" r="11"/><circle cx="127" cy="63" r="11"/><circle cx="41" cy="63" r="4"/><circle cx="127" cy="63" r="4"/><path d="M13 78h139" stroke-dasharray="3 5"/></symbol>
+  </defs></svg>
+  <noscript><div class="no-script">CarView needs browser JavaScript. Enable JavaScript in Chrome or Edge, then reopen this file. No Node.js installation is needed.</div></noscript>
+  <header class="header"><div class="wrap header-inner">
+    <div class="brand"><div class="brand-icon"><svg aria-hidden="true"><use href="#icon-scan"/></svg></div><div><div class="brand-name">carview</div><div class="brand-country">PAKISTAN</div></div></div>
+    <span class="header-label">Your personal photo studio</span>
+    <div class="header-actions"><span class="pill"><span class="dot"></span> Browser edition</span><button class="button" id="export"><svg aria-hidden="true"><use href="#icon-download"/></svg> Save HTML copy</button></div>
+  </div></header>
+  <main class="wrap">
+    <div class="intro"><div><div class="eyebrow">YOUR CAR. EVERY ANGLE.</div><h1 id="heading">A better look at your car.</h1><p class="subtitle">Photos select karein. Drag karein. Har angle dekhein.</p></div><div class="steps" aria-label="How it works"><span class="step"><b>01</b> Upload photos</span><span class="step"><b>02</b> Check order</span><span class="step"><b>03</b> Explore</span></div></div>
+    <div class="notice" id="notice" role="status" hidden><span id="notice-text"></span><button id="dismiss" aria-label="Dismiss message">×</button></div>
+    <div class="workspace">
+      <section aria-label="Your car photo viewer">
+        <div class="card">
+          <div class="viewer-top"><span class="viewer-label"><svg aria-hidden="true"><use href="#icon-camera"/></svg><span id="view-mode">PHOTO WALK-AROUND</span></span><span class="angle-total" id="angle-total">Ready for your photos</span></div>
+          <div class="stage" id="stage" tabindex="0" role="group" aria-label="Photo viewer. Use left and right arrow keys, or drag horizontally, to change photos.">
+            <div class="empty" id="empty"><div class="empty-art"><svg aria-hidden="true" viewBox="0 0 160 80"><use href="#icon-car"/></svg><span>360°</span></div><h2>Take a walk around your car.</h2><p>Car ke gird photos lein, phir yahan select karein.<br>12–24 photos se view zyada behtar banega.</p><button class="button primary" data-upload><svg aria-hidden="true"><use href="#icon-upload"/></svg> Choose car photos</button><small>Or drag and drop photos here</small></div>
+            <img id="photo" alt="" draggable="false" hidden>
+            <div class="frame-badge" id="frame-badge" aria-live="polite" hidden><b id="frame-number">01</b> <span id="frame-count">/ 01 photos</span></div>
+            <span class="drag-hint" id="drag-hint" hidden>↔ Drag or swipe to explore</span>
+          </div>
+          <div class="controls">
+            <button class="icon-button" id="previous" aria-label="Previous photo" disabled><svg aria-hidden="true"><use href="#icon-left"/></svg></button>
+            <button class="icon-button play" id="play" aria-label="Play photo sequence" disabled><svg aria-hidden="true"><use id="play-icon" href="#icon-play"/></svg></button>
+            <button class="icon-button" id="next" aria-label="Next photo" disabled><svg aria-hidden="true"><use href="#icon-right"/></svg></button>
+            <input type="range" id="angle" aria-label="Photo angle" min="0" max="0" value="0" disabled>
+            <button class="icon-button" id="zoom-out" aria-label="Zoom out" disabled><svg aria-hidden="true"><use href="#icon-minus"/></svg></button><span class="zoom-label" id="zoom-label">1×</span><button class="icon-button" id="zoom-in" aria-label="Zoom in" disabled><svg aria-hidden="true"><use href="#icon-plus"/></svg></button>
+            <span class="divider"></span><button class="icon-button" id="fullscreen" aria-label="Open photo full screen" disabled><svg aria-hidden="true"><use href="#icon-expand"/></svg></button>
+          </div>
+          <div class="caption-row"><span class="filename" id="filename">Your actual photos, in your chosen order.</span><span id="sequence-status">Partial sequences stop at the ends.</span></div>
+        </div>
+        <div id="busy" class="busy-line" role="status" hidden><span id="busy-text">Preparing photos…</span><progress class="progress" id="progress" max="1" value="0"></progress></div>
+        <div class="film-header"><h2>Your photo sequence <span id="sequence-count">0 photos</span></h2><div class="film-actions"><button id="sort" disabled>Sort by filename</button><button data-upload>+ Add photos</button></div></div>
+        <div class="filmstrip" id="filmstrip" aria-label="Choose a photo"><div class="empty-film">Your photos will appear here. Use filenames like 01-front.jpg, 02-front-left.jpg, 03-left.jpg to keep them in order.</div></div>
+        <div class="selection-tools" id="selection-tools" hidden><span id="selected-label">Selected photo</span><button class="button" id="move-left"><svg aria-hidden="true"><use href="#icon-left"/></svg> Move earlier</button><button class="button" id="move-right">Move later <svg aria-hidden="true"><use href="#icon-right"/></svg></button><button class="button remove" id="remove"><svg aria-hidden="true"><use href="#icon-trash"/></svg> Remove</button></div>
+        <div class="guide"><svg aria-hidden="true"><use href="#icon-info"/></svg><div><h3>A smoother view starts with a steady walk.</h3><p>Park the car, then photograph one complete lap in the same direction. Keep the camera at a similar height and distance. This view plays your real photos in order; unseen angles are not generated. <button class="text-button" id="help">Quick guide</button></p></div></div>
+      </section>
+      <aside class="aside" aria-label="Photo upload and car details">
+        <div class="card aside-card"><div class="aside-eyebrow">LET’S GET STARTED</div><h2>Your photos. Your view.</h2><p>Apni car ki photos ek saath select karein. Filename ke order mein view khud tayyar ho jayega.</p><button class="button primary wide upload" data-upload><svg aria-hidden="true"><use href="#icon-upload"/></svg> Upload photos</button><p class="formats">JPG, PNG, WebP · 10 MB each · 60 photos max</p><div class="loop-option"><input type="checkbox" id="loop" disabled><label for="loop">These photos cover one complete lap. Enable 360° looping.</label></div><p class="loop-help" id="loop-help">Add at least 12 photos, then check their order and coverage.</p><div class="storage"><svg aria-hidden="true"><use href="#icon-check"/></svg><span id="storage-status" role="status">Opening browser storage…</span></div></div>
+        <div class="card aside-card"><div class="aside-eyebrow">MAKE IT YOURS</div><h2>Car details</h2><form id="details" autocomplete="off"><div class="field"><label for="car-title">Make &amp; model</label><input id="car-title" name="title" maxlength="90" placeholder="e.g. Toyota Corolla GLi"></div><div class="field-pair"><div class="field"><label for="car-year">Year</label><input id="car-year" name="year" maxlength="4" inputmode="numeric" placeholder="2020"></div><div class="field"><label for="car-city">City</label><input id="car-city" name="city" maxlength="60" placeholder="Lahore"></div></div><div class="field"><label for="car-notes">Your notes</label><textarea id="car-notes" name="notes" maxlength="1500" placeholder="Add anything you want to remember…"></textarea></div></form><p style="margin-top:14px">Save HTML copy se photos aur details wali file download karein. Us file ko dobara double-click karke khol sakte hain.</p></div>
+      </aside>
+    </div>
+  </main>
+  <footer class="footer"><div class="wrap footer-inner"><span>Made for Pakistan. Built for a closer look.</span><span class="footer-right">Offline · No installation · Photos stay on this device</span></div></footer>
+  <input class="file-input" id="files" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" multiple aria-label="Choose car photographs">
+  <dialog class="help-dialog" id="help-dialog"><h2>Open. Upload. Explore.</h2><ol><li><strong>Photos lein:</strong> car ke gird ek direction mein 12–24 photos lein. Car poori frame mein rakhein.</li><li><strong>Upload karein:</strong> photos filename ke order mein aayengi. Thumbnail select karke Move earlier / Move later se order change karein.</li><li><strong>View dekhein:</strong> photo par left/right drag karein, ya arrow buttons, keyboard aur slider use karein. Play se sequence chalegi.</li><li><strong>Poora chakkar?</strong> Kam az kam 12 photos hon aur poori car ka chakkar cover ho to 360 looping ka checkbox tick karein.</li><li><strong>Copy rakhein:</strong> Save HTML copy se photos wali file save karein. Kisi Chrome/Edge browser mein double-click karke khol lein.</li></ol><p>Browser storage isi browser/profile par hoti hai; clear karne se photos hat sakti hain. Saved HTML copy mein photos rehti hain. Display photos ko 1600px tak resize kiya jata hai, taake space kam lage.</p><p style="margin-top:10px">Yeh local photo studio hai. Public listings, online accounts aur 3D reconstruction is edition mein shamil nahi hain.</p><button class="button primary wide" id="close-help">Got it</button></dialog>
+  <script type="application/json" id="carview-data">null</script>
+  <script>
+  (() => {
+    'use strict';
+    // This file has no runtime dependencies and never sends photos over the network.
+    const template = '<!doctype html>\n' + document.documentElement.outerHTML;
+    const $ = id => document.getElementById(id);
+    const uid = () => globalThis.crypto?.randomUUID?.() || Date.now().toString(36) + Math.random().toString(36).slice(2);
+    const initial = () => ({version:1,id:uid(),title:'',year:'',city:'',notes:'',loop:false,photos:[]});
+    let state = initial(), frame = 0, zoom = 1, timer = null, processing = false, db = null, storageKey = 'workspace';
+    let saveTimer = null, saveQueue = Promise.resolve(), revision = 0, drag = null;
+    const collator = new Intl.Collator(undefined, {numeric:true,sensitivity:'base'});
+    const imagePattern = /^data:image\/(?:jpeg|webp|png);base64,[A-Za-z0-9+/=]+$/;
+    function validated(value) {
+      if (!value || value.version !== 1 || !Array.isArray(value.photos) || value.photos.length > 60) throw new Error('This saved file has an unsupported photo format.');
+      const result = initial();
+      if (typeof value.id === 'string' && value.id.length <= 100) result.id = value.id;
+      for (const [key,max] of [['title',90],['year',4],['city',60],['notes',1500]]) result[key] = typeof value[key] === 'string' ? value[key].slice(0,max) : '';
+      const ids = new Set();
+      for (const photo of value.photos) {
+        if (!photo || typeof photo.src !== 'string' || photo.src.length > 16000000 || !imagePattern.test(photo.src) || typeof photo.thumb !== 'string' || photo.thumb.length > 500000 || !imagePattern.test(photo.thumb)) throw new Error('This saved file contains an invalid image.');
+        const id = typeof photo.id === 'string' && !ids.has(photo.id) ? photo.id.slice(0,100) : uid();
+        ids.add(id);
+        result.photos.push({id,name:String(photo.name || 'Car photo').slice(0,180),src:photo.src,thumb:photo.thumb});
+      }
+      result.loop = value.loop === true && result.photos.length >= 12;
+      return result;
+    }
+    function notice(message, error = false) {
+      $('notice-text').textContent = message;
+      $('notice').classList.toggle('error',error);
+      $('notice').hidden = false;
+    }
+    function storageStatus(message) { $('storage-status').textContent = message; }
+    function openStorage() {
+      return new Promise((resolve,reject) => {
+        let request;
+        try { request = indexedDB.open('carview-browser-v1',1); } catch (e) { reject(e); return; }
+        let expired = false;
+        const timeout = setTimeout(() => { expired = true; reject(new Error('Browser storage did not open.')); },3000);
+        request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains('projects')) request.result.createObjectStore('projects'); };
+        request.onerror = () => { clearTimeout(timeout); reject(request.error); };
+        request.onblocked = () => { clearTimeout(timeout); expired = true; reject(new Error('Browser storage is busy.')); };
+        request.onsuccess = () => {
+          clearTimeout(timeout);
+          if (expired) { request.result.close(); return; }
+          const connection = request.result;
+          connection.onversionchange = () => { connection.close(); db = null; storageStatus('Session only · save an HTML copy'); };
+          resolve(connection);
+        };
+      });
+    }
+    function readStored() {
+      return new Promise((resolve,reject) => {
+        const request = db.transaction('projects','readonly').objectStore('projects').get(storageKey);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+    function scheduleSave() {
+      revision++;
+      clearTimeout(saveTimer);
+      if (!db) { storageStatus('Session only · save an HTML copy'); return; }
+      storageStatus('Saving to this browser…');
+      saveTimer = setTimeout(saveNow,250);
+    }
+    function saveNow() {
+      clearTimeout(saveTimer); saveTimer = null;
+      if (!db) return;
+      const snapshot = {...state,photos:state.photos.map(p => ({...p}))}, version = revision;
+      saveQueue = saveQueue.catch(() => {}).then(() => new Promise((resolve,reject) => {
+        if (!db) { resolve(); return; }
+        const transaction = db.transaction('projects','readwrite');
+        transaction.objectStore('projects').put(snapshot,storageKey);
+        transaction.oncomplete = () => { if (version === revision) storageStatus('Saved in this browser · ' + photoSize()); resolve(); };
+        transaction.onerror = transaction.onabort = () => reject(transaction.error || new Error('Storage is full.'));
+      })).catch(() => {
+        storageStatus('Not saved · use Save HTML copy');
+        notice('Browser photos save nahi kar saka (storage full ya blocked). “Save HTML copy” se apni photos wali file abhi save kar lein.',true);
+      });
+    }
+    function photoSize() {
+      const bytes = state.photos.reduce((n,p) => n + (p.src.length + p.thumb.length) * .75,0);
+      return bytes < 1048576 ? Math.round(bytes/1024) + ' KB photos' : (bytes/1048576).toFixed(1) + ' MB photos';
+    }
+    function stop() {
+      clearInterval(timer); timer = null;
+      $('play').setAttribute('aria-label','Play photo sequence');
+      $('play-icon').setAttribute('href','#icon-play');
+    }
+    function choose(index, fromPlayback = false) {
+      if (!fromPlayback) stop();
+      const count = state.photos.length;
+      frame = count ? state.loop ? ((index % count) + count) % count : Math.min(count-1,Math.max(0,index)) : 0;
+      renderViewer();
+    }
+    function renderViewer() {
+      const count = state.photos.length, photo = state.photos[frame];
+      $('empty').hidden = !!count;
+      $('photo').hidden = !count;
+      $('frame-badge').hidden = !count;
+      $('drag-hint').hidden = count < 2;
+      $('stage').classList.toggle('has-photos',!!count);
+      $('angle-total').textContent = count ? count + ' actual photos' : 'Ready for your photos';
+      $('view-mode').textContent = state.loop ? '360° PHOTO VIEW' : 'PHOTO WALK-AROUND';
+      if (photo) {
+        if ($('photo').getAttribute('src') !== photo.src) $('photo').src = photo.src;
+        $('photo').alt = 'Your photograph ' + (frame+1) + ' of ' + count + ': ' + photo.name;
+      } else { $('photo').removeAttribute('src'); $('photo').alt = ''; }
+      $('photo').style.transform = 'scale(' + zoom + ')';
+      $('frame-number').textContent = String(frame+1).padStart(2,'0');
+      $('frame-count').textContent = '/ ' + String(count).padStart(2,'0') + ' photos';
+      $('angle').max = Math.max(0,count-1); $('angle').value = frame;
+      $('angle').disabled = count < 2;
+      $('previous').disabled = !count || (!state.loop && frame === 0);
+      $('next').disabled = !count || (!state.loop && frame === count-1);
+      $('play').disabled = count < 2;
+      $('zoom-out').disabled = !count || zoom <= 1;
+      $('zoom-in').disabled = !count || zoom >= 2.5;
+      $('zoom-label').textContent = Number(zoom.toFixed(2)) + '×';
+      $('fullscreen').disabled = !count;
+      $('filename').textContent = photo ? photo.name : 'Your actual photos, in your chosen order.';
+      $('filename').title = photo ? photo.name : '';
+      $('sequence-status').textContent = state.loop ? 'Complete lap · looping enabled' : 'Partial sequences stop at the ends.';
+      $('selection-tools').hidden = !count;
+      $('selected-label').textContent = 'Photo ' + (frame+1) + ' selected';
+      $('move-left').disabled = frame === 0 || processing;
+      $('move-right').disabled = frame === count-1 || processing;
+      $('remove').disabled = processing;
+      $('loop').checked = state.loop;
+      $('loop').disabled = count < 12 || processing;
+      $('loop-help').textContent = count >= 12 ? 'Check the sequence first. This confirms your own photos cover the full lap.' : 'Add at least 12 photos, then check their order and coverage.';
+      $('sequence-count').textContent = count + ' photos';
+      $('sort').disabled = count < 2 || processing;
+      for (const [i,button] of Array.from($('filmstrip').querySelectorAll('.thumb')).entries()) {
+        button.classList.toggle('selected',i === frame);
+        button.setAttribute('aria-pressed',String(i === frame));
+      }
+      const film = $('filmstrip'), selected = film.querySelector('.thumb.selected');
+      if (selected) {
+        const left = selected.getBoundingClientRect().left - film.getBoundingClientRect().left + film.scrollLeft;
+        if (left < film.scrollLeft) film.scrollLeft = left;
+        else if (left + selected.offsetWidth > film.scrollLeft + film.clientWidth) film.scrollLeft = left + selected.offsetWidth - film.clientWidth;
+      }
+    }
+    function renderFilmstrip() {
+      const film = $('filmstrip'); film.replaceChildren();
+      if (!state.photos.length) {
+        const empty = document.createElement('div'); empty.className = 'empty-film';
+        empty.textContent = 'Your photos will appear here. Use filenames like 01-front.jpg, 02-front-left.jpg, 03-left.jpg to keep them in order.';
+        film.append(empty);
+      }
+      state.photos.forEach((photo,index) => {
+        const button = document.createElement('button'); button.type = 'button'; button.className = 'thumb';
+        button.setAttribute('aria-label','Select photo ' + (index+1) + ': ' + photo.name);
+        const img = document.createElement('img'); img.src = photo.thumb; img.alt = ''; img.draggable = false;
+        const name = document.createElement('span'); name.textContent = photo.name;
+        const number = document.createElement('b'); number.textContent = String(index+1).padStart(2,'0');
+        button.append(img,number,name); button.title = photo.name; button.onclick = () => choose(index);
+        film.append(button);
+      });
+      renderViewer();
+    }
+    function renderDetails() {
+      for (const key of ['title','year','city','notes']) $('car-' + key).value = state[key];
+      renderHeading();
+    }
+    function renderHeading() {
+      const title = [state.title.trim(),state.year.trim()].filter(Boolean).join(' · ');
+      $('heading').textContent = title || 'A better look at your car.';
+      document.title = title ? title + ' · CarView Pakistan' : 'CarView Pakistan · Browser Edition';
+    }
+    async function preparePhoto(file) {
+      if (file.size > 10*1024*1024) throw new Error('10 MB se bari photo');
+      const magic = new Uint8Array(await file.slice(0,16).arrayBuffer());
+      const jpeg = magic[0] === 255 && magic[1] === 216 && magic[2] === 255;
+      const png = [137,80,78,71,13,10,26,10].every((v,i) => magic[i] === v);
+      const webp = String.fromCharCode(...magic.slice(0,4)) === 'RIFF' && String.fromCharCode(...magic.slice(8,12)) === 'WEBP';
+      if (!jpeg && !png && !webp) throw new Error('JPG, PNG ya WebP select karein');
+      let image, cleanup = () => {};
+      if (globalThis.createImageBitmap) { image = await createImageBitmap(file,{imageOrientation:'from-image'}); cleanup = () => image.close(); }
+      else {
+        const url = URL.createObjectURL(file); image = new Image();
+        cleanup = () => URL.revokeObjectURL(url);
+        try { await new Promise((resolve,reject) => { image.onload = resolve; image.onerror = reject; image.src = url; }); } catch(e) { cleanup(); throw e; }
+      }
+      try {
+        const width = image.width, height = image.height;
+        if (!width || !height || width*height > 40000000) throw new Error('Photo 40 megapixels se bari hai');
+        const canvas = document.createElement('canvas'), ratio = Math.min(1,1600/Math.max(width,height));
+        canvas.width = Math.max(1,Math.round(width*ratio)); canvas.height = Math.max(1,Math.round(height*ratio));
+        const context = canvas.getContext('2d');
+        context.fillStyle = '#ffffff'; context.fillRect(0,0,canvas.width,canvas.height);
+        context.drawImage(image,0,0,canvas.width,canvas.height);
+        const src = canvas.toDataURL('image/jpeg',.86);
+        const thumbnail = document.createElement('canvas'), thumbRatio = Math.min(1,180/Math.max(width,height));
+        thumbnail.width = Math.max(1,Math.round(width*thumbRatio)); thumbnail.height = Math.max(1,Math.round(height*thumbRatio));
+        thumbnail.getContext('2d').drawImage(canvas,0,0,thumbnail.width,thumbnail.height);
+        return {id:uid(),name:file.name.slice(0,180),src,thumb:thumbnail.toDataURL('image/jpeg',.72)};
+      } finally { cleanup(); }
+    }
+    async function addFiles(list) {
+      if (processing) return;
+      const files = Array.from(list).sort((a,b) => collator.compare(a.name,b.name)), remaining = 60-state.photos.length;
+      if (!files.length) return;
+      if (!remaining) { notice('60 photos ki limit poori ho gayi. Nayi photos se pehle kuch photos remove karein.',true); return; }
+      stop(); processing = true; renderViewer();
+      $('busy').hidden = false; $('progress').max = Math.min(remaining,files.length); $('progress').value = 0;
+      document.querySelectorAll('[data-upload]').forEach(b => b.disabled = true);
+      $('export').disabled = true;
+      const errors = [], added = [];
+      try {
+        for (const file of files.slice(0,remaining)) {
+          $('busy-text').textContent = 'Preparing photo ' + (added.length+errors.length+1) + ' of ' + Math.min(remaining,files.length) + '…';
+          try { added.push(await preparePhoto(file)); } catch(e) { errors.push(file.name.slice(0,80) + ': ' + (e instanceof Error && e.message ? e.message : 'Photo read nahi ho saki')); }
+          $('progress').value = added.length + errors.length;
+        }
+        if (added.length) {
+          const firstNew = state.photos.length; state.photos.push(...added);
+          state.loop = false; frame = firstNew; zoom = 1;
+          renderFilmstrip(); scheduleSave();
+        }
+        if (errors.length) notice(added.length + ' photo(s) added. Kuch files skip hui:\n' + errors.slice(0,4).join('\n') + (errors.length > 4 ? '\nAur ' + (errors.length-4) + ' invalid files.' : ''),true);
+        else if (files.length > remaining) notice('60-photo limit ki wajah se sirf pehli ' + remaining + ' photos add hui.');
+        else if (added.length) notice(added.length + ' photos ready. Drag/swipe karke view dekhein; thumbnails se order check karein.');
+      } finally {
+        processing = false; $('busy').hidden = true; $('files').value = '';
+        document.querySelectorAll('[data-upload]').forEach(b => b.disabled = false);
+        $('export').disabled = false; renderViewer();
+      }
+    }
+    function reorder(direction) {
+      if (processing) return;
+      const target = frame+direction;
+      if (target < 0 || target >= state.photos.length) return;
+      stop(); [state.photos[frame],state.photos[target]] = [state.photos[target],state.photos[frame]];
+      frame = target; state.loop = false; renderFilmstrip(); scheduleSave();
+    }
+    async function exportHTML() {
+      if (processing) return;
+      try {
+        // Parse the untouched template so repeated exports do not duplicate images/UI state.
+        const copy = new DOMParser().parseFromString(template,'text/html');
+        const payload = JSON.stringify({...state,id:uid()}).replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029');
+        copy.getElementById('carview-data').textContent = payload;
+        const blob = new Blob(['<!doctype html>\n',copy.documentElement.outerHTML],{type:'text/html;charset=utf-8'});
+        const url = URL.createObjectURL(blob), link = document.createElement('a');
+        const name = (state.title || 'CarView-Pakistan').replace(/[^a-zA-Z0-9 _-]/g,'').trim().slice(0,65) || 'CarView-Pakistan';
+        link.href = url; link.download = name + '-Photos.html'; document.body.append(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(url),30000);
+        notice('HTML copy ka download shuru ho gaya. Save hone ke baad us file ko double-click karke photos samait khol sakte hain.');
+      } catch(e) { notice('Copy ban nahi saki. Browser mein thori memory khali karke dobara try karein.',true); }
+    }
+    function attachEvents() {
+      document.querySelectorAll('[data-upload]').forEach(button => button.onclick = () => $('files').click());
+      $('files').onchange = event => { void addFiles(event.target.files); };
+      $('dismiss').onclick = () => $('notice').hidden = true;
+      $('previous').onclick = () => choose(frame-1); $('next').onclick = () => choose(frame+1);
+      $('angle').oninput = event => choose(Number(event.target.value));
+      $('play').onclick = () => {
+        if (timer) { stop(); return; }
+        if (frame === state.photos.length-1 && !state.loop) choose(0);
+        $('play').setAttribute('aria-label','Pause photo sequence'); $('play-icon').setAttribute('href','#icon-pause');
+        timer = setInterval(() => {
+          if (!state.loop && frame >= state.photos.length-1) { stop(); return; }
+          choose(frame+1,true);
+          if (!state.loop && frame === state.photos.length-1) stop();
+        },400);
+      };
+      $('zoom-out').onclick = () => { zoom = Math.max(1,zoom-.25); renderViewer(); };
+      $('zoom-in').onclick = () => { zoom = Math.min(2.5,zoom+.25); renderViewer(); };
+      $('fullscreen').onclick = async () => {
+        try { if (!$('stage').requestFullscreen) throw new Error(); await $('stage').requestFullscreen(); }
+        catch { notice('Is browser mein full screen available nahi. Browser zoom ya landscape view use karein.'); }
+      };
+      $('stage').onkeydown = e => {
+        if (!state.photos.length || e.target !== $('stage')) return;
+        if (['ArrowLeft','ArrowRight','Home','End',' '].includes(e.key)) e.preventDefault();
+        if (e.key === 'ArrowLeft') choose(frame-1);
+        if (e.key === 'ArrowRight') choose(frame+1);
+        if (e.key === 'Home') choose(0);
+        if (e.key === 'End') choose(state.photos.length-1);
+        if (e.key === ' ') $('play').click();
+      };
+      $('stage').onpointerdown = e => {
+        if (!state.photos.length || e.button !== 0 || e.target.closest('button')) return;
+        stop(); drag = {x:e.clientX,start:frame}; $('stage').setPointerCapture(e.pointerId);
+      };
+      $('stage').onpointermove = e => { if (drag) choose(drag.start + Math.round((drag.x-e.clientX)/Math.max(16,$('stage').clientWidth/Math.max(state.photos.length,12)))); };
+      for (const event of ['pointerup','pointercancel','lostpointercapture']) $('stage').addEventListener(event,() => drag = null);
+      $('stage').ondragover = e => { e.preventDefault(); $('stage').classList.add('drag-over'); };
+      $('stage').ondragleave = () => $('stage').classList.remove('drag-over');
+      $('stage').ondrop = e => { e.preventDefault(); $('stage').classList.remove('drag-over'); void addFiles(e.dataTransfer.files); };
+      document.addEventListener('dragover',e => { if (e.dataTransfer?.types.includes('Files')) e.preventDefault(); });
+      document.addEventListener('drop',e => { if (e.target !== $('stage') && !$('stage').contains(e.target) && e.dataTransfer?.files.length) { e.preventDefault(); void addFiles(e.dataTransfer.files); } });
+      $('move-left').onclick = () => reorder(-1); $('move-right').onclick = () => reorder(1);
+      $('remove').onclick = () => {
+        if (processing) return; stop(); state.photos.splice(frame,1); frame = Math.max(0,Math.min(frame,state.photos.length-1));
+        state.loop = false; renderFilmstrip(); scheduleSave();
+      };
+      $('sort').onclick = () => {
+        if (processing) return; stop(); state.photos.sort((a,b) => collator.compare(a.name,b.name));
+        state.loop = false; frame = 0; renderFilmstrip(); scheduleSave();
+      };
+      $('loop').onchange = () => { stop(); state.loop = $('loop').checked && state.photos.length >= 12; renderViewer(); scheduleSave(); };
+      $('details').onsubmit = e => e.preventDefault();
+      for (const key of ['title','year','city','notes']) $('car-' + key).oninput = e => { state[key] = e.target.value; renderHeading(); scheduleSave(); };
+      $('export').onclick = exportHTML;
+      $('help').onclick = () => $('help-dialog').showModal(); $('close-help').onclick = () => $('help-dialog').close();
+      $('photo').onerror = () => notice('Yeh photo display nahi ho saki. Original photo dobara upload karke try karein.',true);
+      document.addEventListener('visibilitychange',() => { if (document.hidden) { stop(); if (saveTimer) saveNow(); } });
+      window.addEventListener('pagehide',() => { if (saveTimer) saveNow(); });
+    }
+    async function boot() {
+      // Keep interaction disabled until a stored/embedded project has been restored.
+      document.querySelectorAll('button,input,textarea').forEach(element => element.disabled = true);
+      let embedded = null;
+      try { const value = JSON.parse($('carview-data').textContent); if (value) { embedded = validated(value); storageKey = 'export:' + embedded.id; state = embedded; } }
+      catch(e) { notice('Saved photo data read nahi ho saka. Fresh photos upload kar sakte hain.',true); }
+      try {
+        db = await openStorage();
+        const saved = await readStored();
+        if (saved) state = validated(saved);
+        storageStatus('Saved in this browser · ' + photoSize());
+      } catch(e) {
+        if (db) db.close(); db = null;
+        storageStatus('Session only · save an HTML copy');
+        notice('Browser storage available nahi. Photos yahan test kar sakte hain; band karne se pehle “Save HTML copy” kar lein.');
+      }
+      document.querySelectorAll('button,input,textarea').forEach(element => element.disabled = false);
+      attachEvents(); renderDetails(); renderFilmstrip();
+      if (embedded && db) scheduleSave();
+      document.documentElement.dataset.ready = 'true';
+    }
+    void boot();
+  })();
+  </script>
+</body>
+</html>

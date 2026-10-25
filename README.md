@@ -8,7 +8,15 @@ A functional inspection MVP: sellers upload a walk-around sequence and the app a
 
 No stock, AI-generated, or unrelated photographs are used as evidence. The default Corolla demonstration has no photos, is labelled as a demo, and is not an advertisement. Its vehicle details and price are illustrative.
 
-## Download-and-run local test
+## Single HTML file: no installation
+
+[Download the browser edition](https://github.com/hague143/360-app/raw/refs/heads/main/downloads/CarView-Pakistan-Browser.zip), extract it, and double-click **CarView-Pakistan.html** in Chrome or Edge. It works directly at `file://`, offline, without Node.js, npm, a server, a cloud account or external libraries/fonts. The standalone [HTML source](downloads/CarView-Pakistan.html) is the complete runnable app.
+
+This small edition provides actual photo uploads, automatic numeric filename ordering, a draggable/swipeable photo viewer, keyboard/slider/playback/zoom/full-screen controls, thumbnail selection and reordering/removal, optional confirmed 12+ frame full-lap looping, and car details/notes. Display copies are resized to at most 1600px to reduce storage. It uses browser IndexedDB for local persistence where available and clearly reports storage failures. **Save HTML copy** embeds the photos and details into another runnable HTML file, so it can be backed up or opened in a fresh browser without relying on browser storage. No photographs are shipped or sent to a server. Online accounts, public listings and server/3D features belong to the full application below.
+
+The ZIP includes only the HTML and a short Roman Urdu guide. Regenerate it with `python scripts/package-browser.py`; validate the extracted HTML with `npm run test:browser-file`. Tests cover uploads, storage/reload, mobile gestures, portable HTML exports and unavailable-storage fallback with external networking offline. Where administrator policy blocks `file://` in the test browser, the harness reports the limitation and serves unchanged HTML through a document-only HTTP fixture; native file-origin execution is not claimed in that environment.
+
+## Download-and-run full local app
 
 [Download the local-test ZIP](https://github.com/hague143/360-app/raw/refs/heads/main/downloads/CarView-Pakistan-Local.zip), extract the complete folder, and install **Node.js 24 LTS**. On Windows double-click `START-WINDOWS.cmd`; on macOS/Linux use the matching starter or run `npm run local`. Read `READ-ME-FIRST.txt` for the short Roman Urdu guide.
 

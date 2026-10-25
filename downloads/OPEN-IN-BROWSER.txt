@@ -1,0 +1,45 @@
+CARVIEW PAKISTAN - BROWSER EDITION
+================================
+
+1. ZIP ko right-click karke "Extract All" karein.
+2. CarView-Pakistan.html par double-click karein.
+   Chrome ya Microsoft Edge mein file khul jayegi.
+3. "Upload photos" se apni car ki JPG, PNG ya WebP photos select karein.
+4. Photo par left/right drag karein, arrow buttons ya Play use karein.
+
+Node.js, setup, cloud account ya internet ki zaroorat nahi.
+HTML file ko akele bhi copy karke chala sakte hain.
+
+360 VIEW KAISE BANAYEIN
+----------------------
+Car ke gird ek direction mein 12-24 photos lein. Camera ki height aur
+distance lagbhag ek jaisi rakhein. File names 01.jpg, 02.jpg, 03.jpg rakhein.
+Photos automatically filename order mein aayengi. Thumbnail select karke
+"Move earlier" / "Move later" se order badal sakte hain.
+
+12 ya zyada photos poora chakkar cover karti hon to "Enable 360 looping"
+tick karein. Kam photos par bhi view chalega, lekin sequence end par rukegi.
+Yeh aapki asli photos ko sequence mein dikhata hai; missing angles ya 3D
+model generate nahi karta.
+
+PHOTOS SAVE KARNA
+----------------
+Normal browser mein photos aur car details automatically isi browser ki
+storage mein save hoti hain. Private/incognito mode ya kuch file settings
+mein storage unavailable ho sakti hai. App storage ka status dikhati hai.
+
+"Save HTML copy" par click karke photos aur details wali HTML file save
+kar lein. Us file ko double-click karein to aapki photos phir khul jayengi.
+Is copy ko doosre computer par bhi Chrome/Edge mein khol sakte hain.
+Browser data clear hone se saved HTML copy ki photos nahi mitti.
+
+Space bachane ke liye display photos 1600px tak resize/compress hoti hain.
+Original files apni jagah rehti hain. Har photo max 10 MB, total 60 photos.
+App photos kisi server par upload nahi karti. Share ki hui HTML copy mein
+photos aur notes shamil hote hain.
+
+Yeh local photo studio hai. Online accounts, public marketplace listings
+aur backend wali app ke tamam features is chhoti edition mein nahi hain.
+
+Agar file text/code ki tarah khule to check karein naam ka end .html ho,
+.html.txt nahi. Right-click > Open with > Google Chrome/Microsoft Edge.
