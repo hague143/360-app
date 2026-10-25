@@ -8,7 +8,13 @@ A functional inspection MVP: sellers upload a walk-around sequence and the app a
 
 No stock, AI-generated, or unrelated photographs are used as evidence. The default Corolla demonstration has no photos, is labelled as a demo, and is not an advertisement. Its vehicle details and price are illustrative.
 
-## Single HTML file: no installation
+## Car-ad marketplace: no installation
+
+[Download the car-ad marketplace](https://github.com/hague143/360-app/raw/refs/heads/main/downloads/CarView-Pakistan-Marketplace.zip), extract it and open **CarView-Pakistan-Marketplace.html**. It adds a five-step car-ad form, gallery photos, seller contact, buyer preview, searchable/filterable local showroom, drafts, editing/sold/deletion and portable ad/backup HTML copies. Google sign-in is deferred. The existing photo/video 360 studio is embedded as a separate module without changing its source or media/gesture logic; the build verifies its SHA256. Saved standalone 360 HTML files can be imported into an ad.
+
+This remains the local, no-account browser test the user requested: showroom ads are stored on the current device, not publicly hosted. Downloaded copies contain the selected ad's media/contact details; a full backup includes all drafts/ads. See [the reference-access and flow notes](docs/CLASSIFIEDS-FLOW.md) for the blocked PakWheels audit, design scope and preservation boundary. Build with `npm run package:marketplace`; validate the extracted package with `npm run test:marketplace` (FFmpeg is used only to create a developer test clip).
+
+## Standalone 360 studio: no installation
 
 [Download the browser edition](https://github.com/hague143/360-app/raw/refs/heads/main/downloads/CarView-Pakistan-Browser.zip), extract it, and double-click **CarView-Pakistan.html** in Chrome or Edge. It works directly at `file://`, offline, without Node.js, npm, a server, a cloud account or external libraries/fonts. The standalone [HTML source](downloads/CarView-Pakistan.html) is the complete runnable app.
 

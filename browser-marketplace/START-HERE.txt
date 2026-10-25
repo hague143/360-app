@@ -1,0 +1,56 @@
+CARVIEW PAKISTAN - CAR ADS + 360 VIEW
+===================================
+1. ZIP ko Extract All karein.
+2. CarView-Pakistan-Marketplace.html double-click karke Chrome/Edge mein kholein.
+3. Sell your car par click karein.
+
+AD BANANE KE 5 STEPS
+-------------------
+1. City, area, make, model, year aur optional variant.
+2. Registration, mileage, colour, fuel, transmission, assembly, engine,
+   price, features aur car ki description.
+3. Normal ad photos aur aapka original 360 studio. Us mein pehle ki tarah
+   photos ya video use karein, pinch zoom aur Inspect details chalayein.
+   Purani saved 360 HTML file ho to Use saved 360 HTML par select karein.
+4. Seller name, Pakistani mobile number, private seller/dealer aur WhatsApp.
+5. Buyer preview check karke Save to showroom dabayein.
+
+EXPLORE CARS
+------------
+Is browser ke showroom mein saved ads nazar aayengi. City, make, price,
+year, fuel, transmission aur mileage se search/filter kar sakte hain.
+Ad khol kar photos, 360 view, specs, features, seller description aur
+phone/WhatsApp buttons check karein.
+
+MY ADS
+------
+Draft continue/edit, preview, mark sold aur delete yahan se karein.
+Listed ad edit karne par draft banta hai; review ke baad showroom mein
+dobara save karein. Sold ads Explore cars se hat jati hain.
+
+SAVE / SHARE
+------------
+Normal browser mein data isi device/profile par auto-save hota hai.
+Private mode ya blocked/full browser storage ho to status message dekhein.
+Download this ad se ek HTML file mein us ad ki photos, 360 aur contact
+details save hoti hain. Is copy ko doosre computer par bhi khol sakte hain.
+My ads > Download backup se tamam drafts/ads/photos/contacts ki copy banti hai.
+Shared copy mein contact number aur notes bhi shamil hote hain.
+
+Node.js, account, installation ya internet nahi chahiye.
+Google sign-in is version mein add nahi kiya gaya.
+Yeh local test marketplace hai: ad PakWheels ya kisi public website par
+post nahi hoti. Doosre log tab dekhte hain jab aap HTML copy share karte hain.
+Public multi-user hosting aur account verification baad mein configure honge.
+
+ORIGINAL 360 FEATURE
+--------------------
+Original studio file aur uske video/gesture code ko change nahi kiya gaya.
+Naya listing flow usi studio ko embedded module ke taur par use karta hai.
+Studio ka Save HTML copy button standalone 360 HTML bhi save karta hai.
+Video: MP4 (H.264) recommended, max 500 MB/3 minutes. 36/72/120 frames.
+Rotate car = drag. Pinch/wheel/+ = zoom. Inspect details = drag to pan.
+Fit car = poori car dobara frame mein. Other formats browser par depend hain.
+
+Is release mein koi actual ad, real phone number ya user-uploaded video
+include nahi hai. Images aap khud select karte hain.
