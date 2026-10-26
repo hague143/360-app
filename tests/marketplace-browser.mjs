@@ -13,9 +13,6 @@ const errors = [],
   external = [];
 const origin = "http://carview-marketplace-fixture.test";
 const directRelease = process.env.CARVIEW_TEST_RELEASE === "direct";
-const heroFile = directRelease
-  ? await readFile("downloads/carview-neon-hero.png")
-  : null;
 async function open(html, mobile = false) {
   const context = await browser.newContext({
     offline: true,
@@ -31,18 +28,10 @@ async function open(html, mobile = false) {
   await context.route(origin + "/**", (route) =>
     route.fulfill({ contentType: "text/html; charset=utf-8", body: html }),
   );
-  if (directRelease)
-    await context.route(origin + "/carview-neon-hero.png", (route) =>
-      route.fulfill({ contentType: "image/png", body: heroFile }),
-    );
   const page = await context.newPage();
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("request", (request) => {
-    if (
-      /^https?:/.test(request.url()) &&
-      !request.isNavigationRequest() &&
-      !(directRelease && request.url() === origin + "/carview-neon-hero.png")
-    )
+    if (/^https?:/.test(request.url()) && !request.isNavigationRequest())
       external.push(request.url());
   });
   page.on("dialog", (dialog) => dialog.accept());
@@ -64,6 +53,50 @@ async function readyStudio(page) {
   const frame = page.frameLocator(".studio-frame");
   await frame.locator('html[data-ready="true"]').waitFor();
   return frame;
+}
+async function assertBuyerMedia(page, photoCount) {
+  let frame = await readyStudio(page);
+  assert.equal(
+    await frame.locator("#photo").isVisible(),
+    true,
+    "Buyer sees actual studio photograph",
+  );
+  await frame.locator("#photo").evaluate((image) => image.decode());
+  const before = await frame.locator("#photo").getAttribute("src");
+  await frame.locator("#next").click();
+  assert.notEqual(
+    await frame.locator("#photo").getAttribute("src"),
+    before,
+    "Buyer rotation changes actual photo",
+  );
+  await page.locator("#detail-photos-tab").click();
+  assert.equal(
+    await page.locator(".detail-thumbs button").count(),
+    photoCount,
+    "All gallery images and frames stay available",
+  );
+  assert.equal(await page.locator("#detail-image").isVisible(), true);
+  await page.locator(".detail-thumbs button").last().click();
+  await page.locator("#detail-image").evaluate((image) => image.decode());
+  await page.locator("#detail-video-tab").click();
+  await page.waitForFunction(
+    () => document.querySelector("#detail-video-player").readyState >= 2,
+  );
+  await page.locator("#detail-video-player").evaluate(async (video) => {
+    await video.play();
+  });
+  await page.waitForFunction(
+    () => document.querySelector("#detail-video-player").currentTime > 0.05,
+  );
+  await page.locator("#detail-studio-tab").click();
+  assert.equal(
+    await page
+      .locator("#detail-video-player")
+      .evaluate((video) => video.paused),
+    true,
+  );
+  frame = await readyStudio(page);
+  assert.equal(await frame.locator("#photo").isVisible(), true);
 }
 async function exported(page, button, name) {
   const event = page.waitForEvent("download");
@@ -105,14 +138,40 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   );
   browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
-    args: ["--no-sandbox", "--disable-dev-shm-usage"],
+    args: [
+      "--no-sandbox",
+      "--disable-dev-shm-usage",
+      "--enable-unsafe-swiftshader",
+    ],
   });
   const { page, context } = await open(html);
   await page
     .getByRole("heading", { name: "Your showroom starts with one car." })
     .waitFor();
   await page.waitForFunction(
-    () => document.querySelector(".hero-car").naturalWidth > 0,
+    () => document.querySelector("#hero-vehicle").dataset.render === "webgl",
+  );
+  const startAngle = await page
+    .locator("#hero-vehicle")
+    .getAttribute("data-angle");
+  await page.waitForFunction(
+    (angle) => document.querySelector("#hero-vehicle").dataset.angle !== angle,
+    startAngle,
+  );
+  await page.getByRole("button", { name: "Pause showroom rotation" }).click();
+  const pausedAngle = await page
+    .locator("#hero-vehicle")
+    .getAttribute("data-angle");
+  await page.waitForTimeout(200);
+  assert.equal(
+    await page.locator("#hero-vehicle").getAttribute("data-angle"),
+    pausedAngle,
+  );
+  await page.getByRole("button", { name: "Play showroom rotation" }).click();
+  assert.equal(await page.locator(".hero-fallback").isVisible(), false);
+  assert.match(
+    await page.locator(".scene-topline").textContent(),
+    /LAND CRUISER.*2026/,
   );
   const scene = await page.locator(".hero-scene").boundingBox();
   await page.mouse.move(
@@ -265,6 +324,11 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   await frame.locator("#video-tab").click();
   await frame.locator("#video-file").setInputFiles(clip);
   await frame.locator("#video-settings").waitFor();
+  await page.waitForFunction(() =>
+    document
+      .querySelector(".video-file-row")
+      ?.textContent.includes("pattern.mp4"),
+  );
   await frame.locator("#video-frames").selectOption("36");
   await frame.locator("#create-video").click();
   await frame.locator("#busy").waitFor({ state: "hidden", timeout: 90000 });
@@ -297,6 +361,8 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     .waitFor();
   frame = await readyStudio(page);
   assert.equal(await frame.locator(".thumb").count(), 36);
+  await assertBuyerMedia(page, 38);
+  frame = await readyStudio(page);
   assert.equal(await frame.locator("#inspect-mode").isVisible(), true);
   assert.equal(await frame.locator("#video-tab").isVisible(), false);
   await page.screenshot({
@@ -305,6 +371,7 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   });
   await click(page, "Save to showroom →");
   await page.locator(".detail-heading h1").waitFor();
+  await assertBuyerMedia(page, 38);
   assert.match(
     await page.locator(".detail-heading h1").textContent(),
     /Toyota Corolla GLi 1.3 2020/,
@@ -327,11 +394,22 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   assert.equal(data.ads.length, 1);
   assert.equal(data.ads[0].studio.photos.length, 36);
   assert.equal(data.ads[0].gallery.length, 2);
+  assert.match(data.ads[0].video.src, /^data:video\/mp4;base64,/);
+  const videoBytes = Buffer.from(data.ads[0].video.src.split(",")[1], "base64");
+  assert.deepEqual(
+    videoBytes,
+    await readFile(clip),
+    "Original clip bytes must survive ad export",
+  );
   assert.equal(data.ads[0].details.description, description);
   const { page: copy } = await open(downloaded.text);
   await copy.locator(".detail-heading h1").waitFor();
   frame = await readyStudio(copy);
   assert.equal(await frame.locator(".thumb").count(), 36);
+  await assertBuyerMedia(copy, 38);
+  await copy.reload();
+  await copy.locator(".detail-heading h1").waitFor();
+  await assertBuyerMedia(copy, 38);
   assert.equal(await copy.evaluate(() => !!window.carviewInjection), false);
   console.log(
     "PASS Five-step validation, car/price/features/contact, gallery covers, unchanged photo/video studio, buyer preview, phone/WhatsApp and portable ad with 36-frame media",
@@ -448,7 +526,7 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   });
   const { page: mobileHome } = await open(html, true);
   await mobileHome.waitForFunction(
-    () => document.querySelector(".hero-car").naturalWidth > 0,
+    () => document.querySelector("#hero-vehicle").dataset.render === "webgl",
   );
   assert.equal(
     await mobileHome.evaluate(
@@ -490,6 +568,113 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     /Session only/,
   );
   await exported(fallback, "Download this ad", "fallback.html");
+  // Older ads still open; create an original-video-only ad through the real
+  // uploader without requiring a derived 360 sequence or gallery photo.
+  const legacyState = structuredClone(data);
+  legacyState.copyId = "legacy-media-fixture";
+  delete legacyState.ads[0].video;
+  function withData(state) {
+    return downloaded.text.replace(
+      /(<script[^>]*id="marketplace-data"[^>]*>)[\s\S]*?(<\/script>)/,
+      (_, start, end) =>
+        start + JSON.stringify(state).replace(/</g, "\\u003c") + end,
+    );
+  }
+  const { page: legacy } = await open(withData(legacyState));
+  await readyStudio(legacy);
+  assert.equal(await legacy.locator("#detail-video-tab").count(), 0);
+  assert.equal(
+    await legacy.frameLocator(".studio-frame").locator("#photo").isVisible(),
+    true,
+  );
+  const videoState = structuredClone(legacyState);
+  videoState.copyId = "video-only-fixture";
+  videoState.ads[0].gallery = [];
+  videoState.ads[0].studio.photos = [];
+  const { page: videoOnly } = await open(withData(videoState));
+  await click(videoOnly, "Edit this ad");
+  await videoOnly.locator('[data-action="step"][data-step="3"]').click();
+  await readyStudio(videoOnly);
+  await videoOnly.locator("#ad-video-files").setInputFiles(clip);
+  await videoOnly.waitForFunction(() =>
+    document
+      .querySelector(".video-file-row")
+      ?.textContent.includes("pattern.mp4"),
+  );
+  // An invalid replacement must preserve the saved original video.
+  await videoOnly.locator("#ad-video-files").setInputFiles({
+    name: "bad.mp4",
+    mimeType: "video/mp4",
+    buffer: Buffer.from("not a video"),
+  });
+  await videoOnly.waitForFunction(() =>
+    document.querySelector("#toast").textContent.includes("cannot play"),
+  );
+  assert.match(
+    await videoOnly.locator(".video-file-row").textContent(),
+    /pattern.mp4/,
+  );
+  await next(videoOnly);
+  await click(videoOnly, "Preview ad →");
+  await videoOnly.waitForFunction(
+    () => document.querySelector("#detail-video-player")?.readyState >= 2,
+  );
+  assert.equal(
+    await videoOnly.locator("#detail-video-player").isVisible(),
+    true,
+  );
+  assert.equal(
+    await videoOnly.locator("#detail-video-tab").getAttribute("class"),
+    "active",
+  );
+  assert.equal(await videoOnly.locator(".studio-frame").count(), 0);
+  await click(videoOnly, "Save to showroom →");
+  await videoOnly.locator(".detail-heading h1").waitFor();
+  await videoOnly.locator("#detail-video-player").evaluate(async (video) => {
+    await video.play();
+  });
+  await videoOnly.waitForFunction(
+    () => document.querySelector("#detail-video-player").currentTime > 0.05,
+  );
+  const videoCopy = await exported(
+    videoOnly,
+    "Download this ad",
+    "video-only.html",
+  );
+  assert.ok(
+    payload(videoCopy.text).ads[0].video.poster.startsWith("data:image/jpeg"),
+  );
+  const { page: videoRestored } = await open(videoCopy.text);
+  await videoRestored.waitForFunction(
+    () => document.querySelector("#detail-video-player")?.readyState >= 2,
+  );
+  assert.equal(
+    await videoRestored.locator("#detail-video-player").isVisible(),
+    true,
+  );
+  // A locally visible fallback keeps WebGL-unavailable devices usable.
+  const noGLContext = await browser.newContext({ offline: true });
+  await noGLContext.addInitScript(() => {
+    const native = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (kind, ...args) {
+      return String(kind).startsWith("webgl")
+        ? null
+        : native.call(this, kind, ...args);
+    };
+  });
+  await noGLContext.route(origin + "/**", (route) =>
+    route.fulfill({ contentType: "text/html", body: html }),
+  );
+  const noGL = await noGLContext.newPage();
+  noGL.on("pageerror", (error) => errors.push(error.message));
+  await noGL.goto(origin + "/index.html");
+  await noGL.waitForFunction(
+    () => document.documentElement.dataset.ready === "true",
+  );
+  assert.equal(await noGL.locator(".hero-fallback").isVisible(), true);
+  console.log(
+    "PASS Original video upload/playback/preservation, video-only publish/export/reopen, legacy ads, actual buyer media on reload and WebGL fallback",
+  );
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);
   console.log(

@@ -10,13 +10,31 @@ function studioBridge(config) {
   let capture = null,
     dirty = false,
     debounce = null;
+  // Read our own export Blob directly. This also works at file:// without
+  // relying on fetch permissions for a blob:null URL.
+  const exports = new Map();
+  const createURL = URL.createObjectURL.bind(URL);
+  const revokeURL = URL.revokeObjectURL.bind(URL);
+  URL.createObjectURL = (blob) => {
+    const url = createURL(blob);
+    if (blob.type.startsWith("text/html")) exports.set(url, blob);
+    return url;
+  };
+  URL.revokeObjectURL = (url) => {
+    exports.delete(url);
+    revokeURL(url);
+  };
   const nativeClick = HTMLAnchorElement.prototype.click;
   HTMLAnchorElement.prototype.click = function () {
     if (this.href.startsWith("blob:") && this.download.endsWith(".html")) {
       const request = capture;
       capture = null;
-      void fetch(this.href)
-        .then((response) => response.text())
+      const blob = exports.get(this.href);
+      void (
+        blob
+          ? blob.text()
+          : Promise.reject(new Error("Export data is unavailable."))
+      )
         .then((text) => {
           const parsed = new DOMParser().parseFromString(text, "text/html");
           const project = JSON.parse(
@@ -100,6 +118,19 @@ function studioBridge(config) {
       ? "Included in this car ad"
       : "360 photos save with this ad";
     if (!config.readOnly) {
+      // Preserve the selected original clip as well as any extracted frames.
+      // This listener wraps the trusted studio; its media/gesture code is intact.
+      for (const id of ["video-file", "files"]) {
+        document.getElementById(id)?.addEventListener("change", (event) => {
+          const files = Array.from(event.target.files || []);
+          if (
+            files.length === 1 &&
+            (files[0].type.startsWith("video/") ||
+              /\.(mp4|webm|mov|m4v)$/i.test(files[0].name))
+          )
+            send("video", { file: files[0] });
+        });
+      }
       new MutationObserver(changed).observe(
         document.getElementById("filmstrip"),
         { childList: true },
@@ -181,12 +212,12 @@ function mountStudio(host, ad, readOnly = false) {
     : ".brand,.header-label,.header-actions>.pill,.intro,.footer,.aside-card:nth-child(2){display:none!important}.header-inner{min-height:54px!important;padding:0 16px!important;max-width:none!important}.header-actions{margin-left:auto!important}main.wrap{padding:15px!important;max-width:none!important}.workspace{grid-template-columns:minmax(0,1fr) 250px!important;gap:15px!important}.stage{height:330px!important}.guide{margin-bottom:0!important}@media(max-width:1000px){.workspace{grid-template-columns:minmax(0,1fr)!important}.aside{display:block!important}.stage{height:300px!important}}";
   // Cosmetic host theme only. The protected standalone studio stays byte-identical.
   style.textContent += `
-  :root{color-scheme:dark;--ink:#edf4f9;--muted:#9cabbc;--green:#c4ff50;--dark:#d5ff87;--line:#2d3d4b;--bg:#0c141e;--mint:#c4ff5010;--white:#131e29;background:#0c141e;color:#edf4f9}
-  body{background:#0c141e}.header{background:#101a25;border-color:#2d3d4b}.card,.aside-card{background:linear-gradient(135deg,#17232e,#101b26);border-color:#304351}.viewer-top,.viewer-tools,.controls{border-color:#2b3d4a}.viewer-tools{background:#111d28}.stage{background:radial-gradient(ellipse,#203129,#0d161f)}.stage.has-photos,.stage:fullscreen{background:#09121a}.stage.drag-over{box-shadow:inset 0 0 0 3px #c4ff50;background:#1e3020}
-  .button,.icon-button,.mode-button{background:#192735;border-color:#3a4d5d;color:#dce8f1;box-shadow:0 3px 7px #00000018}.button:hover,.icon-button:hover:not(:disabled),.mode-button:hover{background:#273a45;border-color:#60754e}.button.primary{background:#c4ff50;border-color:#d9ffa0;color:#16200c;box-shadow:0 0 20px #b5ff3b12}.button.primary:hover{background:#dcff91}.play,.mode-button[aria-pressed=true]{background:#c4ff5014;border-color:#a5d65a40;color:#d4f7a5}.source-tabs{background:#0b141e;border:1px solid #283c4a}.source-tabs button{color:#9db0c0}.source-tabs button[aria-selected=true]{background:#25371f;color:#ddf8bd;box-shadow:0 0 15px #b9ff2e08}
-  .field input,.field textarea,.field select{background:#0c1720;border-color:#354855;color:#ebf4f9}.field input::placeholder,.field textarea::placeholder{color:#8397a9}.field input:focus,.field textarea:focus,.field select:focus{outline-color:#c4ff50;border-color:#9ac64d}.field label,.loop-option label{color:#d4e0e9}.aside-card p,.empty p,.formats,.caption-row,.angle-total,.filename,.storage,.empty small,.gesture-help{color:#9eafbe}.aside-eyebrow,.eyebrow,.text-button,.film-actions button{color:#c4ee9b}
-  .frame-badge{background:#14221ce8;border-color:#688047;color:#e7f8db}.frame-badge span{color:#b3c3b3}.drag-hint{background:#152923df;color:#c4dccb;border:1px solid #69885840}.empty-art{color:#92b49d}.empty-art span{background:#1d2c20;border-color:#52723b;color:#d7f8ae}.thumb{background:#172735}.thumb.selected{border-color:#c4ff50}.thumb img{background:#0b151d}.thumb span{color:#acbdcc}.thumb b{background:#172820e8;color:#dff2d0}.empty-film{border-color:#485d48;color:#9eb1a5}.guide{background:#192d22}.guide h3{color:#dbedcd}.guide p{color:#a0b79f}.guide svg{color:#c4ff50}.film-header h2 span,.selection-tools>span,.zoom-label{color:#9caebd}.divider{background:#314751}.video-preview{background:#08121a}.video-name{color:#a8b9c6}.loop-option{border-color:#314631}
-  .notice{background:#32291d;color:#eddaad;border-color:#806d41}.notice.error{background:#331d22;color:#ffc1b0;border-color:#8c5147}.notice button{color:inherit}.help-dialog{background:#14202a;color:#e8f0f4;border-color:#3d5544}.help-dialog p,.help-dialog li{color:#aabecb}.help-dialog strong{color:#ecf4e7}.help-dialog::backdrop{background:#03090dbb}.selection-tools .remove{color:#ffb2a2}.stage-fullscreen-exit{background:#13221eea}
+  :root{color-scheme:dark;--ink:#edf4f9;--muted:#9cabbc;--green:#b650ff;--dark:#cd87ff;--line:#2d3d4b;--bg:#0c141e;--mint:#b650ff10;--white:#131e29;background:#0c141e;color:#edf4f9}
+  body{background:#0c141e}.header{background:#101a25;border-color:#2d3d4b}.card,.aside-card{background:linear-gradient(135deg,#17232e,#101b26);border-color:#304351}.viewer-top,.viewer-tools,.controls{border-color:#2b3d4a}.viewer-tools{background:#111d28}.stage{background:radial-gradient(ellipse,#2a2031,#0d161f)}.stage.has-photos,.stage:fullscreen{background:#09121a}.stage.drag-over{box-shadow:inset 0 0 0 3px #b650ff;background:#281e30}
+  .button,.icon-button,.mode-button{background:#192735;border-color:#3a4d5d;color:#dce8f1;box-shadow:0 3px 7px #00000018}.button:hover,.icon-button:hover:not(:disabled),.mode-button:hover{background:#273a45;border-color:#654e75}.button.primary{background:#b650ff;border-color:#d7a0ff;color:#180c20;box-shadow:0 0 20px #ad3bff12}.button.primary:hover{background:#d191ff}.play,.mode-button[aria-pressed=true]{background:#b650ff14;border-color:#a25ad640;color:#d5a5f7}.source-tabs{background:#0b141e;border:1px solid #283c4a}.source-tabs button{color:#9db0c0}.source-tabs button[aria-selected=true]{background:#2d1f37;color:#dfbdf8;box-shadow:0 0 15px #a82eff08}
+  .field input,.field textarea,.field select{background:#0c1720;border-color:#354855;color:#ebf4f9}.field input::placeholder,.field textarea::placeholder{color:#8397a9}.field input:focus,.field textarea:focus,.field select:focus{outline-color:#b650ff;border-color:#944dc6}.field label,.loop-option label{color:#d4e0e9}.aside-card p,.empty p,.formats,.caption-row,.angle-total,.filename,.storage,.empty small,.gesture-help{color:#9eafbe}.aside-eyebrow,.eyebrow,.text-button,.film-actions button{color:#cb9bee}
+  .frame-badge{background:#1c1422e8;border-color:#684780;color:#ecdbf8}.frame-badge span{color:#bcb3c3}.drag-hint{background:#291521df;color:#d2c4dc;border:1px solid #74588840}.empty-art{color:#a692b4}.empty-art span{background:#261d2c;border-color:#5b3b72;color:#d9aef8}.thumb{background:#172735}.thumb.selected{border-color:#b650ff}.thumb img{background:#0b151d}.thumb span{color:#acbdcc}.thumb b{background:#211728e8;color:#e4d0f2}.empty-film{border-color:#54485d;color:#a99eb1}.guide{background:#25192d}.guide h3{color:#e0cded}.guide p{color:#ad9fb7}.guide svg{color:#b650ff}.film-header h2 span,.selection-tools>span,.zoom-label{color:#9caebd}.divider{background:#314751}.video-preview{background:#08121a}.video-name{color:#a8b9c6}.loop-option{border-color:#3d3146}
+  .notice{background:#32291d;color:#eddaad;border-color:#806d41}.notice.error{background:#331d22;color:#ffc1b0;border-color:#8c5147}.notice button{color:inherit}.help-dialog{background:#14202a;color:#e8f0f4;border-color:#4b3d55}.help-dialog p,.help-dialog li{color:#aabecb}.help-dialog strong{color:#efe7f4}.help-dialog::backdrop{background:#03090dbb}.selection-tools .remove{color:#ffb2a2}.stage-fullscreen-exit{background:#22131cea}
   `;
   doc.body.append(style);
   const bridge = doc.createElement("script");
@@ -213,6 +244,11 @@ function studioMessage(event) {
   if (message.type === "carview:ready") {
     studio.ready = true;
     studio.resolveReady();
+  }
+  if (message.type === "carview:video" && !studio.readOnly) {
+    const ad = appState.ads.find((item) => item.id === studio.adId);
+    if (ad && message.file instanceof Blob)
+      void addVideo(message.file, ad).catch((error) => toast(error.message));
   }
   if (message.type === "carview:snapshot" && !studio.readOnly) {
     const pending = studio.pending.get(message.requestId);
@@ -291,7 +327,8 @@ function updateMediaSummary(ad) {
       ad.gallery.length +
       " photos · " +
       ad.studio.photos.length +
-      " walk-around frames";
+      " walk-around frames" +
+      (ad.video ? " · 1 video" : "");
   if ($("studio-caption"))
     $("studio-caption").textContent = ad.studio.photos.length
       ? ad.studio.photos.length +

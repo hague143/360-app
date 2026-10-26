@@ -1,1 +1,3 @@
-`neon-hero.png` is an AI-generated decorative concept-studio illustration created with OpenAI image_gen for the CarView UI redesign. It is not a listing photograph, a real vehicle identity or condition evidence. The original generated PNG is preserved without pixel edits. The build embeds it directly in the standalone HTML; no remote image request is needed.
+`neon-hero.png` is a legacy AI-generated decorative concept-studio illustration created with OpenAI image_gen for the earlier lime/cyan UI. It is not a listing photograph, a real vehicle identity or condition evidence. The original PNG is preserved without pixel edits, but is no longer included or required by the current build.
+
+The purple/pink hero now comes from the procedural display model in `../hero3d.js`, bundled with local Three.js and its MIT licence. It uses no downloaded vehicle geometry or textures and does not claim an exact Toyota CAD replica. All actual listing media comes from the user's uploads.

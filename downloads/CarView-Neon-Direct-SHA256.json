@@ -2,13 +2,8 @@
   "files": [
     {
       "name": "CarView-Neon-Direct.html",
-      "bytes": 219650,
-      "sha256": "8d0a3745f57ed87df735d0825cf240d636f53c4cf9c2f2416811a13268fb4216"
-    },
-    {
-      "name": "carview-neon-hero.png",
-      "bytes": 2000790,
-      "sha256": "67c202e7046bf5f63cc7abac85edd5bb34ce060060bd296bcb2a4e5b6aa03063"
+      "bytes": 785696,
+      "sha256": "ef3685fba192b4d8ac8cf1abdf97c1c8501d81a805cabd3545814f94dfc81407"
     }
   ]
 }

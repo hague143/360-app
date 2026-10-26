@@ -300,6 +300,7 @@ function newAd() {
       sellerType: "Private seller",
     },
     gallery: [],
+    video: null,
     studio: blankStudio(),
   };
 }
@@ -324,7 +325,40 @@ function titleOf(ad) {
   );
 }
 function coverOf(ad) {
-  return ad.gallery[0]?.src || ad.studio.photos[0]?.src || "";
+  return (
+    ad.gallery[0]?.src || ad.studio.photos[0]?.src || ad.video?.poster || ""
+  );
+}
+function listingPhotos(ad) {
+  // Every uploaded photo and extracted frame remains reachable in the ad.
+  const seen = new Set();
+  return [...ad.gallery, ...ad.studio.photos].filter((photo) => {
+    if (seen.has(photo.src)) return false;
+    seen.add(photo.src);
+    return true;
+  });
+}
+const MAX_AD_VIDEO = 50 * 1024 * 1024;
+function cleanVideo(value) {
+  if (value == null) return null;
+  if (
+    typeof value.src !== "string" ||
+    value.src.length > Math.ceil(MAX_AD_VIDEO / 3) * 4 + 100 ||
+    !/^data:video\/(mp4|webm|quicktime|x-m4v);base64,[A-Za-z0-9+/]+={0,2}$/.test(
+      value.src,
+    )
+  )
+    throw new Error("The saved ad video is invalid or larger than 50 MB.");
+  return {
+    name: String(value.name || "Car video").slice(0, 180),
+    src: value.src,
+    poster:
+      typeof value.poster === "string" &&
+      value.poster.length < 500000 &&
+      IMAGE_DATA.test(value.poster)
+        ? value.poster
+        : "",
+  };
 }
 function phoneNumber(value) {
   const input = String(value || "").trim();
@@ -412,6 +446,7 @@ function cleanAd(value) {
     ad.contact[key] = String(value.contact?.[key] || "").slice(0, 80);
   ad.contact.whatsapp = value.contact?.whatsapp === true;
   ad.gallery = value.gallery.map(cleanPhoto);
+  ad.video = cleanVideo(value.video);
   ad.studio = cleanStudio(value.studio || blankStudio());
   return ad;
 }
@@ -478,8 +513,8 @@ function validateStep(ad, step) {
     if (d.description.trim().length < 20)
       errors.description = "Describe your car in at least 20 characters.";
   }
-  if (step === 3 && !ad.gallery.length && !ad.studio.photos.length)
-    errors.media = "Add at least one car photo or a photo/video walk-around.";
+  if (step === 3 && !ad.gallery.length && !ad.studio.photos.length && !ad.video)
+    errors.media = "Add at least one car photo, video or photo walk-around.";
   if (step === 4) {
     if (ad.contact.name.trim().length < 2)
       errors.name = "Enter your name (at least 2 characters).";

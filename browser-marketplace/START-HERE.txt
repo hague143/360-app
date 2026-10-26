@@ -6,20 +6,21 @@ CARVIEW PAKISTAN - CAR ADS + 360 VIEW
 
 NEON SHOWROOM UI
 ----------------
-Dark neon theme, lime/cyan lighting aur concept-car studio artwork shamil hai.
-Desktop par hero/card par cursor move karne se depth/tilt effect nazar aata hai.
-Hero ka Glow on/off button sirf decorative studio lighting change karta hai.
-Mobile par layout responsive hai; car ka actual 360 viewer pehle ki tarah
-pinch, rotate aur Inspect details se chalta hai. Reduced-motion setting mein
-decorative movement band rehti hai. Hero ki car illustration AI-generated
-design artwork hai, kisi real listing ki photograph nahi.
+Purple/pink neon theme aur black Land Cruiser 2026-inspired 3D illustration.
+Hero car apne aap ghoomti hai. Drag se angle badlein; Pause/Rotate se control.
+Yeh stylised display model hai, Toyota ka verified CAD ya seller ki car nahi.
+HTML ke andar renderer hai; alag PNG, account ya internet nahi chahiye.
+WebGL na mile to SVG car illustration nazar aati hai. Reduced-motion setting
+mein auto rotation band rehti hai; Rotate button se chala sakte hain.
 
 AD BANANE KE 5 STEPS
 -------------------
 1. City, area, make, model, year aur optional variant.
 2. Registration, mileage, colour, fuel, transmission, assembly, engine,
    price, features aur car ki description.
-3. Normal ad photos aur aapka original 360 studio. Us mein pehle ki tarah
+3. Normal ad photos, original video (50 MB tak) aur aapka original 360 studio.
+   Video preview aur published ad mein Video tab par chalegi. Studio se
+   selected original video bhi save hoti hai (50 MB tak). Us mein pehle ki tarah
    photos ya video use karein, pinch zoom aur Inspect details chalayein.
    Purani saved 360 HTML file ho to Use saved 360 HTML par select karein.
 4. Seller name, Pakistani mobile number, private seller/dealer aur WhatsApp.
@@ -29,7 +30,8 @@ EXPLORE CARS
 ------------
 Is browser ke showroom mein saved ads nazar aayengi. City, make, price,
 year, fuel, transmission aur mileage se search/filter kar sakte hain.
-Ad khol kar photos, 360 view, specs, features, seller description aur
+Ad khol kar tamam photos/frames, original Video tab, 360 view, specs,
+features, seller description aur
 phone/WhatsApp buttons check karein.
 
 MY ADS

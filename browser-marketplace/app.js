@@ -300,7 +300,9 @@ function mediaStep(ad) {
     ) +
     '<div class="gallery-drop"><h3>Photos that help buyers decide.</h3><p>Exterior, interior, engine and any areas you want to explain.<br>JPG, PNG, WebP · 10 MB each · up to 20 ad photos</p><button class="btn primary" data-action="choose-gallery">＋ Add car photos</button><p class="photo-busy" id="photo-busy" hidden></p></div><div class="gallery-grid" id="gallery-grid">' +
     galleryItems(ad) +
-    '</div><div class="studio-section"><div class="studio-heading"><div><h3>Interactive 360° photo view</h3><p>Use your photo sequence or a full walk-around video.</p></div><button class="btn small" data-action="import-studio">Use saved 360 HTML</button></div><p class="studio-caption" id="studio-caption"></p><div class="studio-host" id="studio-host"></div><div class="info-box">Keep close-ups and interior shots in the ad photos above. In the 360 studio, use an ordered exterior lap. The original photo/video import, rotation, pinch zoom and detail controls are included here.</div></div></section>'
+    '</div><div class="ad-video-section"><div class="studio-heading"><div><h3>Car video</h3><p>The original clip plays in your preview and published ad. MP4/H.264 recommended · up to 50 MB.</p></div><button class="btn small" data-action="choose-video">＋ Add video</button></div><div id="ad-video-editor">' +
+    videoEditor(ad) +
+    '</div></div><div class="studio-section"><div class="studio-heading"><div><h3>Interactive 360° photo view</h3><p>Use your photo sequence or a full walk-around video. Choose Create photo view after selecting a clip to build its interactive angles.</p></div><button class="btn small" data-action="import-studio">Use saved 360 HTML</button></div><p class="studio-caption" id="studio-caption"></p><div class="studio-host" id="studio-host"></div><div class="info-box">Your ad includes all gallery photos, every walk-around frame and the saved original video. In the 360 studio, use an ordered exterior lap; keep close-ups and interior shots in the gallery. Videos over 50 MB can still produce frames in the studio, but the original clip must be shortened to save in the ad.</div></div></section>'
   );
 }
 function contactStep(ad) {
@@ -373,7 +375,9 @@ function wizardAside(ad, step) {
     ad.gallery.length +
     " photos · " +
     ad.studio.photos.length +
-    ' walk-around frames</dd></dl><p style="margin-top:18px">Drafts save in this browser. You can come back through My ads.</p></aside>'
+    " walk-around frames" +
+    (ad.video ? " · 1 video" : "") +
+    '</dd></dl><p style="margin-top:18px">Drafts save in this browser. You can come back through My ads.</p></aside>'
   );
 }
 function renderWizard(ad, step) {
@@ -672,8 +676,8 @@ function renderGarage() {
 function listingContent(ad, preview = false) {
   const d = ad.details,
     hasStudio = ad.studio.photos.length > 0,
-    photos = ad.gallery.length ? ad.gallery : ad.studio.photos.slice(0, 20),
-    use360 = hasStudio && (ad.studio.loop || !ad.gallery.length),
+    photos = listingPhotos(ad),
+    use360 = hasStudio,
     phone = phoneNumber(ad.contact.phone);
   const specs = [
     ["Model year", d.year],
@@ -698,7 +702,7 @@ function listingContent(ad, preview = false) {
     '<div class="listing-layout' +
     (preview ? " preview-layout" : "") +
     '"><div><div class="detail-gallery"><div class="detail-media-tabs"><button data-action="detail-photos" class="' +
-    (!use360 ? "active" : "") +
+    (!use360 && photos.length ? "active" : "") +
     '" id="detail-photos-tab">Photos (' +
     photos.length +
     ")</button>" +
@@ -709,8 +713,13 @@ function listingContent(ad, preview = false) {
         (ad.studio.loop ? "360° photo view" : "Photo walk-around") +
         "</button>"
       : "") +
+    (ad.video
+      ? '<button data-action="detail-video" id="detail-video-tab" class="' +
+        (!hasStudio && !photos.length ? "active" : "") +
+        '">▷ Video</button>'
+      : "") +
     '</div><div id="detail-photos"' +
-    (use360 ? " hidden" : "") +
+    (use360 || (!photos.length && ad.video) ? " hidden" : "") +
     ">" +
     (photos.length
       ? '<img class="detail-image" id="detail-image" src="' +
@@ -736,7 +745,23 @@ function listingContent(ad, preview = false) {
       : '<div class="empty-car" style="height:300px">' + CAR_ART + "</div>") +
     '</div><div id="detail-studio"' +
     (!use360 ? " hidden" : "") +
-    '><div id="detail-studio-host"></div></div></div><section class="detail-copy"><h2>Car specifications</h2><dl class="spec-grid">' +
+    '><div id="detail-studio-host"></div></div>' +
+    (ad.video
+      ? '<div id="detail-video"' +
+        (photos.length || hasStudio ? " hidden" : "") +
+        '><video id="detail-video-player" controls playsinline preload="metadata" src="' +
+        esc(ad.video.src) +
+        '"></video><p class="media-note">' +
+        esc(ad.video.name) +
+        " · Original seller video</p></div>"
+      : "") +
+    '<p class="media-inventory">' +
+    ad.gallery.length +
+    " ad photos · " +
+    ad.studio.photos.length +
+    " walk-around frames" +
+    (ad.video ? " · 1 video" : "") +
+    ' — included in this ad</p></div><section class="detail-copy"><h2>Car specifications</h2><dl class="spec-grid">' +
     specs
       .filter(([, value]) => value)
       .map(
@@ -816,6 +841,7 @@ function renderDetail(ad) {
   );
 }
 function render() {
+  disposeHero();
   detachStudio();
   formErrors = formErrors || {};
   $("nav-browse").classList.toggle(
@@ -841,6 +867,7 @@ function render() {
         : view.kind === "detail"
           ? renderDetail(ad)
           : renderBrowse();
+  mountHero();
   if (view.kind === "wizard" && view.step === 3) {
     updateMediaSummary(ad);
     mountStudio($("studio-host"), ad);
@@ -1065,6 +1092,123 @@ async function addGallery(files) {
     $("gallery-files").value = "";
   }
 }
+function videoEditor(ad) {
+  return ad.video
+    ? '<video class="ad-video-preview" controls playsinline preload="metadata" src="' +
+        esc(ad.video.src) +
+        '"></video><div class="video-file-row"><span>' +
+        esc(ad.video.name) +
+        ' · Saved with this ad</span><button class="btn small danger" data-action="remove-video">Remove video</button></div>'
+    : '<p class="media-note">No original video added yet. Choosing a video in the 360 studio also saves it here when it is 50 MB or smaller.</p>';
+}
+function hideDetailVideo() {
+  $("detail-video-player")?.pause();
+  if ($("detail-video")) $("detail-video").hidden = true;
+  $("detail-video-tab")?.classList.remove("active");
+}
+async function addVideo(file, ad = currentAd()) {
+  if (!file || !ad) return;
+  if (mediaBusy)
+    throw new Error(
+      "Let the current media finish saving, then add the video again.",
+    );
+  if (file.size > MAX_AD_VIDEO)
+    throw new Error(
+      "Original videos save in the ad up to 50 MB. Shorten this clip for video playback; its 360 frames can still be created in the studio.",
+    );
+  if (!file.size) throw new Error("This video file is empty.");
+  const name = String(file.name || "Car video.mp4");
+  const extension = name.split(".").pop().toLowerCase();
+  const mime = {
+    mp4: "video/mp4",
+    webm: "video/webm",
+    mov: "video/quicktime",
+    m4v: "video/x-m4v",
+  }[extension];
+  if (!mime)
+    throw new Error(
+      "Use an MP4, WebM, MOV or M4V video. MP4/H.264 plays on most devices.",
+    );
+  mediaBusy = true;
+  const editor = $("ad-video-editor");
+  if (editor)
+    editor.insertAdjacentHTML(
+      "afterbegin",
+      '<p class="media-note" id="video-saving" role="status">Saving original video with your ad…</p>',
+    );
+  const url = URL.createObjectURL(file),
+    video = document.createElement("video");
+  let timeout;
+  try {
+    await new Promise((resolve, reject) => {
+      timeout = setTimeout(
+        () =>
+          reject(new Error("Video preview timed out. Try an MP4/H.264 clip.")),
+        15000,
+      );
+      video.preload = "metadata";
+      video.onloadedmetadata = () =>
+        video.videoWidth &&
+        video.videoHeight &&
+        Number.isFinite(video.duration) &&
+        video.duration > 0
+          ? resolve()
+          : reject(new Error("This clip has no playable video track."));
+      video.onerror = () =>
+        reject(
+          new Error(
+            "This browser cannot play that video. Use an MP4/H.264 clip.",
+          ),
+        );
+      video.src = url;
+    });
+    clearTimeout(timeout);
+    // Capture a cover for video-only ads; the original clip is kept untouched.
+    let poster = "";
+    await new Promise((resolve) => {
+      timeout = setTimeout(resolve, 5000);
+      video.onseeked = () => {
+        clearTimeout(timeout);
+        resolve();
+      };
+      video.currentTime = Math.min(0.15, video.duration / 2);
+    });
+    if (video.readyState >= 2) {
+      const canvas = document.createElement("canvas");
+      const scale = Math.min(
+        1,
+        640 / Math.max(video.videoWidth, video.videoHeight),
+      );
+      canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
+      canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
+      canvas
+        .getContext("2d")
+        .drawImage(video, 0, 0, canvas.width, canvas.height);
+      poster = canvas.toDataURL("image/jpeg", 0.78);
+    }
+    const src = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () =>
+        reject(new Error("The video could not be read. Please try again."));
+      reader.readAsDataURL(file.slice(0, file.size, mime));
+    });
+    ad.video = cleanVideo({ name, src, poster });
+    persist(ad);
+    updateMediaSummary(ad);
+    if (editor?.isConnected) editor.innerHTML = videoEditor(ad);
+    toast(
+      "Original video saved. It will appear in the preview and published ad’s Video tab.",
+    );
+  } finally {
+    clearTimeout(timeout);
+    video.removeAttribute("src");
+    video.load();
+    URL.revokeObjectURL(url);
+    mediaBusy = false;
+    $("video-saving")?.remove();
+  }
+}
 async function importStudio(file) {
   if (!file || view.kind !== "wizard" || view.step !== 3) return;
   if (file.size > 100 * 1024 * 1024)
@@ -1173,6 +1317,24 @@ async function action(button) {
     $("gallery-files").click();
     return;
   }
+  if (kind === "choose-video") {
+    $("ad-video-files").click();
+    return;
+  }
+  if (kind === "remove-video") {
+    if (
+      ad &&
+      confirm(
+        "Remove the original video from this ad? The 360 frames are kept.",
+      )
+    ) {
+      ad.video = null;
+      persist(ad);
+      $("ad-video-editor").innerHTML = videoEditor(ad);
+      updateMediaSummary(ad);
+    }
+    return;
+  }
   if (kind === "cover" || kind === "remove-photo") {
     const index = Number(button.dataset.index);
     if (!ad || !Number.isInteger(index) || !ad.gallery[index]) return;
@@ -1262,6 +1424,7 @@ async function action(button) {
     $("detail-photos").hidden = false;
     $("detail-photos-tab").classList.add("active");
     $("detail-studio-tab")?.classList.remove("active");
+    hideDetailVideo();
     return;
   }
   if (kind === "detail-studio") {
@@ -1269,13 +1432,23 @@ async function action(button) {
     $("detail-studio").hidden = false;
     $("detail-studio-tab").classList.add("active");
     $("detail-photos-tab").classList.remove("active");
+    hideDetailVideo();
     if (!activeStudio) mountStudio($("detail-studio-host"), ad, true);
     return;
   }
+  if (kind === "detail-video") {
+    detachStudio();
+    $("detail-studio-host")?.replaceChildren();
+    $("detail-studio").hidden = true;
+    $("detail-photos").hidden = true;
+    $("detail-studio-tab")?.classList.remove("active");
+    $("detail-photos-tab").classList.remove("active");
+    $("detail-video").hidden = false;
+    $("detail-video-tab").classList.add("active");
+    return;
+  }
   if (kind === "detail-photo") {
-    const photos = ad.gallery.length
-        ? ad.gallery
-        : ad.studio.photos.slice(0, 20),
+    const photos = listingPhotos(ad),
       index = Number(button.dataset.index);
     if (!photos[index]) return;
     $("detail-image").src = photos[index].src;
@@ -1344,6 +1517,11 @@ async function boot() {
   });
   $("gallery-files").onchange = (event) => {
     void addGallery(event.target.files).catch((error) => toast(error.message));
+  };
+  $("ad-video-files").onchange = (event) => {
+    const file = event.target.files[0];
+    if (file) void addVideo(file).catch((error) => toast(error.message));
+    event.target.value = "";
   };
   $("studio-import").onchange = (event) => {
     void importStudio(event.target.files[0])
