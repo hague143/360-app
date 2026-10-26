@@ -1,0 +1,86 @@
+CARVIEW NEON - ANTIVIRUS SCAN RECORD
+====================================
+Record generated: 2026-10-26 22:12:16 PKT
+
+A user reported a browser download blocked as "Virus detected".
+The antivirus product and specific detection identifier were not provided.
+The reported Windows/browser verdict has NOT been reproduced or resolved here.
+No claim is made that the warning was a false positive.
+
+Scanner: ClamAV 1.5.4
+Bundled signature database: 28164, 2026-10-25 06:24:12 UTC
+Known signatures reported by engine: 3,628,192
+Official container: docker.io/clamav/clamav:stable
+Image digest: sha256:bda39705e291105049c3936e2803ac90b955172af8030f94f05dce1252df6c6d
+Execution: network disabled, read-only application files, archive scanning on.
+ClamAV signature download endpoint was unavailable in this environment; the
+signed bundled database identified above was used without claiming an update.
+
+RESULTS
+-------
+Original ZIP, HTML, standalone studio and marketplace source:
+13 scanned files, 0 infected files, scan exit code 0.
+
+Direct distribution (HTML plus separate original decorative PNG):
+2 scanned files, 0 infected files, scan exit code 0.
+
+This is one scanner's result, not a guarantee that a file is virus-free or
+that Microsoft Defender/another antivirus will accept it. Windows Defender
+was not available in this Linux environment. Keep antivirus protection on.
+If your browser/antivirus still blocks a file, leave it blocked and obtain
+the product name and full detection name from its protection history.
+
+DIRECT FILE HASHES (SHA256)
+--------------------------
+CarView-Neon-Direct.html
+Bytes: 219650
+SHA256: 8d0a3745f57ed87df735d0825cf240d636f53c4cf9c2f2416811a13268fb4216
+
+carview-neon-hero.png
+Bytes: 2000790
+SHA256: 67c202e7046bf5f63cc7abac85edd5bb34ce060060bd296bcb2a4e5b6aa03063
+
+ORIGINAL SCAN OUTPUT (engine timestamps are UTC)
+----------------------------------------------
+/scan/downloads/CarView-Pakistan-Marketplace.zip: OK
+/scan/downloads/CarView-Pakistan-Marketplace.html: OK
+/scan/downloads/CarView-Pakistan.html: OK
+/scan/browser-marketplace/index.html: OK
+/scan/browser-marketplace/START-HERE.txt: OK
+/scan/browser-marketplace/effects.js: OK
+/scan/browser-marketplace/assets/README.md: OK
+/scan/browser-marketplace/assets/neon-hero.png: OK
+/scan/browser-marketplace/neon.css: OK
+/scan/browser-marketplace/studio.js: OK
+/scan/browser-marketplace/model.js: OK
+/scan/browser-marketplace/app.js: OK
+/scan/browser-marketplace/styles.css: OK
+
+----------- SCAN SUMMARY -----------
+Known viruses: 3628192
+Engine version: 1.5.4
+Scanned directories: 2
+Scanned files: 13
+Infected files: 0
+Data scanned: 13.06 MiB
+Data read: 6.76 MiB (ratio 1.93:1)
+Time: 14.535 sec (0 m 14 s)
+Start Date: 2026:10:26 17:05:34
+End Date:   2026:10:26 17:05:49
+
+DIRECT FILE SCAN OUTPUT (engine timestamps are UTC)
+-------------------------------------------------
+/scan/CarView-Neon-Direct.html: OK
+/scan/carview-neon-hero.png: OK
+
+----------- SCAN SUMMARY -----------
+Known viruses: 3628192
+Engine version: 1.5.4
+Scanned directories: 0
+Scanned files: 2
+Infected files: 0
+Data scanned: 2.50 MiB
+Data read: 2.12 MiB (ratio 1.18:1)
+Time: 14.261 sec (0 m 14 s)
+Start Date: 2026:10:26 17:09:22
+End Date:   2026:10:26 17:09:37

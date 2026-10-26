@@ -12,6 +12,10 @@ let browser;
 const errors = [],
   external = [];
 const origin = "http://carview-marketplace-fixture.test";
+const directRelease = process.env.CARVIEW_TEST_RELEASE === "direct";
+const heroFile = directRelease
+  ? await readFile("downloads/carview-neon-hero.png")
+  : null;
 async function open(html, mobile = false) {
   const context = await browser.newContext({
     offline: true,
@@ -27,10 +31,18 @@ async function open(html, mobile = false) {
   await context.route(origin + "/**", (route) =>
     route.fulfill({ contentType: "text/html; charset=utf-8", body: html }),
   );
+  if (directRelease)
+    await context.route(origin + "/carview-neon-hero.png", (route) =>
+      route.fulfill({ contentType: "image/png", body: heroFile }),
+    );
   const page = await context.newPage();
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("request", (request) => {
-    if (/^https?:/.test(request.url()) && !request.isNavigationRequest())
+    if (
+      /^https?:/.test(request.url()) &&
+      !request.isNavigationRequest() &&
+      !(directRelease && request.url() === origin + "/carview-neon-hero.png")
+    )
       external.push(request.url());
   });
   page.on("dialog", (dialog) => dialog.accept());
@@ -81,7 +93,9 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     temporary,
   ]);
   const html = await readFile(
-    path.join(temporary, "CarView-Pakistan-Marketplace.html"),
+    directRelease
+      ? "downloads/CarView-Neon-Direct.html"
+      : path.join(temporary, "CarView-Pakistan-Marketplace.html"),
     "utf8",
   );
   const original = await readFile("downloads/CarView-Pakistan.html");

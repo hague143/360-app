@@ -21,7 +21,8 @@
     "package:ai-demo": "node scripts/package-ai-demo.mjs",
     "test:browser-media": "python scripts/package-browser.py && node tests/browser-media.mjs",
     "package:marketplace": "node scripts/package-marketplace.mjs",
-    "test:marketplace": "node scripts/package-marketplace.mjs && node tests/marketplace-browser.mjs"
+    "test:marketplace": "node scripts/package-marketplace.mjs && node tests/marketplace-browser.mjs",
+    "package:marketplace-direct": "node scripts/package-marketplace-direct.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
