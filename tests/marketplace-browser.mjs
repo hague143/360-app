@@ -97,10 +97,50 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   await page
     .getByRole("heading", { name: "Your showroom starts with one car." })
     .waitFor();
+  await page.waitForFunction(
+    () => document.querySelector(".hero-car").naturalWidth > 0,
+  );
+  const scene = await page.locator(".hero-scene").boundingBox();
+  await page.mouse.move(
+    scene.x + scene.width * 0.8,
+    scene.y + scene.height * 0.3,
+  );
+  await page.waitForFunction(
+    () =>
+      Math.abs(
+        parseFloat(
+          document.querySelector(".hero-scene").style.getPropertyValue("--ry"),
+        ),
+      ) > 0.1,
+  );
+  await page.getByRole("button", { name: "Toggle studio glow" }).click();
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Toggle studio glow" })
+      .getAttribute("aria-pressed"),
+    "false",
+  );
+  await page.getByRole("button", { name: "Toggle studio glow" }).click();
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  assert.equal(
+    await page
+      .locator(".hero-scene")
+      .evaluate((element) => getComputedStyle(element).transform),
+    "none",
+  );
+  await page.getByRole("button", { name: "Find a car", exact: true }).click();
+  assert.equal(
+    await page.evaluate(() => document.activeElement.id),
+    "search-query",
+  );
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.mouse.move(5, 5);
   await mkdir("test-results", { recursive: true });
   await page.screenshot({
     path: "test-results/marketplace-home.png",
     fullPage: true,
+    animations: "disabled",
   });
   await click(page, "＋ Sell your car");
   await next(page);
@@ -183,6 +223,10 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     !nativeText.includes("carview:capture"),
     "Host bridge must not leak into standalone studio export",
   );
+  assert.ok(
+    !nativeText.includes("host-managed-studio-storage"),
+    "Native studio export must retain its normal standalone persistence",
+  );
   // Existing video replacement confirmation and decode work inside the wrapper.
   const clip = path.join(temporary, "pattern.mp4");
   execFileSync("ffmpeg", [
@@ -209,7 +253,12 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   await frame.locator("#video-settings").waitFor();
   await frame.locator("#video-frames").selectOption("36");
   await frame.locator("#create-video").click();
-  await frame.locator(".thumb").nth(35).waitFor({ timeout: 90000 });
+  await frame.locator("#busy").waitFor({ state: "hidden", timeout: 90000 });
+  assert.equal(
+    await frame.locator(".thumb").count(),
+    36,
+    await frame.locator("#notice-text").textContent(),
+  );
   await frame.locator("#loop").check();
   await frame.locator("#inspect-mode").click();
   assert.equal(await frame.locator("#zoom-label").textContent(), "2×");
@@ -383,7 +432,22 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     path: "test-results/marketplace-mobile.png",
     fullPage: true,
   });
-  // Opaque viewer sandbox and failed parent persistence must not lose exportability.
+  const { page: mobileHome } = await open(html, true);
+  await mobileHome.waitForFunction(
+    () => document.querySelector(".hero-car").naturalWidth > 0,
+  );
+  assert.equal(
+    await mobileHome.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+    true,
+  );
+  await mobileHome.screenshot({
+    path: "test-results/marketplace-neon-mobile-home.png",
+    fullPage: true,
+    animations: "disabled",
+  });
+  // Failed parent persistence must not lose exportability.
   const fallbackContext = await browser.newContext({
     offline: true,
     acceptDownloads: true,

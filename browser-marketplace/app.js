@@ -429,7 +429,7 @@ function renderWizard(ad, step) {
 function card(ad) {
   const cover = coverOf(ad);
   return (
-    '<article class="car-card"><button class="card-image" data-action="detail" data-id="' +
+    '<article class="car-card" data-tilt="card"><button class="card-image" data-action="detail" data-id="' +
     esc(ad.id) +
     '" aria-label="View ' +
     esc(titleOf(ad)) +
@@ -535,9 +535,9 @@ function searchField(key, label, config = {}) {
 function renderBrowse() {
   const ads = filteredAds();
   return (
-    '<section class="hero"><div><div class="eyebrow">YOUR NEXT CAR. A CLOSER LOOK.</div><h1>Good cars deserve<br>the complete picture.</h1><p>Browse the details. Look around in 360. Find the car you want to know more about.</p></div><div class="hero-art"><span class="hero-badge">↔ Real-photo walk-arounds</span>' +
-    CAR_ART +
-    '<p>Every angle brings a little more confidence.</p></div></section><form id="search-form" class="search-card"><div class="search-grid">' +
+    '<section class="hero"><div class="hero-copy"><div class="hero-kicker"><i></i> 360° CAR SHOWROOM / PAKISTAN</div><h1>Your next car.<br><em>Every angle.</em></h1><p>Get closer before you get in. Explore the details, look around in 360, and find your next drive.</p><div class="hero-actions"><button class="btn primary" data-find-car>Find a car <span class="arrow-up" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span></button><button class="btn" data-action="new-ad">Sell your car <span aria-hidden="true">→</span></button></div><div class="hero-qualities"><span><b>↔</b> 360° walk-arounds</span><span><b>⊕</b> Detail zoom</span><span><b>▻</b> Photos + video</span></div></div>' +
+    neonScene() +
+    '</section><form id="search-form" class="search-card"><div class="search-grid">' +
     searchField("query", "Find a car", {
       placeholder: "Make, model or keyword",
     }) +
@@ -1315,6 +1315,7 @@ async function boot() {
     view = { kind: "detail", id: appState.startId };
   else if (appState.startView === "garage") view = { kind: "garage" };
   window.addEventListener("message", studioMessage);
+  installEffects();
   document.addEventListener("click", (event) => {
     const button = event.target.closest("[data-action]");
     if (button && !button.disabled) {

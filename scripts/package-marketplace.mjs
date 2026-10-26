@@ -17,11 +17,19 @@ if (hash !== expected)
     "The protected 360 studio changed. Review the explicit user requirement before updating its preservation hash.",
   );
 const dir = path.join(root, "browser-marketplace");
-const [template, css, ...scripts] = await Promise.all(
-  ["index.html", "styles.css", "model.js", "studio.js", "app.js"].map((name) =>
-    readFile(path.join(dir, name), "utf8"),
-  ),
+const [template, baseCSS, neonCSS, ...scripts] = await Promise.all(
+  [
+    "index.html",
+    "styles.css",
+    "neon.css",
+    "model.js",
+    "effects.js",
+    "studio.js",
+    "app.js",
+  ].map((name) => readFile(path.join(dir, name), "utf8")),
 );
+const css = baseCSS + "\n" + neonCSS;
+const hero = await readFile(path.join(dir, "assets/neon-hero.png"));
 const code =
   "(() => { 'use strict';\nconst PRISTINE_TEMPLATE = '<!doctype html>\\n' + document.documentElement.outerHTML;\n" +
   scripts.join("\n") +
@@ -34,6 +42,9 @@ const safeJSON = JSON.stringify(original)
 const html = template
   .replace("/*__MARKETPLACE_CSS__*/", () => css)
   .replace("/*__STUDIO_JSON__*/", () => safeJSON)
+  .replace("/*__HERO_ASSET__*/", () =>
+    JSON.stringify("data:image/png;base64," + hero.toString("base64")),
+  )
   .replace("/*__MARKETPLACE_JS__*/", () => code);
 if (/\/\*__\w+__\*\//.test(html))
   throw new Error("Unfilled marketplace template marker.");

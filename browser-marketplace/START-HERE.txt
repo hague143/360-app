@@ -4,6 +4,16 @@ CARVIEW PAKISTAN - CAR ADS + 360 VIEW
 2. CarView-Pakistan-Marketplace.html double-click karke Chrome/Edge mein kholein.
 3. Sell your car par click karein.
 
+NEON SHOWROOM UI
+----------------
+Dark neon theme, lime/cyan lighting aur concept-car studio artwork shamil hai.
+Desktop par hero/card par cursor move karne se depth/tilt effect nazar aata hai.
+Hero ka Glow on/off button sirf decorative studio lighting change karta hai.
+Mobile par layout responsive hai; car ka actual 360 viewer pehle ki tarah
+pinch, rotate aur Inspect details se chalta hai. Reduced-motion setting mein
+decorative movement band rehti hai. Hero ki car illustration AI-generated
+design artwork hai, kisi real listing ki photograph nahi.
+
 AD BANANE KE 5 STEPS
 -------------------
 1. City, area, make, model, year aur optional variant.

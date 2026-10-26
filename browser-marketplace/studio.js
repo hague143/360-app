@@ -88,7 +88,7 @@ function studioBridge(config) {
   });
   function ready() {
     if (document.documentElement.dataset.ready !== "true") return false;
-    // The host owns persistence. A sandboxed child intentionally has no IndexedDB.
+    // The host owns persistence; the studio avoids a second browser-data copy.
     const box = document.getElementById("notice");
     if (
       document
@@ -135,7 +135,13 @@ function mountStudio(host, ad, readOnly = false) {
   iframe.title = readOnly
     ? "Interactive car photo walk-around"
     : "Add your car photos or video in the 360 studio";
-  iframe.setAttribute("sandbox", "allow-scripts allow-downloads allow-modals");
+  // This is our SHA-verified trusted module, never an imported HTML document.
+  // Same-origin privilege is needed for native replacement confirmations:
+  // browsers suppress confirm() in opaque/cross-origin frames.
+  iframe.setAttribute(
+    "sandbox",
+    "allow-scripts allow-same-origin allow-downloads allow-modals",
+  );
   iframe.setAttribute("allow", "fullscreen *");
   iframe.allowFullscreen = true;
   const token = uid();
@@ -152,6 +158,13 @@ function mountStudio(host, ad, readOnly = false) {
     resolveReady,
   };
   const doc = new DOMParser().parseFromString(STUDIO_HTML, "text/html");
+  const storageHost = doc.createElement("script");
+  storageHost.textContent = `/* host-managed-studio-storage */
+  try { Object.defineProperty(window,'indexedDB',{get(){throw new Error('The ad host manages studio persistence.');}}); } catch (_) {}
+  document.currentScript.remove();`;
+  // Remove this host-only setup before the original studio captures its own
+  // export template. Native Save HTML copy remains a normal standalone app.
+  doc.head.prepend(storageHost);
   const project = structuredClone(ad.studio);
   project.title = [makeOf(ad), modelOf(ad), ad.details.variant]
     .filter(Boolean)
@@ -166,6 +179,15 @@ function mountStudio(host, ad, readOnly = false) {
   style.textContent = readOnly
     ? ".header,.intro,.footer,.aside,.film-header,.filmstrip,.selection-tools,.guide,#busy{display:none!important}.workspace{display:block!important}.wrap{padding:0!important;max-width:none!important}.card{border:0!important}.stage{height:400px}.notice{margin:10px}@media(max-width:760px){.stage{height:320px}}"
     : ".brand,.header-label,.header-actions>.pill,.intro,.footer,.aside-card:nth-child(2){display:none!important}.header-inner{min-height:54px!important;padding:0 16px!important;max-width:none!important}.header-actions{margin-left:auto!important}main.wrap{padding:15px!important;max-width:none!important}.workspace{grid-template-columns:minmax(0,1fr) 250px!important;gap:15px!important}.stage{height:330px!important}.guide{margin-bottom:0!important}@media(max-width:1000px){.workspace{grid-template-columns:minmax(0,1fr)!important}.aside{display:block!important}.stage{height:300px!important}}";
+  // Cosmetic host theme only. The protected standalone studio stays byte-identical.
+  style.textContent += `
+  :root{color-scheme:dark;--ink:#edf4f9;--muted:#9cabbc;--green:#c4ff50;--dark:#d5ff87;--line:#2d3d4b;--bg:#0c141e;--mint:#c4ff5010;--white:#131e29;background:#0c141e;color:#edf4f9}
+  body{background:#0c141e}.header{background:#101a25;border-color:#2d3d4b}.card,.aside-card{background:linear-gradient(135deg,#17232e,#101b26);border-color:#304351}.viewer-top,.viewer-tools,.controls{border-color:#2b3d4a}.viewer-tools{background:#111d28}.stage{background:radial-gradient(ellipse,#203129,#0d161f)}.stage.has-photos,.stage:fullscreen{background:#09121a}.stage.drag-over{box-shadow:inset 0 0 0 3px #c4ff50;background:#1e3020}
+  .button,.icon-button,.mode-button{background:#192735;border-color:#3a4d5d;color:#dce8f1;box-shadow:0 3px 7px #00000018}.button:hover,.icon-button:hover:not(:disabled),.mode-button:hover{background:#273a45;border-color:#60754e}.button.primary{background:#c4ff50;border-color:#d9ffa0;color:#16200c;box-shadow:0 0 20px #b5ff3b12}.button.primary:hover{background:#dcff91}.play,.mode-button[aria-pressed=true]{background:#c4ff5014;border-color:#a5d65a40;color:#d4f7a5}.source-tabs{background:#0b141e;border:1px solid #283c4a}.source-tabs button{color:#9db0c0}.source-tabs button[aria-selected=true]{background:#25371f;color:#ddf8bd;box-shadow:0 0 15px #b9ff2e08}
+  .field input,.field textarea,.field select{background:#0c1720;border-color:#354855;color:#ebf4f9}.field input::placeholder,.field textarea::placeholder{color:#8397a9}.field input:focus,.field textarea:focus,.field select:focus{outline-color:#c4ff50;border-color:#9ac64d}.field label,.loop-option label{color:#d4e0e9}.aside-card p,.empty p,.formats,.caption-row,.angle-total,.filename,.storage,.empty small,.gesture-help{color:#9eafbe}.aside-eyebrow,.eyebrow,.text-button,.film-actions button{color:#c4ee9b}
+  .frame-badge{background:#14221ce8;border-color:#688047;color:#e7f8db}.frame-badge span{color:#b3c3b3}.drag-hint{background:#152923df;color:#c4dccb;border:1px solid #69885840}.empty-art{color:#92b49d}.empty-art span{background:#1d2c20;border-color:#52723b;color:#d7f8ae}.thumb{background:#172735}.thumb.selected{border-color:#c4ff50}.thumb img{background:#0b151d}.thumb span{color:#acbdcc}.thumb b{background:#172820e8;color:#dff2d0}.empty-film{border-color:#485d48;color:#9eb1a5}.guide{background:#192d22}.guide h3{color:#dbedcd}.guide p{color:#a0b79f}.guide svg{color:#c4ff50}.film-header h2 span,.selection-tools>span,.zoom-label{color:#9caebd}.divider{background:#314751}.video-preview{background:#08121a}.video-name{color:#a8b9c6}.loop-option{border-color:#314631}
+  .notice{background:#32291d;color:#eddaad;border-color:#806d41}.notice.error{background:#331d22;color:#ffc1b0;border-color:#8c5147}.notice button{color:inherit}.help-dialog{background:#14202a;color:#e8f0f4;border-color:#3d5544}.help-dialog p,.help-dialog li{color:#aabecb}.help-dialog strong{color:#ecf4e7}.help-dialog::backdrop{background:#03090dbb}.selection-tools .remove{color:#ffb2a2}.stage-fullscreen-exit{background:#13221eea}
+  `;
   doc.body.append(style);
   const bridge = doc.createElement("script");
   bridge.textContent =
