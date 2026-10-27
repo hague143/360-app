@@ -1,21 +1,22 @@
-CARVIEW - SUPPLIED KOENIGSEGG MODEL RELEASE SCAN RECORD
-======================================================
-Record generated: 2026-10-27 13:31:13 PKT
+CARVIEW - MODEL-ONLY HOME + NEON CAR BACKGROUND SCAN RECORD
+==========================================================
+Record generated: 2026-10-27 14:13:34 PKT
 
-Release: self-contained HTML with the actual user-supplied Koenigsegg mesh,
-local renderer and same-model fallback poster, Photo angles mode, car-ad
-form, original ad video and unchanged captured-photo/video 360 studio.
-The GLB is derived from the user's 82-koenigsegg-agera.zip using Blender with
-script execution disabled. Only meshes are exported; three verified isolated
-outlier triangles are removed and legacy materials become PBR/white bodywork.
-No car geometry is generated from scratch. This is a 3D display model, not a
-photograph or condition/identity evidence for a seller's car.
+Release: one offline HTML with the supplied Koenigsegg model, renderer and
+same-model fallback poster, embedded purple/pink car-studio background,
+car-ad form, original ad video and unchanged captured-photo/video studio.
+Home Photo angles/upload/order controls are removed. Old home-photo state
+opens the model and retains stored pictures in backups. Seller media is kept.
 
-The release embeds model/library/poster but no real ad photos, user videos,
-contacts, test images or the original .blend/.fbx/.obj source archive.
-The model's author/licence were absent from that archive; no asset commercial
-or redistribution licence is asserted. Source/output hashes and conversion
-notes are in browser-marketplace/assets/agera-provenance.json.
+The background is decorative OpenAI image_gen artwork, not listing photos
+or identity/condition evidence. Its optimized WebP is embedded in the HTML;
+no external image request or companion asset is required. The background
+appears in Explore cars, not the ad editor or buyer inspection views.
+The GLB comes from the user's archive, with cameras/scripts excluded, legacy
+materials converted to PBR/white bodywork and three stray triangles removed.
+Source/asset hashes and author/licence limitations are documented in asset
+provenance; no manufacturer approval or commercial asset licence is asserted.
+No real seller photos, user videos, contacts or test fixtures are bundled.
 
 A previous browser download was reported blocked as "Virus detected".
 The product and full detection identifier were not supplied. That specific
@@ -27,33 +28,33 @@ Bundled signature database: 28164, 2026-10-25 06:24:12 UTC
 Known signatures: 3,628,192
 Official container: docker.io/clamav/clamav:stable
 Image digest: sha256:bda39705e291105049c3936e2803ac90b955172af8030f94f05dce1252df6c6d
-Execution: --network none, read-only application and source files, archive
-scanning on, max file 100 MB / scan 500 MB, alert on exceeded limits.
+Execution: --network none, read-only application/source files, archive scanning
+on, maximum file 100 MB / scan 500 MB, alert on exceeded limits.
 The signed bundled database above was used without claiming an update.
 
-RESULT: 23 files scanned, 0 infected files, scan exit code 0.
-Included: both release HTML files, ZIP, protected original studio, marketplace
-source/assets, packaging/conversion scripts and the user's original source ZIP.
+RESULT: 24 files scanned, 0 infected files, scan exit code 0.
+Included: both release HTMLs, ZIP, protected original studio, marketplace
+source/assets, packaging/conversion scripts and the original Koenigsegg ZIP.
 
 This is one scanner's result, not a 100% virus-free guarantee and not a test
 with Windows Defender. Keep protection enabled; do not bypass a continuing
 block. If blocked, obtain the antivirus product and full detection name from
 its protection history while leaving the file blocked.
-The exact hashes below identify the tested files; rebuilds need a fresh scan.
+These exact hashes identify the scanned files; rebuilds need a fresh scan.
 
 RELEASE/ASSET FILES (SHA256)
 --------------------------
 downloads/CarView-Neon-Direct.html
-Bytes: 2837550
-SHA256: fb59eace45024f378706e7d98a23a284d3d292bb96d0bf500be91e1aacf00abc
+Bytes: 3027057
+SHA256: 3e07e6b584bcfa7f7cc44cc05b53d21b1beadbde040907383d390b474716e43b
 
 downloads/CarView-Pakistan-Marketplace.html
-Bytes: 2837550
-SHA256: fb59eace45024f378706e7d98a23a284d3d292bb96d0bf500be91e1aacf00abc
+Bytes: 3027057
+SHA256: 3e07e6b584bcfa7f7cc44cc05b53d21b1beadbde040907383d390b474716e43b
 
 downloads/CarView-Pakistan-Marketplace.zip
-Bytes: 1155037
-SHA256: acd6fdddcf752de4ff37d8b12ce3753239657d9e3daa8df860e4a917925f611c
+Bytes: 1307029
+SHA256: 7d384679392a2b5126dddeafc25807b6ccc0a5b5d1451ce18ba01b0bb05bc718
 
 downloads/CarView-Pakistan.html
 Bytes: 65978
@@ -67,6 +68,10 @@ browser-marketplace/assets/agera-poster.webp
 Bytes: 43116
 SHA256: 64d03a6a9cf86f7f1e6007dcddb1ee96c370b214886cb0262592188f7f67fd2c
 
+browser-marketplace/assets/landing-cars.webp
+Bytes: 153704
+SHA256: cd067248c3fc4141faa7d7aad103bafd7a85be5220699b63ddf9db6574450d91
+
 COMPLETE SCAN OUTPUT (engine timestamps are UTC)
 ----------------------------------------------
 /scan/downloads/CarView-Neon-Direct.html: OK
@@ -76,16 +81,17 @@ COMPLETE SCAN OUTPUT (engine timestamps are UTC)
 /scan/browser-marketplace/index.html: OK
 /scan/browser-marketplace/START-HERE.txt: OK
 /scan/browser-marketplace/effects.js: OK
+/scan/browser-marketplace/assets/landing-cars-provenance.json: OK
 /scan/browser-marketplace/assets/README.md: OK
 /scan/browser-marketplace/assets/agera.glb: OK
 /scan/browser-marketplace/assets/agera-poster.webp: OK
+/scan/browser-marketplace/assets/landing-cars.webp: OK
 /scan/browser-marketplace/assets/neon-hero.png: OK
 /scan/browser-marketplace/assets/agera-provenance.json: OK
 /scan/browser-marketplace/neon.css: OK
 /scan/browser-marketplace/studio.js: OK
 /scan/browser-marketplace/model.js: OK
 /scan/browser-marketplace/app.js: OK
-/scan/browser-marketplace/hero-photos.js: OK
 /scan/browser-marketplace/styles.css: OK
 /scan/browser-marketplace/hero-model.js: OK
 /scan/scripts/package-marketplace.mjs: OK
@@ -97,10 +103,10 @@ COMPLETE SCAN OUTPUT (engine timestamps are UTC)
 Known viruses: 3628192
 Engine version: 1.5.4
 Scanned directories: 2
-Scanned files: 23
+Scanned files: 24
 Infected files: 0
-Data scanned: 37.69 MiB
-Data read: 13.43 MiB (ratio 2.81:1)
-Time: 23.866 sec (0 m 23 s)
-Start Date: 2026:10:27 08:28:29
-End Date:   2026:10:27 08:28:53
+Data scanned: 38.55 MiB
+Data read: 14.06 MiB (ratio 2.74:1)
+Time: 23.685 sec (0 m 23 s)
+Start Date: 2026:10:27 09:10:54
+End Date:   2026:10:27 09:11:18

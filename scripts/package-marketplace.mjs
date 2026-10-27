@@ -24,16 +24,16 @@ const [template, baseCSS, neonCSS, ...scripts] = await Promise.all(
     "styles.css",
     "neon.css",
     "model.js",
-    "hero-photos.js",
     "effects.js",
     "studio.js",
     "app.js",
   ].map((name) => readFile(path.join(dir, name), "utf8")),
 );
 const css = baseCSS + "\n" + neonCSS;
-const [model, poster, threeLicense] = await Promise.all([
+const [model, poster, landingArt, threeLicense] = await Promise.all([
   readFile(path.join(dir, "assets/agera.glb")),
   readFile(path.join(dir, "assets/agera-poster.webp")),
+  readFile(path.join(dir, "assets/landing-cars.webp")),
   readFile(path.join(root, "node_modules/three/LICENSE"), "utf8"),
 ]);
 const viewer = await build({
@@ -64,6 +64,9 @@ const html = template
   .replace("/*__MARKETPLACE_CSS__*/", () => css)
   .replace("/*__STUDIO_JSON__*/", () => safeJSON)
   .replace("/*__MODEL_DATA__*/", () => modelData)
+  .replace("/*__LANDING_ART__*/", () =>
+    JSON.stringify("data:image/webp;base64," + landingArt.toString("base64")),
+  )
   .replace("/*__MODEL_VIEWER__*/", () =>
     (
       "/* Bundled Three.js licence:\n" +

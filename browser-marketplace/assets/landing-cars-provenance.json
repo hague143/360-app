@@ -1,0 +1,8 @@
+{
+  "purpose": "Decorative landing-page studio background only; not seller listing media or condition/identity evidence",
+  "generator": "OpenAI image_gen",
+  "source_sha256": "5be8e4f7e5f7edd414b9ad5ba85a520cd457e297582f283ee564b74883cb7885",
+  "webp_sha256": "cd067248c3fc4141faa7d7aad103bafd7a85be5220699b63ddf9db6574450d91",
+  "processing": "1600px WebP display copy; original generated PNG retained in workspace",
+  "network": "Embedded in standalone HTML; no external image request"
+}

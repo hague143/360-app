@@ -236,162 +236,82 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     fullPage: true,
   });
   await page.getByRole("button", { name: "Play model rotation" }).click();
-  await page.getByRole("button", { name: "Photo angles", exact: true }).click();
-  await page.waitForFunction(
-    () => document.querySelector("#hero-vehicle").dataset.render === "empty",
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Photo angles", exact: true })
+      .count(),
+    0,
   );
-  assert.equal(await page.locator(".showroom-empty").isVisible(), true);
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Choose Lexus photos", exact: true })
+      .count(),
+    0,
+  );
+  assert.equal(await page.locator("#showroom-files").count(), 0);
+  assert.equal(
+    await page
+      .locator(".showroom-modes,.showroom-editor,.showroom-photo-strip")
+      .count(),
+    0,
+  );
+  await page.locator("#landing-car-art").evaluate((image) => image.decode());
   assert.ok(
-    !html.includes("CarViewHero.mount"),
-    "Handmade dummy renderer is not bundled",
-  );
-  console.log(
-    "PASS Uploaded GLB matches supplied asset; real mesh renders, auto-rotates, pauses, orbits and zooms; original photo mode is available",
-  );
-  await page.locator("#showroom-files").setInputFiles(fixtures.slice(0, 4));
-  await page.waitForFunction(
-    () => document.querySelector("#hero-vehicle").dataset.render === "photos",
-  );
-  await page.locator("#showroom-photo").evaluate((image) => image.decode());
-  assert.equal(await page.locator(".showroom-photo-strip button").count(), 4);
-  await page.getByRole("button", { name: "Pause showroom photos" }).click();
-  const pausedFrame = await page
-    .locator("#hero-vehicle")
-    .getAttribute("data-frame");
-  await page.waitForTimeout(200);
-  assert.equal(
-    await page.locator("#hero-vehicle").getAttribute("data-frame"),
-    pausedFrame,
-  );
-  await page.getByRole("button", { name: "Next showroom photo" }).click();
-  assert.equal(
-    await page.locator("#hero-vehicle").getAttribute("data-frame"),
-    "1",
-  );
-  await page.locator("#hero-vehicle").press("End");
-  assert.equal(
-    await page.locator("#hero-vehicle").getAttribute("data-frame"),
-    "3",
-  );
-  await click(page, "Arrange photos");
-  assert.equal(
-    await page.locator("#showroom-full-lap").isDisabled(),
-    true,
-    "Four press images must not be labelled a continuous lap",
-  );
-  await page
-    .getByRole("button", { name: "Move showroom photo 4 earlier" })
-    .click();
-  assert.match(
-    await page.locator("#showroom-filename").textContent(),
-    /04-angle/,
+    await page
+      .locator("#landing-car-art")
+      .evaluate((image) => image.naturalWidth >= 1200),
   );
   const heroCopy = await exported(
     page,
     "Save app copy",
-    "showroom-photos.html",
+    "carview-model-home.html",
   );
-  assert.equal(payload(heroCopy.text).showroom.photos.length, 4);
-  assert.equal(payload(heroCopy.text).showroom.fullLap, false);
-  const { page: heroRestored } = await open(heroCopy.text);
-  await heroRestored
-    .locator("#showroom-photo")
-    .evaluate((image) => image.decode());
-  assert.equal(
-    await heroRestored.locator(".showroom-photo-strip button").count(),
-    4,
+  assert.equal(payload(heroCopy.text).showroom.display, "model");
+  assert.equal(payload(heroCopy.text).showroom.photos.length, 0);
+  // Old saved Photo angles settings must open the model without deleting data.
+  const legacyPhotos = fixtures
+    .slice(0, 4)
+    .map((file, index) => ({
+      id: "legacy-" + index,
+      name: file.name,
+      src: "data:image/png;base64," + file.buffer.toString("base64"),
+      thumb: "data:image/png;base64," + file.buffer.toString("base64"),
+    }));
+  const legacyHomeState = {
+    version: 1,
+    ads: [],
+    copyId: "legacy-home-photo-choice",
+    showroom: {
+      version: 1,
+      photos: legacyPhotos,
+      fullLap: false,
+      display: "photos",
+    },
+  };
+  const legacyHomeHTML = html.replace(
+    /(<script[^>]*id="marketplace-data"[^>]*>)[\s\S]*?(<\/script>)/,
+    (_, start, end) =>
+      start + JSON.stringify(legacyHomeState).replace(/</g, "\\u003c") + end,
+  );
+  const { page: legacyHome, context: legacyHomeContext } =
+    await open(legacyHomeHTML);
+  await legacyHome.waitForFunction(
+    () => document.querySelector("#hero-vehicle").dataset.render === "model",
   );
   assert.equal(
-    await heroRestored.locator(".car-card").count(),
+    await legacyHome.locator(".showroom-photo,.showroom-modes").count(),
     0,
-    "Showroom photos never become seller ads",
   );
-  await heroRestored
-    .getByRole("button", { name: "Pause showroom photos" })
-    .click();
-  const heroBox = await heroRestored.locator("#hero-vehicle").boundingBox();
-  await heroRestored.mouse.move(
-    heroBox.x + heroBox.width * 0.75,
-    heroBox.y + heroBox.height * 0.5,
-  );
-  await heroRestored.mouse.down();
-  await heroRestored.mouse.move(
-    heroBox.x + heroBox.width * 0.75 - 90,
-    heroBox.y + heroBox.height * 0.5,
-    { steps: 6 },
-  );
-  await heroRestored.mouse.up();
-  assert.equal(
-    await heroRestored.locator("#hero-vehicle").getAttribute("data-frame"),
-    "2",
-  );
-  await heroRestored.locator("#showroom-files").setInputFiles(fixtures);
-  await heroRestored.waitForFunction(
-    () =>
-      document.querySelectorAll(".showroom-photo-strip button").length === 12,
-  );
-  await click(heroRestored, "Arrange photos");
-  assert.equal(
-    await heroRestored.locator("#showroom-full-lap").isDisabled(),
-    false,
-  );
-  await heroRestored.locator("#showroom-full-lap").check();
-  await heroRestored
-    .getByRole("button", { name: "Play showroom photos" })
-    .click();
-  const lapBefore = await heroRestored
-    .locator("#hero-vehicle")
-    .getAttribute("data-frame");
-  await heroRestored.waitForFunction(
-    (index) => document.querySelector("#hero-vehicle").dataset.frame !== index,
-    lapBefore,
-    { timeout: 2000 },
-  );
-  const lapCopy = await exported(
-    heroRestored,
+  const legacyHomeCopy = await exported(
+    legacyHome,
     "Save app copy",
-    "showroom-full-lap.html",
+    "legacy-home-preserved.html",
   );
-  assert.equal(payload(lapCopy.text).showroom.fullLap, true);
-  assert.equal(payload(lapCopy.text).showroom.photos.length, 12);
-  await page.reload();
-  await page.waitForFunction(
-    () => document.documentElement.dataset.ready === "true",
-  );
-  assert.equal(
-    await page.locator(".showroom-photo-strip button").count(),
-    4,
-    "Showroom photos survive reload",
-  );
-  await page.locator("#showroom-files").setInputFiles({
-    name: "bad.jpg",
-    mimeType: "image/jpeg",
-    buffer: Buffer.from("not an image"),
-  });
-  await page.waitForFunction(() =>
-    document.querySelector("#toast").textContent.includes("Use a JPG"),
-  );
-  assert.equal(
-    await page.locator(".showroom-photo-strip button").count(),
-    4,
-    "Failed replacement keeps the previous photos",
-  );
-  await page.getByRole("button", { name: "Pause showroom photos" }).click();
-  await page.getByRole("button", { name: "Play showroom photos" }).click();
-  const startFrame = await page
-    .locator("#hero-vehicle")
-    .getAttribute("data-frame");
-  await page.waitForFunction(
-    (frame) => document.querySelector("#hero-vehicle").dataset.frame !== frame,
-    startFrame,
-    { timeout: 6000 },
-  );
-  assert.match(
-    await page.locator(".scene-topline").textContent(),
-    /LEXUS LX.*WHITE/,
-  );
+  assert.equal(payload(legacyHomeCopy.text).showroom.display, "model");
+  assert.deepEqual(payload(legacyHomeCopy.text).showroom.photos, legacyPhotos);
+  await legacyHomeContext.close();
   console.log(
-    "PASS Real photo selection, manual controls/drag/order, autoplay/pause, failed replacement safety, reload persistence and self-contained showroom HTML",
+    "PASS Supplied GLB orbit/zoom/pause, model-only home, embedded car backdrop, portable app copy and migration of old photo-mode settings with data retained",
   );
   const scene = await page.locator(".hero-scene").boundingBox();
   await page.mouse.move(
@@ -436,6 +356,7 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     animations: "disabled",
   });
   await click(page, "＋ Sell your car");
+  assert.equal(await page.locator("#landing-backdrop").count(), 0);
   await next(page);
   await page.locator("#form-errors").waitFor();
   assert.match(
@@ -598,11 +519,7 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   assert.equal(data.ads.length, 1);
   assert.equal(data.ads[0].studio.photos.length, 36);
   assert.equal(data.ads[0].gallery.length, 2);
-  assert.equal(
-    data.showroom.photos.length,
-    4,
-    "Ad HTML retains actual home-showcase photos",
-  );
+  assert.equal(data.showroom.photos.length, 0);
   assert.match(data.ads[0].video.src, /^data:video\/mp4;base64,/);
   const videoBytes = Buffer.from(data.ads[0].video.src.split(",")[1], "base64");
   assert.deepEqual(

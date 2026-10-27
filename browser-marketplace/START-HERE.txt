@@ -12,12 +12,12 @@ Mouse/finger drag se orbit; do ungliyon ka pinch ya mouse wheel se zoom.
 + / - buttons, Pause/Rotate aur Reset view controls bhi hain. 0 reset karta hai.
 Yeh supplied 3D display model hai; seller ki asli car/condition ka saboot nahi.
 
-Photo angles tab se apni Lexus photos wala workflow bhi available hai.
-Choose Lexus photos se local pictures select karein. Arrange photos se order
-badlein; Save app copy se photos aur existing ads wali portable HTML milegi.
-4 press photos mein actual angles badalte hain; woh seamless full 360 scan nahi.
-12+ consistent full-lap photos hon to confirmation ke baad captured spin chalegi.
-Photos ka rang ya unseen angle generate nahi hota. Dono modes data save rakhte hain.
+Home wala Photo angles / Choose Lexus photos / Arrange photos option hata diya.
+Ab home box hamesha supplied 3D model dikhata hai. Purani saved photo setting
+bhi nayi copy mein model kholti hai; saved car ads/media delete nahi hoti.
+Landing background mein purple/pink studio lighting aur decorative car artwork
+hai. Text/buttons readable hain; background ad form/inspection mein nahi aata.
+Save app copy se poori app aur existing ads wali portable HTML save karein.
 
 Model HTML mein embedded hai; alag ZIP, textures, Blender, Node ya internet nahi
 chahiye. Browser 3D support na de to isi model ki static preview nazar aati hai.

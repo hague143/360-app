@@ -1,6 +1,8 @@
 `neon-hero.png` is a legacy AI-generated decorative concept-studio illustration created with OpenAI image_gen for the earlier lime/cyan UI. It is not a listing photograph, a real vehicle identity or condition evidence. The original PNG is preserved without pixel edits, but is no longer included or required by the current build.
 
-The Photo angles mode uses only locally selected photographs through `../hero-photos.js`. The procedural vehicle has been removed. No Lexus photographs, recoloured photos or generated replacement angles are bundled in the empty distribution. Selecting photos and saving an app copy embeds the checked display copies in that HTML. Actual ad media remains separate from the decorative home showcase.
+The earlier home Photo angles selector has been removed. Existing saved home-photo data is retained only for backward-compatible backups. Seller-ad gallery/video/360 media is unchanged.
+
+`landing-cars.webp` is decorative car-studio background art generated with OpenAI image_gen, optimized to a 1600px WebP for the offline landing page. It is not a real listing photograph or condition/identity evidence. The original generated PNG remains in the workspace; [landing-cars-provenance.json](landing-cars-provenance.json) records source/optimized hashes. The build embeds only the optimized WebP. No external image request is used.
 
 ## Supplied Koenigsegg model
 

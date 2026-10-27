@@ -1,25 +1,22 @@
-CARVIEW NEON PURPLE/PINK - ACTUAL PHOTO SHOWROOM
-=================================================
+CARVIEW NEON - ROTATING MODEL + CAR BACKGROUND
+==============================================
 1. CarView-Neon-Direct.html download karein.
    Link source text ki tarah khule to Right-click > Save link as use karein.
 2. Chrome/Edge mein double-click se kholein.
-3. White Koenigsegg Agera ka supplied 3D model home box mein auto-rotate karega.
-   Mouse/finger drag se orbit, pinch/scroll se zoom; +, -, Pause aur Reset use karein.
-4. Photo angles tab mein apni white Lexus photos bhi select kar sakte hain.
-   Arrange photos se order set karein; Save app copy se portable HTML banayein.
+3. Home box mein white Koenigsegg Agera 3D model auto-rotate karega.
+   Mouse/finger drag se orbit; pinch/scroll se zoom. +, -, Pause aur Reset hain.
+4. Save app copy se existing ads/media wali portable HTML save kar sakte hain.
 
-3D asset HTML mein embedded hai. Alag model files, Blender, Node.js, account ya
-internet nahi chahiye. 3D na chale to isi model ki static preview nazar aati hai.
-Yeh display model hai; kisi seller ki asli car ya condition ki photo nahi.
-Reduced motion mein auto rotation pause hoti hai; Rotate se chala sakte hain.
+Home wala Photo angles, Choose Lexus photos aur Arrange photos option hata diya.
+Purani saved photo setting bhi nayi HTML mein 3D model kholti hai. Purana home
+photo data backup mein safe rehta hai; seller-ad photos/video/360 delete nahi hote.
 
-Photo angles: up to 24 JPG/PNG/WebP, 10 MB/40 MP each; 1600px display copies.
-4 press photos mein actual angles badalte hain, full seamless 360 scan nahi.
-12+ consistent same-car full-lap photos hon to Arrange photos ki confirmation
-se faster captured-photo spin chalti hai. Rang/unseen side generate nahi hoti.
-Photo mode ki local pictures release mein pehle se embedded nahi hain. Aap ek
-baar select karke Save app copy karte hain. Existing saved photos/ads maintained.
-3D model aur Photo angles mode badalne se car-ad media replace nahi hoti.
+Landing background mein purple/pink lights ke saath decorative studio cars hain.
+Artwork sirf background hai; ad photos aur buyer inspection ki evidence nahi.
+Model, background aur fallback preview HTML mein embedded hain. Alag image/model
+files, ZIP, Blender, Node.js, cloud account ya internet ki zaroorat nahi.
+3D na chale to isi model ki static preview aayegi. Reduced motion mein auto
+rotation pause hoti hai; Rotate se chala sakte hain.
 
 Car ad: Sell your car > details > media > contact > preview > Save to showroom.
 Ad ke Photos tab mein tamam gallery photos/frames; 360 tab mein drag/pinch view;

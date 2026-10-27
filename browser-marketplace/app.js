@@ -539,6 +539,7 @@ function searchField(key, label, config = {}) {
 function renderBrowse() {
   const ads = filteredAds();
   return (
+    landingBackdrop() +
     '<section class="hero"><div class="hero-copy"><div class="hero-kicker"><i></i> 360° CAR SHOWROOM / PAKISTAN</div><h1>Your next car.<br><em>Every angle.</em></h1><p>Get closer before you get in. Explore the details, look around in 360, and find your next drive.</p><div class="hero-actions"><button class="btn primary" data-find-car>Find a car <span class="arrow-up" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span></button><button class="btn" data-action="new-ad">Sell your car <span aria-hidden="true">→</span></button></div><div class="hero-qualities"><span><b>↔</b> 360° walk-arounds</span><span><b>⊕</b> Detail zoom</span><span><b>▻</b> Photos + video</span></div></div>' +
     neonScene() +
     '</section><form id="search-form" class="search-card"><div class="search-grid">' +
@@ -1260,7 +1261,7 @@ function downloadState(ads, startId = null, home = false) {
         .replace(/[^a-zA-Z0-9 _-]/g, "")
         .slice(0, 65)
     : home
-      ? "CarView-Lexus-Photos"
+      ? "CarView-Pakistan-App"
       : "CarView-My-Ads";
   link.href = url;
   link.download = (filename || "CarView-Ad") + ".html";
@@ -1272,7 +1273,7 @@ function downloadState(ads, startId = null, home = false) {
     ad
       ? "Ad copy download started. It includes the photos, 360 view and seller contact."
       : home
-        ? "App copy download started. Your showroom photos and existing ads are included."
+        ? "App copy download started. Your ads and media are included."
         : "Backup download started. It includes all your ads, photos and contact details.",
   );
 }
@@ -1281,25 +1282,8 @@ async function action(button) {
     id = button.dataset.id,
     ad = currentAd();
   if (mediaBusy) throw new Error("Let the photos finish preparing first.");
-  if (kind === "choose-showroom") {
-    $("showroom-files").click();
-    return;
-  }
-  if (kind === "showroom-mode") {
-    if (!["model", "photos"].includes(button.dataset.mode)) return;
-    appState.showroom = { ...showroomData(), display: button.dataset.mode };
-    persist();
-    render();
-    return;
-  }
   if (kind === "save-showroom") {
     downloadState(appState.ads, null, true);
-    return;
-  }
-  if (kind === "showroom-editor") {
-    const editor = $("showroom-editor");
-    editor.hidden = !editor.hidden;
-    button.setAttribute("aria-expanded", String(!editor.hidden));
     return;
   }
   if (kind === "browse") return navigate({ kind: "browse" });
@@ -1553,11 +1537,6 @@ async function boot() {
     void importStudio(event.target.files[0])
       .catch((error) => toast(error.message))
       .finally(() => ($("studio-import").value = ""));
-  };
-  $("showroom-files").onchange = (event) => {
-    const files = Array.from(event.target.files || []);
-    event.target.value = "";
-    void importShowroom(files).catch((error) => toast(error.message));
   };
   document.addEventListener("visibilitychange", () => {
     if (document.hidden && saveTimer) void saveNow();
