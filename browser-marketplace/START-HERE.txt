@@ -6,19 +6,22 @@ CARVIEW PAKISTAN - CAR ADS + 360 VIEW
 
 NEON SHOWROOM UI
 ----------------
-Purple/pink UI barqarar hai. Purana dummy 3D model hata diya gaya hai.
-Hero box mein Choose Lexus photos dabayein aur apne computer se 4 white Lexus
-photos choose karein. ZIP, Drive ya dobara chat upload ki zaroorat nahi.
-Arrange photos se front/side/rear order theek karein. Save app copy se photos
-ke saath ek portable HTML banegi; is mein existing ads aur contact bhi honge.
+Purple/pink UI aur aapka uploaded Koenigsegg Agera 3D model included hai.
+HTML kholte hi model apne aap rotate karta hai. Body pearl white hai.
+Mouse/finger drag se orbit; do ungliyon ka pinch ya mouse wheel se zoom.
++ / - buttons, Pause/Rotate aur Reset view controls bhi hain. 0 reset karta hai.
+Yeh supplied 3D display model hai; seller ki asli car/condition ka saboot nahi.
 
-4 press photos mein angles automatically badalte hain; yeh seamless full 360
-scan nahi. Swipe/drag, arrows, thumbnails aur Pause/Play controls available hain.
-12+ same-car consistent full-lap photos hon to Arrange photos mein full-lap
-confirmation check karke captured-photo spin chala sakte hain.
-Photos ka rang/background ya unseen angle generate nahi kiya jata.
-Public empty HTML mein Lexus photos included nahi; aap ek baar locally select
-karke app copy save karte hain. Reduced-motion mein auto-play pause rehti hai.
+Photo angles tab se apni Lexus photos wala workflow bhi available hai.
+Choose Lexus photos se local pictures select karein. Arrange photos se order
+badlein; Save app copy se photos aur existing ads wali portable HTML milegi.
+4 press photos mein actual angles badalte hain; woh seamless full 360 scan nahi.
+12+ consistent full-lap photos hon to confirmation ke baad captured spin chalegi.
+Photos ka rang ya unseen angle generate nahi hota. Dono modes data save rakhte hain.
+
+Model HTML mein embedded hai; alag ZIP, textures, Blender, Node ya internet nahi
+chahiye. Browser 3D support na de to isi model ki static preview nazar aati hai.
+Reduced-motion setting mein automatic rotation pause rehti hai.
 
 AD BANANE KE 5 STEPS
 -------------------

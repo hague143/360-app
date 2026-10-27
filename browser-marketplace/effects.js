@@ -1,10 +1,11 @@
 // Decorative UI effects only. No listing, storage, media or viewer state changes.
+const MODEL_ASSET = JSON.parse($("hero-model-data").textContent);
 let sceneGlow = true;
 let heroScene = null;
 let heroPlaying = !matchMedia("(prefers-reduced-motion: reduce)").matches;
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const precisePointer = matchMedia("(hover: hover) and (pointer: fine)");
-function neonScene() {
+function photoScene() {
   const data = showroomData(),
     hasPhotos = data.photos.length > 0;
   return `<div class="photo-showcase"><div class="hero-scene photo-scene${sceneGlow ? "" : " scene-muted"}${hasPhotos ? " has-real-photos" : ""}" data-tilt="hero" aria-label="Lexus LX real photo showcase">
@@ -18,13 +19,50 @@ function neonScene() {
     ${hasPhotos ? `<div class="showroom-photo-strip">${data.photos.map((photo, index) => `<button type="button" data-showroom-frame="${index}" aria-label="Showroom photo ${index + 1}" aria-pressed="${index === showroomFrame}" class="${index === showroomFrame ? "active" : ""}"><img src="${esc(photo.thumb)}" alt=""></button>`).join("")}</div><div class="showroom-actions"><button class="btn small" data-action="showroom-editor" aria-expanded="false">Arrange photos</button><button class="btn small primary" data-action="save-showroom">Save app copy</button></div><p class="showroom-source-note">Original photo angles. Different backgrounds stay as photographed.<br><span id="showroom-filename"></span></p>${showroomEditor(data)}` : ""}
   </div>`;
 }
+function showroomModeButtons(mode) {
+  return `<div class="showroom-modes" role="group" aria-label="Home showcase type"><button type="button" data-action="showroom-mode" data-mode="model" aria-pressed="${mode === "model"}">3D model</button><button type="button" data-action="showroom-mode" data-mode="photos" aria-pressed="${mode === "photos"}">Photo angles</button></div>`;
+}
+function modelScene() {
+  return `<div class="model-showcase"><div class="hero-scene model-scene${sceneGlow ? "" : " scene-muted"}" data-tilt="hero" aria-label="Koenigsegg Agera model showcase">
+    <div class="scene-topline"><span><i></i> KOENIGSEGG · AGERA</span><button type="button" class="scene-switch" data-scene-control aria-pressed="${sceneGlow}" aria-label="Toggle studio glow"><span aria-hidden="true">✦</span> <b>${sceneGlow ? "Glow on" : "Glow off"}</b></button></div>
+    <div class="scene-vehicle" id="hero-vehicle" tabindex="0" role="group" aria-label="Interactive Koenigsegg 3D model. Drag to orbit, pinch or scroll to zoom, 0 resets view."><img class="model-poster" id="model-poster" src="${MODEL_ASSET.poster}" alt="Koenigsegg 3D model preview"><span class="model-status" id="model-status" role="status">Opening 3D view…</span></div>
+    <div class="model-tools" role="group" aria-label="3D model controls"><button type="button" data-model-control="zoom-in" aria-label="Zoom in on 3D model">＋</button><button type="button" data-model-control="zoom-out" aria-label="Zoom out from 3D model">−</button><button type="button" data-model-control="reset">Reset view</button></div>
+    <div class="scene-bottom"><span class="scene-caption">3D MODEL · DRAG TO ORBIT · PINCH TO ZOOM</span><button type="button" class="scene-switch" data-hero-play aria-pressed="${heroPlaying}" aria-label="${heroPlaying ? "Pause" : "Play"} model rotation">${heroPlaying ? "Ⅱ Pause" : "▶ Rotate"}</button></div>
+    </div><div class="showroom-actions"><button class="btn small" data-action="choose-showroom">Choose Lexus photos</button><button class="btn small primary" data-action="save-showroom">Save app copy</button></div><p class="showroom-source-note">Koenigsegg model from your uploaded file. Car-ad photos and 360 views stay with each ad.</p><p id="showroom-progress" class="photo-busy" role="status" hidden></p></div>`;
+}
+function neonScene() {
+  const mode = showroomData().display === "photos" ? "photos" : "model";
+  return `<div class="showroom-choice">${showroomModeButtons(mode)}${mode === "model" ? modelScene() : photoScene()}</div>`;
+}
 function disposeHero() {
   heroScene?.dispose();
   heroScene = null;
 }
 function mountHero() {
   const host = $("hero-vehicle");
-  if (host) heroScene = mountPhotoShowroom(host, { playing: heroPlaying });
+  if (!host) return;
+  if (showroomData().display === "photos") {
+    heroScene = mountPhotoShowroom(host, { playing: heroPlaying });
+  } else {
+    host.dataset.render = "loading";
+    heroScene = CarViewModel.mount(host, {
+      base64: MODEL_ASSET.base64,
+      playing: heroPlaying,
+      onReady: () => {
+        $("model-poster").hidden = true;
+        $("model-status").hidden = true;
+      },
+      onError: () => {
+        if ($("model-poster")) $("model-poster").hidden = false;
+        if ($("model-status"))
+          $("model-status").textContent =
+            "Static preview · 3D is unavailable on this browser";
+        document
+          .querySelectorAll("[data-model-control],[data-hero-play]")
+          .forEach((button) => (button.disabled = true));
+      },
+    });
+  }
 }
 function installEffects() {
   let active = null,
@@ -86,11 +124,24 @@ function installEffects() {
     control.setAttribute("aria-pressed", String(heroPlaying));
     control.setAttribute(
       "aria-label",
-      (heroPlaying ? "Pause" : "Play") + " showroom photos",
+      (heroPlaying ? "Pause" : "Play") +
+        (showroomData().display === "photos"
+          ? " showroom photos"
+          : " model rotation"),
     );
-    control.textContent = heroPlaying ? "Ⅱ Pause" : "▶ Play";
+    control.textContent = heroPlaying
+      ? "Ⅱ Pause"
+      : showroomData().display === "photos"
+        ? "▶ Play"
+        : "▶ Rotate";
   }
   document.addEventListener("click", (event) => {
+    const modelControl = event.target.closest("[data-model-control]");
+    if (modelControl && !modelControl.disabled) {
+      const kind = modelControl.dataset.modelControl;
+      if (kind === "reset") heroScene?.reset();
+      else heroScene?.zoom(kind === "zoom-in" ? 0.85 : 1.18);
+    }
     if (event.target.closest("[data-hero-play]")) {
       heroPlaying = !heroPlaying;
       heroScene?.setPlaying(heroPlaying);

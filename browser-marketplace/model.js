@@ -472,7 +472,7 @@ function cleanState(value) {
   };
 }
 function blankShowroom() {
-  return { version: 1, photos: [], fullLap: false };
+  return { version: 1, photos: [], fullLap: false, display: "model" };
 }
 function cleanShowroom(value) {
   if (value == null) return blankShowroom();
@@ -487,6 +487,12 @@ function cleanShowroom(value) {
     version: 1,
     photos,
     fullLap: value.fullLap === true && photos.length >= 12,
+    display:
+      value.display === "model" || value.display === "photos"
+        ? value.display
+        : photos.length
+          ? "photos"
+          : "model",
   };
 }
 function validateStep(ad, step) {

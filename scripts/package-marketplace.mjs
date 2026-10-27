@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import path from "node:path";
+import { build } from "esbuild";
 
 const root = path.resolve(import.meta.dirname, "..");
 const original = await readFile(
@@ -30,6 +31,26 @@ const [template, baseCSS, neonCSS, ...scripts] = await Promise.all(
   ].map((name) => readFile(path.join(dir, name), "utf8")),
 );
 const css = baseCSS + "\n" + neonCSS;
+const [model, poster, threeLicense] = await Promise.all([
+  readFile(path.join(dir, "assets/agera.glb")),
+  readFile(path.join(dir, "assets/agera-poster.webp")),
+  readFile(path.join(root, "node_modules/three/LICENSE"), "utf8"),
+]);
+const viewer = await build({
+  entryPoints: [path.join(dir, "hero-model.js")],
+  bundle: true,
+  minify: true,
+  format: "iife",
+  globalName: "CarViewModel",
+  write: false,
+  target: "es2020",
+  legalComments: "inline",
+});
+const modelData = JSON.stringify({
+  name: "Koenigsegg Agera",
+  base64: model.toString("base64"),
+  poster: "data:image/webp;base64," + poster.toString("base64"),
+});
 const code =
   "(() => { 'use strict';\nconst PRISTINE_TEMPLATE = '<!doctype html>\\n' + document.documentElement.outerHTML;\n" +
   scripts.join("\n") +
@@ -42,6 +63,15 @@ const safeJSON = JSON.stringify(original)
 const html = template
   .replace("/*__MARKETPLACE_CSS__*/", () => css)
   .replace("/*__STUDIO_JSON__*/", () => safeJSON)
+  .replace("/*__MODEL_DATA__*/", () => modelData)
+  .replace("/*__MODEL_VIEWER__*/", () =>
+    (
+      "/* Bundled Three.js licence:\n" +
+      threeLicense +
+      "\n*/\n" +
+      viewer.outputFiles[0].text.replace(/[\t ]+$/gm, "")
+    ).replace(/<\/script/gi, "<\\/script"),
+  )
   .replace("/*__MARKETPLACE_JS__*/", () => code);
 if (/\/\*__\w+__\*\//.test(html))
   throw new Error("Unfilled marketplace template marker.");

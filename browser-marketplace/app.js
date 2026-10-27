@@ -1285,6 +1285,13 @@ async function action(button) {
     $("showroom-files").click();
     return;
   }
+  if (kind === "showroom-mode") {
+    if (!["model", "photos"].includes(button.dataset.mode)) return;
+    appState.showroom = { ...showroomData(), display: button.dataset.mode };
+    persist();
+    render();
+    return;
+  }
   if (kind === "save-showroom") {
     downloadState(appState.ads, null, true);
     return;

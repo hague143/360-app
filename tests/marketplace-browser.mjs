@@ -165,12 +165,88 @@ with zipfile.ZipFile(sys.argv[1]) as z:
         .toBuffer(),
     });
   await page.waitForFunction(
+    () => document.querySelector("#hero-vehicle").dataset.render === "model",
+  );
+  assert.equal(await page.locator(".model-canvas").count(), 1);
+  assert.ok(
+    Number(await page.locator("#hero-vehicle").getAttribute("data-meshes")) >=
+      5,
+  );
+  const embeddedModel = JSON.parse(
+    html.match(/<script[^>]*id="hero-model-data"[^>]*>([\s\S]*?)<\/script>/)[1],
+  );
+  assert.equal(
+    createHash("sha256")
+      .update(Buffer.from(embeddedModel.base64, "base64"))
+      .digest("hex"),
+    createHash("sha256")
+      .update(await readFile("browser-marketplace/assets/agera.glb"))
+      .digest("hex"),
+  );
+  assert.equal(await page.locator("#model-poster").isVisible(), false);
+  const autoAngle = await page
+    .locator("#hero-vehicle")
+    .getAttribute("data-azimuth");
+  await page.waitForFunction(
+    (angle) =>
+      document.querySelector("#hero-vehicle").dataset.azimuth !== angle,
+    autoAngle,
+  );
+  await page.getByRole("button", { name: "Pause model rotation" }).click();
+  const stoppedAngle = await page
+    .locator("#hero-vehicle")
+    .getAttribute("data-azimuth");
+  await page.waitForTimeout(200);
+  assert.equal(
+    await page.locator("#hero-vehicle").getAttribute("data-azimuth"),
+    stoppedAngle,
+  );
+  const modelDistance = Number(
+    await page.locator("#hero-vehicle").getAttribute("data-distance"),
+  );
+  await page.getByRole("button", { name: "Zoom in on 3D model" }).click();
+  assert.ok(
+    Number(await page.locator("#hero-vehicle").getAttribute("data-distance")) <
+      modelDistance,
+  );
+  await page.getByRole("button", { name: "Reset view", exact: true }).click();
+  const modelBox = await page.locator(".model-canvas").boundingBox();
+  const orbitBefore = await page
+    .locator("#hero-vehicle")
+    .getAttribute("data-azimuth");
+  await page.mouse.move(
+    modelBox.x + modelBox.width * 0.7,
+    modelBox.y + modelBox.height * 0.5,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    modelBox.x + modelBox.width * 0.3,
+    modelBox.y + modelBox.height * 0.5,
+    { steps: 8 },
+  );
+  await page.mouse.up();
+  assert.notEqual(
+    await page.locator("#hero-vehicle").getAttribute("data-azimuth"),
+    orbitBefore,
+  );
+  await page.getByRole("button", { name: "Reset view", exact: true }).click();
+  await mkdir("test-results", { recursive: true });
+  await page.screenshot({
+    path: "test-results/marketplace-agera-model.png",
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "Play model rotation" }).click();
+  await page.getByRole("button", { name: "Photo angles", exact: true }).click();
+  await page.waitForFunction(
     () => document.querySelector("#hero-vehicle").dataset.render === "empty",
   );
   assert.equal(await page.locator(".showroom-empty").isVisible(), true);
   assert.ok(
     !html.includes("CarViewHero.mount"),
-    "Synthetic car renderer removed from release",
+    "Handmade dummy renderer is not bundled",
+  );
+  console.log(
+    "PASS Uploaded GLB matches supplied asset; real mesh renders, auto-rotates, pauses, orbits and zooms; original photo mode is available",
   );
   await page.locator("#showroom-files").setInputFiles(fixtures.slice(0, 4));
   await page.waitForFunction(
@@ -659,7 +735,7 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   });
   const { page: mobileHome } = await open(html, true);
   await mobileHome.waitForFunction(
-    () => document.querySelector("#hero-vehicle").dataset.render === "empty",
+    () => document.querySelector("#hero-vehicle").dataset.render === "model",
   );
   assert.equal(
     await mobileHome.evaluate(
@@ -667,6 +743,39 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     ),
     true,
   );
+  await mobileHome
+    .getByRole("button", { name: "Pause model rotation" })
+    .click();
+  await mobileHome.locator(".model-canvas").scrollIntoViewIfNeeded();
+  const touchBox = await mobileHome.locator(".model-canvas").boundingBox();
+  const modelTouch = await mobileHome.context().newCDPSession(mobileHome);
+  const cx = touchBox.x + touchBox.width * 0.5,
+    cy = touchBox.y + touchBox.height * 0.5;
+  const touch = (x, y, id) => ({ x, y, id, radiusX: 2, radiusY: 2, force: 1 });
+  const beforePinch = Number(
+    await mobileHome.locator("#hero-vehicle").getAttribute("data-distance"),
+  );
+  await modelTouch.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [touch(cx - 25, cy, 1), touch(cx + 25, cy, 2)],
+  });
+  await modelTouch.send("Input.dispatchTouchEvent", {
+    type: "touchMove",
+    touchPoints: [touch(cx - 55, cy, 1), touch(cx + 55, cy, 2)],
+  });
+  await modelTouch.send("Input.dispatchTouchEvent", {
+    type: "touchEnd",
+    touchPoints: [],
+  });
+  await mobileHome.waitForFunction(
+    (distance) =>
+      Number(document.querySelector("#hero-vehicle").dataset.distance) <
+      distance,
+    beforePinch,
+  );
+  await mobileHome
+    .getByRole("button", { name: "Reset view", exact: true })
+    .click();
   await mobileHome.screenshot({
     path: "test-results/marketplace-neon-mobile-home.png",
     fullPage: true,
@@ -788,6 +897,39 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   );
   console.log(
     "PASS Original video upload/playback/preservation, video-only publish/export/reopen, legacy ads and actual buyer media on reload",
+  );
+  const noGLContext = await browser.newContext({ offline: true });
+  await noGLContext.addInitScript(() => {
+    const native = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (kind, ...args) {
+      return String(kind).startsWith("webgl")
+        ? null
+        : native.call(this, kind, ...args);
+    };
+  });
+  await noGLContext.route(origin + "/**", (route) =>
+    route.fulfill({ contentType: "text/html", body: html }),
+  );
+  const noGL = await noGLContext.newPage();
+  noGL.on("pageerror", (error) => errors.push(error.message));
+  await noGL.goto(origin + "/index.html");
+  await noGL.waitForFunction(
+    () => document.documentElement.dataset.ready === "true",
+  );
+  assert.equal(await noGL.locator("#model-poster").isVisible(), true);
+  await noGL.locator("#model-poster").evaluate((image) => image.decode());
+  assert.match(
+    await noGL.locator("#model-status").textContent(),
+    /Static preview/,
+  );
+  assert.equal(
+    await noGL
+      .getByRole("button", { name: "Zoom in on 3D model" })
+      .isDisabled(),
+    true,
+  );
+  console.log(
+    "PASS Mobile model pinch zoom, uploaded asset fallback without WebGL, and existing photo/video ad controls",
   );
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);

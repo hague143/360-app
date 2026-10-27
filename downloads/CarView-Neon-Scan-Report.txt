@@ -1,14 +1,21 @@
-CARVIEW PURPLE/PINK - ACTUAL PHOTO SHOWCASE SCAN RECORD
-=======================================================
-Record generated: 2026-10-27 12:43:01 PKT
+CARVIEW - SUPPLIED KOENIGSEGG MODEL RELEASE SCAN RECORD
+======================================================
+Record generated: 2026-10-27 13:31:13 PKT
 
-Release: one self-contained HTML with local showroom-photo selection,
-car-ad form, original ad video and the unchanged photo/video 360 studio.
-The synthetic vehicle and renderer have been removed. The empty distribution
-contains no Lexus photographs, user media, personal contacts or test fixtures.
-The user selects their actual pictures inside the HTML, then Save app copy
-embeds those display copies and existing ads into a portable HTML file.
-No source colour, missing angle or fake vehicle image is generated.
+Release: self-contained HTML with the actual user-supplied Koenigsegg mesh,
+local renderer and same-model fallback poster, Photo angles mode, car-ad
+form, original ad video and unchanged captured-photo/video 360 studio.
+The GLB is derived from the user's 82-koenigsegg-agera.zip using Blender with
+script execution disabled. Only meshes are exported; three verified isolated
+outlier triangles are removed and legacy materials become PBR/white bodywork.
+No car geometry is generated from scratch. This is a 3D display model, not a
+photograph or condition/identity evidence for a seller's car.
+
+The release embeds model/library/poster but no real ad photos, user videos,
+contacts, test images or the original .blend/.fbx/.obj source archive.
+The model's author/licence were absent from that archive; no asset commercial
+or redistribution licence is asserted. Source/output hashes and conversion
+notes are in browser-marketplace/assets/agera-provenance.json.
 
 A previous browser download was reported blocked as "Virus detected".
 The product and full detection identifier were not supplied. That specific
@@ -20,38 +27,45 @@ Bundled signature database: 28164, 2026-10-25 06:24:12 UTC
 Known signatures: 3,628,192
 Official container: docker.io/clamav/clamav:stable
 Image digest: sha256:bda39705e291105049c3936e2803ac90b955172af8030f94f05dce1252df6c6d
-Execution: --network none, read-only application files, archive scanning on,
-100 MB maximum file size, 500 MB maximum scan size, alert on exceeded limits.
-The environment could not reach the official signature update endpoint;
-the signed bundled database above was used without claiming an update.
+Execution: --network none, read-only application and source files, archive
+scanning on, max file 100 MB / scan 500 MB, alert on exceeded limits.
+The signed bundled database above was used without claiming an update.
 
-RESULT: 17 files scanned, 0 infected files, scan exit code 0.
+RESULT: 23 files scanned, 0 infected files, scan exit code 0.
 Included: both release HTML files, ZIP, protected original studio, marketplace
-source/assets and the two packaging scripts.
+source/assets, packaging/conversion scripts and the user's original source ZIP.
 
 This is one scanner's result, not a 100% virus-free guarantee and not a test
 with Windows Defender. Keep protection enabled; do not bypass a continuing
 block. If blocked, obtain the antivirus product and full detection name from
 its protection history while leaving the file blocked.
-Recorded hashes apply only to these exact files; rebuilds need a fresh scan.
+The exact hashes below identify the tested files; rebuilds need a fresh scan.
 
-RELEASE FILES (SHA256)
----------------------
+RELEASE/ASSET FILES (SHA256)
+--------------------------
 downloads/CarView-Neon-Direct.html
-Bytes: 247298
-SHA256: 4c15ab0fe304ad103cb9b9d146edca7bebb0b0b2f9f8a6a88089b25bc22c6c75
+Bytes: 2837550
+SHA256: fb59eace45024f378706e7d98a23a284d3d292bb96d0bf500be91e1aacf00abc
 
 downloads/CarView-Pakistan-Marketplace.html
-Bytes: 247298
-SHA256: 4c15ab0fe304ad103cb9b9d146edca7bebb0b0b2f9f8a6a88089b25bc22c6c75
+Bytes: 2837550
+SHA256: fb59eace45024f378706e7d98a23a284d3d292bb96d0bf500be91e1aacf00abc
 
 downloads/CarView-Pakistan-Marketplace.zip
-Bytes: 65751
-SHA256: 35c00dd6953a61e9894f783fe8027dcd5fffea8c9b12f7e9bc93801feee05201
+Bytes: 1155037
+SHA256: acd6fdddcf752de4ff37d8b12ce3753239657d9e3daa8df860e4a917925f611c
 
 downloads/CarView-Pakistan.html
 Bytes: 65978
 SHA256: 56a9872dfd8072da85009535e585e496684f5bfb39584211cf8e927e198125cf
+
+browser-marketplace/assets/agera.glb
+Bytes: 1435628
+SHA256: f9d1f5b94a79991699b8299eae03bb25ec1364ad5360f63ad96508f9662f1aa2
+
+browser-marketplace/assets/agera-poster.webp
+Bytes: 43116
+SHA256: 64d03a6a9cf86f7f1e6007dcddb1ee96c370b214886cb0262592188f7f67fd2c
 
 COMPLETE SCAN OUTPUT (engine timestamps are UTC)
 ----------------------------------------------
@@ -63,24 +77,30 @@ COMPLETE SCAN OUTPUT (engine timestamps are UTC)
 /scan/browser-marketplace/START-HERE.txt: OK
 /scan/browser-marketplace/effects.js: OK
 /scan/browser-marketplace/assets/README.md: OK
+/scan/browser-marketplace/assets/agera.glb: OK
+/scan/browser-marketplace/assets/agera-poster.webp: OK
 /scan/browser-marketplace/assets/neon-hero.png: OK
+/scan/browser-marketplace/assets/agera-provenance.json: OK
 /scan/browser-marketplace/neon.css: OK
 /scan/browser-marketplace/studio.js: OK
 /scan/browser-marketplace/model.js: OK
 /scan/browser-marketplace/app.js: OK
 /scan/browser-marketplace/hero-photos.js: OK
 /scan/browser-marketplace/styles.css: OK
+/scan/browser-marketplace/hero-model.js: OK
 /scan/scripts/package-marketplace.mjs: OK
 /scan/scripts/package-marketplace-direct.mjs: OK
+/scan/scripts/prepare-agera.py: OK
+/source/koenigsegg.zip: OK
 
 ----------- SCAN SUMMARY -----------
 Known viruses: 3628192
 Engine version: 1.5.4
 Scanned directories: 2
-Scanned files: 17
+Scanned files: 23
 Infected files: 0
-Data scanned: 3.11 MiB
-Data read: 2.68 MiB (ratio 1.16:1)
-Time: 13.706 sec (0 m 13 s)
-Start Date: 2026:10:27 07:40:29
-End Date:   2026:10:27 07:40:43
+Data scanned: 37.69 MiB
+Data read: 13.43 MiB (ratio 2.81:1)
+Time: 23.866 sec (0 m 23 s)
+Start Date: 2026:10:27 08:28:29
+End Date:   2026:10:27 08:28:53

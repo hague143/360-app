@@ -1,0 +1,16 @@
+{
+  "source_archive_name": "82-koenigsegg-agera.zip",
+  "source_archive_sha256": "79f6056e10e6e2392ddb4cdd78054ac008e9f088e2f929c2955541dbfbe71151",
+  "source_blend_sha256": "dd062fe51aa78a08fb4498413965488c03b6f603cbe268a49b975ce0aea8da02",
+  "glb_sha256": "f9d1f5b94a79991699b8299eae03bb25ec1364ad5360f63ad96508f9662f1aa2",
+  "source_objects": [
+    "Body",
+    "FR",
+    "FL",
+    "RL",
+    "RR"
+  ],
+  "conversion": "Blender 4.3.2, scripts disabled, selected meshes only, embedded GLB, no animation/cameras/lights/extras",
+  "repairs": "Removed 3 isolated tiny outlier triangles (9 vertices) outside the car; retained visible body/wheel geometry. Legacy shaders adapted to local PBR with pearl white body.",
+  "author_and_license": "No author or licence document was included in the user-supplied archive; no redistribution/commercial licence is asserted."
+}

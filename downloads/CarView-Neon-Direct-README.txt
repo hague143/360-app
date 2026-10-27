@@ -3,26 +3,23 @@ CARVIEW NEON PURPLE/PINK - ACTUAL PHOTO SHOWROOM
 1. CarView-Neon-Direct.html download karein.
    Link source text ki tarah khule to Right-click > Save link as use karein.
 2. Chrome/Edge mein double-click se kholein.
-3. Home box mein Choose Lexus photos se 4 white Lexus photos select karein.
-4. Arrange photos se front/side/rear order theek karein.
-5. Save app copy dabayein. Downloaded HTML mein photos aur existing ads included
-   hongi; original photo files ke baghair bhi doosre computer par khulegi.
+3. White Koenigsegg Agera ka supplied 3D model home box mein auto-rotate karega.
+   Mouse/finger drag se orbit, pinch/scroll se zoom; +, -, Pause aur Reset use karein.
+4. Photo angles tab mein apni white Lexus photos bhi select kar sakte hain.
+   Arrange photos se order set karein; Save app copy se portable HTML banayein.
 
-Public empty edition mein aapki Lexus photos pehle se embedded nahi hain.
-Chat previews file-download ke taur par available nahi the; large ZIP tool
-limit se bari thi aur Drive/web access blocked thi. Ab photos ko seedha app
-mein select karke kaam poora hota hai; dobara chat upload ki zaroorat nahi.
+3D asset HTML mein embedded hai. Alag model files, Blender, Node.js, account ya
+internet nahi chahiye. 3D na chale to isi model ki static preview nazar aati hai.
+Yeh display model hai; kisi seller ki asli car ya condition ki photo nahi.
+Reduced motion mein auto rotation pause hoti hai; Rotate se chala sakte hain.
 
-Dummy vehicle hata diya hai. Actual photos mein angles automatically badalte
-hain. Pause/Play, swipe/drag, keyboard arrows aur thumbnail selection included.
-4 press photos full seamless 360 scan nahi. Different backgrounds/trims source
-mein jaise hain waise dikhte hain; colour ya unseen side generate nahi hoti.
-12+ consistent same-car full-lap photos hon to Arrange photos mein full-lap
-confirmation se faster captured-photo spin chala sakte hain.
-
-Up to 24 showroom photos; JPG/PNG/WebP, 10 MB/40 MP each. App 1600px display
-copies banati hai. Failed replacement purani photos ko safe rakhta hai.
-Photos sirf home showcase mein hain; seller ads mein automatically nahi lagtin.
+Photo angles: up to 24 JPG/PNG/WebP, 10 MB/40 MP each; 1600px display copies.
+4 press photos mein actual angles badalte hain, full seamless 360 scan nahi.
+12+ consistent same-car full-lap photos hon to Arrange photos ki confirmation
+se faster captured-photo spin chalti hai. Rang/unseen side generate nahi hoti.
+Photo mode ki local pictures release mein pehle se embedded nahi hain. Aap ek
+baar select karke Save app copy karte hain. Existing saved photos/ads maintained.
+3D model aur Photo angles mode badalne se car-ad media replace nahi hoti.
 
 Car ad: Sell your car > details > media > contact > preview > Save to showroom.
 Ad ke Photos tab mein tamam gallery photos/frames; 360 tab mein drag/pinch view;

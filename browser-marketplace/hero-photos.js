@@ -38,7 +38,12 @@ async function importShowroom(files) {
     }
     // Commit only a fully decoded batch. Failed/cancelled selection leaves the
     // previous sequence and every existing ad untouched.
-    appState.showroom = cleanShowroom({ version: 1, photos, fullLap: false });
+    appState.showroom = cleanShowroom({
+      version: 1,
+      photos,
+      fullLap: false,
+      display: "photos",
+    });
     showroomFrame = 0;
     persist();
     render();
