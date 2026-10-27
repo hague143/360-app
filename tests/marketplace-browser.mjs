@@ -148,30 +148,174 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   await page
     .getByRole("heading", { name: "Your showroom starts with one car." })
     .waitFor();
+  const fixtures = [];
+  for (let index = 0; index < 12; index++)
+    fixtures.push({
+      name: String(index + 1).padStart(2, "0") + "-angle.png",
+      mimeType: "image/png",
+      buffer: await sharp({
+        create: {
+          width: 900,
+          height: 600,
+          channels: 3,
+          background: { r: 30 + index * 12, g: 120, b: 160 - index * 7 },
+        },
+      })
+        .png()
+        .toBuffer(),
+    });
   await page.waitForFunction(
-    () => document.querySelector("#hero-vehicle").dataset.render === "webgl",
+    () => document.querySelector("#hero-vehicle").dataset.render === "empty",
   );
-  const startAngle = await page
-    .locator("#hero-vehicle")
-    .getAttribute("data-angle");
+  assert.equal(await page.locator(".showroom-empty").isVisible(), true);
+  assert.ok(
+    !html.includes("CarViewHero.mount"),
+    "Synthetic car renderer removed from release",
+  );
+  await page.locator("#showroom-files").setInputFiles(fixtures.slice(0, 4));
   await page.waitForFunction(
-    (angle) => document.querySelector("#hero-vehicle").dataset.angle !== angle,
-    startAngle,
+    () => document.querySelector("#hero-vehicle").dataset.render === "photos",
   );
-  await page.getByRole("button", { name: "Pause showroom rotation" }).click();
-  const pausedAngle = await page
+  await page.locator("#showroom-photo").evaluate((image) => image.decode());
+  assert.equal(await page.locator(".showroom-photo-strip button").count(), 4);
+  await page.getByRole("button", { name: "Pause showroom photos" }).click();
+  const pausedFrame = await page
     .locator("#hero-vehicle")
-    .getAttribute("data-angle");
+    .getAttribute("data-frame");
   await page.waitForTimeout(200);
   assert.equal(
-    await page.locator("#hero-vehicle").getAttribute("data-angle"),
-    pausedAngle,
+    await page.locator("#hero-vehicle").getAttribute("data-frame"),
+    pausedFrame,
   );
-  await page.getByRole("button", { name: "Play showroom rotation" }).click();
-  assert.equal(await page.locator(".hero-fallback").isVisible(), false);
+  await page.getByRole("button", { name: "Next showroom photo" }).click();
+  assert.equal(
+    await page.locator("#hero-vehicle").getAttribute("data-frame"),
+    "1",
+  );
+  await page.locator("#hero-vehicle").press("End");
+  assert.equal(
+    await page.locator("#hero-vehicle").getAttribute("data-frame"),
+    "3",
+  );
+  await click(page, "Arrange photos");
+  assert.equal(
+    await page.locator("#showroom-full-lap").isDisabled(),
+    true,
+    "Four press images must not be labelled a continuous lap",
+  );
+  await page
+    .getByRole("button", { name: "Move showroom photo 4 earlier" })
+    .click();
+  assert.match(
+    await page.locator("#showroom-filename").textContent(),
+    /04-angle/,
+  );
+  const heroCopy = await exported(
+    page,
+    "Save app copy",
+    "showroom-photos.html",
+  );
+  assert.equal(payload(heroCopy.text).showroom.photos.length, 4);
+  assert.equal(payload(heroCopy.text).showroom.fullLap, false);
+  const { page: heroRestored } = await open(heroCopy.text);
+  await heroRestored
+    .locator("#showroom-photo")
+    .evaluate((image) => image.decode());
+  assert.equal(
+    await heroRestored.locator(".showroom-photo-strip button").count(),
+    4,
+  );
+  assert.equal(
+    await heroRestored.locator(".car-card").count(),
+    0,
+    "Showroom photos never become seller ads",
+  );
+  await heroRestored
+    .getByRole("button", { name: "Pause showroom photos" })
+    .click();
+  const heroBox = await heroRestored.locator("#hero-vehicle").boundingBox();
+  await heroRestored.mouse.move(
+    heroBox.x + heroBox.width * 0.75,
+    heroBox.y + heroBox.height * 0.5,
+  );
+  await heroRestored.mouse.down();
+  await heroRestored.mouse.move(
+    heroBox.x + heroBox.width * 0.75 - 90,
+    heroBox.y + heroBox.height * 0.5,
+    { steps: 6 },
+  );
+  await heroRestored.mouse.up();
+  assert.equal(
+    await heroRestored.locator("#hero-vehicle").getAttribute("data-frame"),
+    "2",
+  );
+  await heroRestored.locator("#showroom-files").setInputFiles(fixtures);
+  await heroRestored.waitForFunction(
+    () =>
+      document.querySelectorAll(".showroom-photo-strip button").length === 12,
+  );
+  await click(heroRestored, "Arrange photos");
+  assert.equal(
+    await heroRestored.locator("#showroom-full-lap").isDisabled(),
+    false,
+  );
+  await heroRestored.locator("#showroom-full-lap").check();
+  await heroRestored
+    .getByRole("button", { name: "Play showroom photos" })
+    .click();
+  const lapBefore = await heroRestored
+    .locator("#hero-vehicle")
+    .getAttribute("data-frame");
+  await heroRestored.waitForFunction(
+    (index) => document.querySelector("#hero-vehicle").dataset.frame !== index,
+    lapBefore,
+    { timeout: 2000 },
+  );
+  const lapCopy = await exported(
+    heroRestored,
+    "Save app copy",
+    "showroom-full-lap.html",
+  );
+  assert.equal(payload(lapCopy.text).showroom.fullLap, true);
+  assert.equal(payload(lapCopy.text).showroom.photos.length, 12);
+  await page.reload();
+  await page.waitForFunction(
+    () => document.documentElement.dataset.ready === "true",
+  );
+  assert.equal(
+    await page.locator(".showroom-photo-strip button").count(),
+    4,
+    "Showroom photos survive reload",
+  );
+  await page.locator("#showroom-files").setInputFiles({
+    name: "bad.jpg",
+    mimeType: "image/jpeg",
+    buffer: Buffer.from("not an image"),
+  });
+  await page.waitForFunction(() =>
+    document.querySelector("#toast").textContent.includes("Use a JPG"),
+  );
+  assert.equal(
+    await page.locator(".showroom-photo-strip button").count(),
+    4,
+    "Failed replacement keeps the previous photos",
+  );
+  await page.getByRole("button", { name: "Pause showroom photos" }).click();
+  await page.getByRole("button", { name: "Play showroom photos" }).click();
+  const startFrame = await page
+    .locator("#hero-vehicle")
+    .getAttribute("data-frame");
+  await page.waitForFunction(
+    (frame) => document.querySelector("#hero-vehicle").dataset.frame !== frame,
+    startFrame,
+    { timeout: 6000 },
+  );
   assert.match(
     await page.locator(".scene-topline").textContent(),
-    /LAND CRUISER.*2026/,
+    /LEXUS LX.*WHITE/,
+  );
+  console.log(
+    "PASS Real photo selection, manual controls/drag/order, autoplay/pause, failed replacement safety, reload persistence and self-contained showroom HTML",
   );
   const scene = await page.locator(".hero-scene").boundingBox();
   await page.mouse.move(
@@ -249,22 +393,6 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   });
   await next(page);
   let frame = await readyStudio(page);
-  const fixtures = [];
-  for (let index = 0; index < 12; index++)
-    fixtures.push({
-      name: String(index + 1).padStart(2, "0") + "-angle.png",
-      mimeType: "image/png",
-      buffer: await sharp({
-        create: {
-          width: 900,
-          height: 600,
-          channels: 3,
-          background: { r: 30 + index * 12, g: 120, b: 160 - index * 7 },
-        },
-      })
-        .png()
-        .toBuffer(),
-    });
   await page.locator("#gallery-files").setInputFiles(fixtures.slice(0, 2));
   await page.waitForFunction(
     () =>
@@ -394,6 +522,11 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   assert.equal(data.ads.length, 1);
   assert.equal(data.ads[0].studio.photos.length, 36);
   assert.equal(data.ads[0].gallery.length, 2);
+  assert.equal(
+    data.showroom.photos.length,
+    4,
+    "Ad HTML retains actual home-showcase photos",
+  );
   assert.match(data.ads[0].video.src, /^data:video\/mp4;base64,/);
   const videoBytes = Buffer.from(data.ads[0].video.src.split(",")[1], "base64");
   assert.deepEqual(
@@ -526,7 +659,7 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   });
   const { page: mobileHome } = await open(html, true);
   await mobileHome.waitForFunction(
-    () => document.querySelector("#hero-vehicle").dataset.render === "webgl",
+    () => document.querySelector("#hero-vehicle").dataset.render === "empty",
   );
   assert.equal(
     await mobileHome.evaluate(
@@ -573,6 +706,7 @@ with zipfile.ZipFile(sys.argv[1]) as z:
   const legacyState = structuredClone(data);
   legacyState.copyId = "legacy-media-fixture";
   delete legacyState.ads[0].video;
+  delete legacyState.showroom;
   function withData(state) {
     return downloaded.text.replace(
       /(<script[^>]*id="marketplace-data"[^>]*>)[\s\S]*?(<\/script>)/,
@@ -652,28 +786,8 @@ with zipfile.ZipFile(sys.argv[1]) as z:
     await videoRestored.locator("#detail-video-player").isVisible(),
     true,
   );
-  // A locally visible fallback keeps WebGL-unavailable devices usable.
-  const noGLContext = await browser.newContext({ offline: true });
-  await noGLContext.addInitScript(() => {
-    const native = HTMLCanvasElement.prototype.getContext;
-    HTMLCanvasElement.prototype.getContext = function (kind, ...args) {
-      return String(kind).startsWith("webgl")
-        ? null
-        : native.call(this, kind, ...args);
-    };
-  });
-  await noGLContext.route(origin + "/**", (route) =>
-    route.fulfill({ contentType: "text/html", body: html }),
-  );
-  const noGL = await noGLContext.newPage();
-  noGL.on("pageerror", (error) => errors.push(error.message));
-  await noGL.goto(origin + "/index.html");
-  await noGL.waitForFunction(
-    () => document.documentElement.dataset.ready === "true",
-  );
-  assert.equal(await noGL.locator(".hero-fallback").isVisible(), true);
   console.log(
-    "PASS Original video upload/playback/preservation, video-only publish/export/reopen, legacy ads, actual buyer media on reload and WebGL fallback",
+    "PASS Original video upload/playback/preservation, video-only publish/export/reopen, legacy ads and actual buyer media on reload",
   );
   assert.deepEqual(errors, []);
   assert.deepEqual(external, []);

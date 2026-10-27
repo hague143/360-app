@@ -5,14 +5,17 @@ let heroPlaying = !matchMedia("(prefers-reduced-motion: reduce)").matches;
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const precisePointer = matchMedia("(hover: hover) and (pointer: fine)");
 function neonScene() {
-  return `<div class="hero-scene${sceneGlow ? "" : " scene-muted"}" data-tilt="hero" aria-label="Black Land Cruiser 2026 display studio">
-    <div class="scene-topline"><span><i></i> LAND CRUISER · 2026</span><button type="button" class="scene-switch" data-scene-control aria-pressed="${sceneGlow}" aria-label="Toggle studio glow"><span aria-hidden="true">✦</span> <b>${sceneGlow ? "Glow on" : "Glow off"}</b></button></div>
-    <div class="scene-grid" aria-hidden="true"></div><div class="scene-halo" aria-hidden="true"></div>
-    <div class="scene-vehicle" id="hero-vehicle"><svg class="hero-fallback" viewBox="0 0 600 300" role="img" aria-label="Black SUV display illustration"><defs><linearGradient id="suv-paint" x2="0.3" y2="1"><stop stop-color="#788096"/><stop offset=".3" stop-color="#181c2b"/><stop offset="1" stop-color="#060810"/></linearGradient></defs><ellipse cx="300" cy="255" rx="230" ry="20" fill="#ba70ff" opacity=".14"/><path d="M82 219V139L145 120 199 61 413 61 459 126 516 147 535 218Z" fill="url(#suv-paint)" stroke="#9f8fb8" stroke-width="3"/><path d="M175 120 211 74 399 74 430 120Z" fill="#23263c" stroke="#c0b7dc" stroke-width="2"/><path d="M272 75V120M365 75V120M290 136V218M423 133V218" stroke="#8c83a5" stroke-width="2"/><path d="M88 151H150M461 153H517" stroke="#eee5ff" stroke-width="8"/><path d="M101 195H520" stroke="#485062" stroke-width="6"/><g fill="#0a0c11" stroke="#697089" stroke-width="8"><circle cx="179" cy="220" r="41"/><circle cx="439" cy="220" r="41"/></g><g fill="#9293a5"><circle cx="179" cy="220" r="24"/><circle cx="439" cy="220" r="24"/></g></svg></div>
-    <div class="scene-coordinate" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-    <div class="scene-tag tag-orbit"><span class="tag-icon">↔</span><div><small>BLACK / 2026</small><b>Land Cruiser</b></div><i></i></div>
-    <div class="scene-tag tag-detail"><span class="tag-icon">⊕</span><div><small>A CLOSER LOOK</small><b>Pinch. Zoom. Inspect.</b></div></div>
-    <div class="scene-bottom"><span class="scene-caption">3D ILLUSTRATION · DRAG TO ROTATE</span><button type="button" class="scene-switch" data-hero-play aria-pressed="${heroPlaying}" aria-label="${heroPlaying ? "Pause" : "Play"} showroom rotation">${heroPlaying ? "Ⅱ Pause" : "▶ Rotate"}</button></div>
+  const data = showroomData(),
+    hasPhotos = data.photos.length > 0;
+  return `<div class="photo-showcase"><div class="hero-scene photo-scene${sceneGlow ? "" : " scene-muted"}${hasPhotos ? " has-real-photos" : ""}" data-tilt="hero" aria-label="Lexus LX real photo showcase">
+    <div class="scene-topline"><span><i></i> LEXUS LX · WHITE</span><button type="button" class="scene-switch" data-scene-control aria-pressed="${sceneGlow}" aria-label="Toggle studio glow"><span aria-hidden="true">✦</span> <b>${sceneGlow ? "Glow on" : "Glow off"}</b></button></div>
+    <div class="scene-vehicle" id="hero-vehicle" ${hasPhotos ? 'tabindex="0" role="group" aria-label="Actual car photo angles. Swipe, drag or use left and right arrow keys to change photo."' : ""}>
+      ${hasPhotos ? `<img id="showroom-photo" class="showroom-photo" src="${esc(data.photos[Math.min(showroomFrame, data.photos.length - 1)].src)}" alt="White Lexus LX photo" draggable="false"><span class="showroom-photo-badge">REAL PHOTOS · ${data.fullLap ? "FULL LAP" : "PHOTO ANGLES"}</span>` : `<div class="showroom-empty"><div class="showroom-empty-mark" aria-hidden="true">▧</div><h2>Your Lexus. Real photos.</h2><p>Choose your four white Lexus photos directly from this computer.<br>They stay with your saved app copy.</p><button class="btn primary" data-action="choose-showroom">Choose Lexus photos</button><small>JPG, PNG, WebP · up to 24 photos · 10 MB each</small></div>`}
+    </div>
+    ${hasPhotos ? `<div class="showroom-photo-controls"><button type="button" data-showroom-step="-1" aria-label="Previous showroom photo">←</button><span id="showroom-counter"></span><button type="button" data-showroom-step="1" aria-label="Next showroom photo">→</button></div>` : ""}
+    <div class="scene-bottom"><span class="scene-caption">${hasPhotos ? (data.fullLap ? "CAPTURED PHOTO SPIN · DRAG TO EXPLORE" : "ACTUAL PHOTO ANGLES · DRAG TO EXPLORE") : "YOUR ORIGINAL PHOTOS"}</span>${hasPhotos && data.photos.length > 1 ? `<button type="button" class="scene-switch" data-hero-play aria-pressed="${heroPlaying}" aria-label="${heroPlaying ? "Pause" : "Play"} showroom photos">${heroPlaying ? "Ⅱ Pause" : "▶ Play"}</button>` : ""}</div>
+    </div><p class="photo-busy" id="showroom-progress" role="status" hidden></p>
+    ${hasPhotos ? `<div class="showroom-photo-strip">${data.photos.map((photo, index) => `<button type="button" data-showroom-frame="${index}" aria-label="Showroom photo ${index + 1}" aria-pressed="${index === showroomFrame}" class="${index === showroomFrame ? "active" : ""}"><img src="${esc(photo.thumb)}" alt=""></button>`).join("")}</div><div class="showroom-actions"><button class="btn small" data-action="showroom-editor" aria-expanded="false">Arrange photos</button><button class="btn small primary" data-action="save-showroom">Save app copy</button></div><p class="showroom-source-note">Original photo angles. Different backgrounds stay as photographed.<br><span id="showroom-filename"></span></p>${showroomEditor(data)}` : ""}
   </div>`;
 }
 function disposeHero() {
@@ -21,13 +24,7 @@ function disposeHero() {
 }
 function mountHero() {
   const host = $("hero-vehicle");
-  if (!host) return;
-  heroScene = CarViewHero.mount(host, { reducedMotion: !heroPlaying });
-  if (host.dataset.render === "fallback") {
-    document.querySelector("[data-hero-play]").hidden = true;
-    document.querySelector(".scene-caption").textContent =
-      "DISPLAY ILLUSTRATION";
-  }
+  if (host) heroScene = mountPhotoShowroom(host, { playing: heroPlaying });
 }
 function installEffects() {
   let active = null,
@@ -89,9 +86,9 @@ function installEffects() {
     control.setAttribute("aria-pressed", String(heroPlaying));
     control.setAttribute(
       "aria-label",
-      (heroPlaying ? "Pause" : "Play") + " showroom rotation",
+      (heroPlaying ? "Pause" : "Play") + " showroom photos",
     );
-    control.textContent = heroPlaying ? "Ⅱ Pause" : "▶ Rotate";
+    control.textContent = heroPlaying ? "Ⅱ Pause" : "▶ Play";
   }
   document.addEventListener("click", (event) => {
     if (event.target.closest("[data-hero-play]")) {

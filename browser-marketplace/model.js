@@ -464,10 +464,29 @@ function cleanState(value) {
   return {
     version: 1,
     ads,
+    showroom: cleanShowroom(value.showroom),
     startId: typeof value.startId === "string" ? value.startId : null,
     copyId:
       typeof value.copyId === "string" ? value.copyId.slice(0, 100) : null,
     startView: value.startView === "garage" ? "garage" : null,
+  };
+}
+function blankShowroom() {
+  return { version: 1, photos: [], fullLap: false };
+}
+function cleanShowroom(value) {
+  if (value == null) return blankShowroom();
+  if (
+    value.version !== 1 ||
+    !Array.isArray(value.photos) ||
+    value.photos.length > 24
+  )
+    throw new Error("Invalid showroom photo data.");
+  const photos = value.photos.map(cleanPhoto);
+  return {
+    version: 1,
+    photos,
+    fullLap: value.fullLap === true && photos.length >= 12,
   };
 }
 function validateStep(ad, step) {

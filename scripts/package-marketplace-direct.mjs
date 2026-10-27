@@ -1,4 +1,4 @@
-// One self-contained HTML, including the local 3D renderer. No companion assets.
+// One self-contained HTML. Selected photo angles embed in exported app copies.
 // This packages the app; it does not certify any antivirus product's verdict.
 import { readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";

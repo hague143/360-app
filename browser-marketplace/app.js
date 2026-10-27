@@ -1238,14 +1238,15 @@ async function importStudio(file) {
   render();
   toast(project.photos.length + " saved 360 frames added.");
 }
-function downloadState(ads, startId = null) {
+function downloadState(ads, startId = null, home = false) {
   const copy = new DOMParser().parseFromString(PRISTINE_TEMPLATE, "text/html");
   const payload = {
     version: 1,
     ads: structuredClone(ads),
+    showroom: structuredClone(appState.showroom || blankShowroom()),
     copyId: uid(),
     startId,
-    startView: startId ? null : "garage",
+    startView: home || startId ? null : "garage",
   };
   copy.getElementById("marketplace-data").textContent = jsonSafe(payload);
   const blob = new Blob(["<!doctype html>\n", copy.documentElement.outerHTML], {
@@ -1258,7 +1259,9 @@ function downloadState(ads, startId = null) {
     ? titleOf(ad)
         .replace(/[^a-zA-Z0-9 _-]/g, "")
         .slice(0, 65)
-    : "CarView-My-Ads";
+    : home
+      ? "CarView-Lexus-Photos"
+      : "CarView-My-Ads";
   link.href = url;
   link.download = (filename || "CarView-Ad") + ".html";
   document.body.append(link);
@@ -1268,7 +1271,9 @@ function downloadState(ads, startId = null) {
   toast(
     ad
       ? "Ad copy download started. It includes the photos, 360 view and seller contact."
-      : "Backup download started. It includes all your ads, photos and contact details.",
+      : home
+        ? "App copy download started. Your showroom photos and existing ads are included."
+        : "Backup download started. It includes all your ads, photos and contact details.",
   );
 }
 async function action(button) {
@@ -1276,6 +1281,20 @@ async function action(button) {
     id = button.dataset.id,
     ad = currentAd();
   if (mediaBusy) throw new Error("Let the photos finish preparing first.");
+  if (kind === "choose-showroom") {
+    $("showroom-files").click();
+    return;
+  }
+  if (kind === "save-showroom") {
+    downloadState(appState.ads, null, true);
+    return;
+  }
+  if (kind === "showroom-editor") {
+    const editor = $("showroom-editor");
+    editor.hidden = !editor.hidden;
+    button.setAttribute("aria-expanded", String(!editor.hidden));
+    return;
+  }
   if (kind === "browse") return navigate({ kind: "browse" });
   if (kind === "garage" || kind === "save-draft") {
     await navigate({ kind: "garage" });
@@ -1527,6 +1546,11 @@ async function boot() {
     void importStudio(event.target.files[0])
       .catch((error) => toast(error.message))
       .finally(() => ($("studio-import").value = ""));
+  };
+  $("showroom-files").onchange = (event) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = "";
+    void importShowroom(files).catch((error) => toast(error.message));
   };
   document.addEventListener("visibilitychange", () => {
     if (document.hidden && saveTimer) void saveNow();

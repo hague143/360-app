@@ -1,10 +1,14 @@
-CARVIEW PURPLE/PINK NEON - ANTIVIRUS SCAN RECORD
-================================================
-Record generated: 2026-10-27 00:30:55 PKT
+CARVIEW PURPLE/PINK - ACTUAL PHOTO SHOWCASE SCAN RECORD
+=======================================================
+Record generated: 2026-10-27 12:43:01 PKT
 
-Release: single self-contained HTML with local Three.js display illustration,
-photo/video 360 studio, car-ad form and original ad video support.
-No separate decorative PNG is needed by this release.
+Release: one self-contained HTML with local showroom-photo selection,
+car-ad form, original ad video and the unchanged photo/video 360 studio.
+The synthetic vehicle and renderer have been removed. The empty distribution
+contains no Lexus photographs, user media, personal contacts or test fixtures.
+The user selects their actual pictures inside the HTML, then Save app copy
+embeds those display copies and existing ads into a portable HTML file.
+No source colour, missing angle or fake vehicle image is generated.
 
 A previous browser download was reported blocked as "Virus detected".
 The product and full detection identifier were not supplied. That specific
@@ -23,29 +27,27 @@ the signed bundled database above was used without claiming an update.
 
 RESULT: 17 files scanned, 0 infected files, scan exit code 0.
 Included: both release HTML files, ZIP, protected original studio, marketplace
-source/assets and the two packaging scripts. These release artifacts contain
-no user photographs, user video, personal contact details or test fixtures.
+source/assets and the two packaging scripts.
 
 This is one scanner's result, not a 100% virus-free guarantee and not a test
 with Windows Defender. Keep protection enabled; do not bypass a continuing
 block. If blocked, obtain the antivirus product and full detection name from
 its protection history while leaving the file blocked.
-
-The recorded hashes apply to these exact files. Any rebuild needs a fresh scan.
+Recorded hashes apply only to these exact files; rebuilds need a fresh scan.
 
 RELEASE FILES (SHA256)
 ---------------------
 downloads/CarView-Neon-Direct.html
-Bytes: 785696
-SHA256: ef3685fba192b4d8ac8cf1abdf97c1c8501d81a805cabd3545814f94dfc81407
+Bytes: 247298
+SHA256: 4c15ab0fe304ad103cb9b9d146edca7bebb0b0b2f9f8a6a88089b25bc22c6c75
 
 downloads/CarView-Pakistan-Marketplace.html
-Bytes: 785696
-SHA256: ef3685fba192b4d8ac8cf1abdf97c1c8501d81a805cabd3545814f94dfc81407
+Bytes: 247298
+SHA256: 4c15ab0fe304ad103cb9b9d146edca7bebb0b0b2f9f8a6a88089b25bc22c6c75
 
 downloads/CarView-Pakistan-Marketplace.zip
-Bytes: 206981
-SHA256: c0754c5d00103c7a8abb3a23d7c213793731b7b91a37432469622049252483fb
+Bytes: 65751
+SHA256: 35c00dd6953a61e9894f783fe8027dcd5fffea8c9b12f7e9bc93801feee05201
 
 downloads/CarView-Pakistan.html
 Bytes: 65978
@@ -66,7 +68,7 @@ COMPLETE SCAN OUTPUT (engine timestamps are UTC)
 /scan/browser-marketplace/studio.js: OK
 /scan/browser-marketplace/model.js: OK
 /scan/browser-marketplace/app.js: OK
-/scan/browser-marketplace/hero3d.js: OK
+/scan/browser-marketplace/hero-photos.js: OK
 /scan/browser-marketplace/styles.css: OK
 /scan/scripts/package-marketplace.mjs: OK
 /scan/scripts/package-marketplace-direct.mjs: OK
@@ -77,8 +79,8 @@ Engine version: 1.5.4
 Scanned directories: 2
 Scanned files: 17
 Infected files: 0
-Data scanned: 4.84 MiB
-Data read: 3.84 MiB (ratio 1.26:1)
-Time: 13.823 sec (0 m 13 s)
-Start Date: 2026:10:26 19:30:13
-End Date:   2026:10:26 19:30:27
+Data scanned: 3.11 MiB
+Data read: 2.68 MiB (ratio 1.16:1)
+Time: 13.706 sec (0 m 13 s)
+Start Date: 2026:10:27 07:40:29
+End Date:   2026:10:27 07:40:43

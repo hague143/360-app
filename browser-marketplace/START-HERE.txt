@@ -6,12 +6,19 @@ CARVIEW PAKISTAN - CAR ADS + 360 VIEW
 
 NEON SHOWROOM UI
 ----------------
-Purple/pink neon theme aur black Land Cruiser 2026-inspired 3D illustration.
-Hero car apne aap ghoomti hai. Drag se angle badlein; Pause/Rotate se control.
-Yeh stylised display model hai, Toyota ka verified CAD ya seller ki car nahi.
-HTML ke andar renderer hai; alag PNG, account ya internet nahi chahiye.
-WebGL na mile to SVG car illustration nazar aati hai. Reduced-motion setting
-mein auto rotation band rehti hai; Rotate button se chala sakte hain.
+Purple/pink UI barqarar hai. Purana dummy 3D model hata diya gaya hai.
+Hero box mein Choose Lexus photos dabayein aur apne computer se 4 white Lexus
+photos choose karein. ZIP, Drive ya dobara chat upload ki zaroorat nahi.
+Arrange photos se front/side/rear order theek karein. Save app copy se photos
+ke saath ek portable HTML banegi; is mein existing ads aur contact bhi honge.
+
+4 press photos mein angles automatically badalte hain; yeh seamless full 360
+scan nahi. Swipe/drag, arrows, thumbnails aur Pause/Play controls available hain.
+12+ same-car consistent full-lap photos hon to Arrange photos mein full-lap
+confirmation check karke captured-photo spin chala sakte hain.
+Photos ka rang/background ya unseen angle generate nahi kiya jata.
+Public empty HTML mein Lexus photos included nahi; aap ek baar locally select
+karke app copy save karte hain. Reduced-motion mein auto-play pause rehti hai.
 
 AD BANANE KE 5 STEPS
 -------------------

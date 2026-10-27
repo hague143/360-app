@@ -2103,3 +2103,248 @@ a:focus-visible {
     flex-wrap: wrap;
   }
 }
+
+/* The home box now contains actual selected photos, without a synthetic car. */
+.photo-showcase {
+  min-width: 0;
+}
+.photo-scene {
+  overflow: hidden;
+}
+.photo-scene .scene-vehicle {
+  inset: 52px 14px 54px;
+  display: block;
+  transform: none;
+  cursor: grab;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #10121c;
+}
+.photo-scene .scene-vehicle:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+.showroom-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+.showroom-photo-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 6px 9px;
+  border: 1px solid #ffffff24;
+  border-radius: 6px;
+  background: #090b17bb;
+  color: #f7eaff;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  pointer-events: none;
+}
+.showroom-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 18px;
+  background: radial-gradient(ellipse, #38204455, transparent);
+}
+.showroom-empty-mark {
+  font-size: 35px;
+  color: #cc8dff;
+}
+.showroom-empty h2 {
+  font-size: 24px;
+  letter-spacing: -0.7px;
+}
+.showroom-empty p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.showroom-empty small {
+  color: var(--muted);
+  font-size: 9px;
+}
+.showroom-photo-controls {
+  position: absolute;
+  right: 26px;
+  bottom: 63px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #10101bdb;
+  border: 1px solid #d080ff33;
+  border-radius: 20px;
+  padding: 4px 7px;
+  color: white;
+}
+.showroom-photo-controls button {
+  min-width: 30px;
+  min-height: 29px;
+  border-radius: 50%;
+  color: white;
+}
+.showroom-photo-controls button:hover {
+  background: #ba6bff33;
+}
+#showroom-counter {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.showroom-photo-strip {
+  display: flex;
+  overflow: auto;
+  gap: 7px;
+  padding: 13px 2px 4px;
+  scrollbar-width: thin;
+}
+.showroom-photo-strip button {
+  flex: 0 0 72px;
+  height: 51px;
+  padding: 2px;
+  border: 1px solid #5d3b76;
+  border-radius: 6px;
+  background: #151321;
+}
+.showroom-photo-strip button.active {
+  border: 2px solid #d890ff;
+  box-shadow: 0 0 12px #c366ff22;
+}
+.showroom-photo-strip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 3px;
+}
+.showroom-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding-top: 10px;
+}
+.showroom-source-note {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.8;
+  margin: 10px 2px 0;
+}
+#showroom-filename {
+  overflow-wrap: anywhere;
+  color: #c299df;
+}
+.showroom-editor {
+  padding: 18px;
+  border: 1px solid #663983;
+  border-radius: 12px;
+  margin-top: 14px;
+  background: #161223;
+}
+.showroom-editor-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: flex-start;
+}
+.showroom-editor h3 {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+.showroom-editor p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+.showroom-order {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+  max-height: 290px;
+  overflow: auto;
+}
+.showroom-order li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 0;
+  border-bottom: 1px solid #a74cee1a;
+}
+.showroom-order img {
+  width: 65px;
+  height: 43px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.showroom-order span {
+  flex: 1;
+  min-width: 0;
+  font-size: 10px;
+  color: #c4adcd;
+  overflow-wrap: anywhere;
+}
+.showroom-order button {
+  width: 29px;
+  min-height: 31px;
+  border-radius: 5px;
+  border: 1px solid #8b51a9;
+  color: #edbcff;
+  background: #271837;
+  flex-shrink: 0;
+}
+.showroom-order button:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+.showroom-loop {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #e4c5fa;
+}
+.showroom-loop input {
+  margin-top: 3px;
+  accent-color: #c56eff;
+}
+.showroom-honesty {
+  margin-top: 10px;
+}
+@media (max-width: 600px) {
+  .photo-scene .scene-vehicle {
+    inset: 50px 9px 51px;
+  }
+  .showroom-empty {
+    gap: 10px;
+    padding: 10px;
+  }
+  .showroom-empty h2 {
+    font-size: 20px;
+  }
+  .showroom-empty p {
+    font-size: 10px;
+  }
+  .showroom-empty small {
+    font-size: 8px;
+  }
+  .showroom-editor {
+    padding: 13px;
+  }
+  .showroom-editor-heading {
+    flex-wrap: wrap;
+  }
+  .showroom-photo-controls {
+    right: 19px;
+    bottom: 61px;
+  }
+}

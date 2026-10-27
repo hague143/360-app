@@ -3,7 +3,6 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import path from "node:path";
-import { build } from "esbuild";
 
 const root = path.resolve(import.meta.dirname, "..");
 const original = await readFile(
@@ -24,26 +23,13 @@ const [template, baseCSS, neonCSS, ...scripts] = await Promise.all(
     "styles.css",
     "neon.css",
     "model.js",
+    "hero-photos.js",
     "effects.js",
     "studio.js",
     "app.js",
   ].map((name) => readFile(path.join(dir, name), "utf8")),
 );
 const css = baseCSS + "\n" + neonCSS;
-const hero = await build({
-  entryPoints: [path.join(dir, "hero3d.js")],
-  bundle: true,
-  minify: true,
-  format: "iife",
-  globalName: "CarViewHero",
-  target: "es2020",
-  write: false,
-  legalComments: "inline",
-});
-const threeLicense = await readFile(
-  path.join(root, "node_modules/three/LICENSE"),
-  "utf8",
-);
 const code =
   "(() => { 'use strict';\nconst PRISTINE_TEMPLATE = '<!doctype html>\\n' + document.documentElement.outerHTML;\n" +
   scripts.join("\n") +
@@ -56,14 +42,6 @@ const safeJSON = JSON.stringify(original)
 const html = template
   .replace("/*__MARKETPLACE_CSS__*/", () => css)
   .replace("/*__STUDIO_JSON__*/", () => safeJSON)
-  .replace("/*__HERO_3D__*/", () =>
-    (
-      "/* Bundled Three.js licence:\n" +
-      threeLicense +
-      "\n*/\n" +
-      hero.outputFiles[0].text.replace(/[\t ]+$/gm, "")
-    ).replace(/<\/script/gi, "<\\/script"),
-  )
   .replace("/*__MARKETPLACE_JS__*/", () => code);
 if (/\/\*__\w+__\*\//.test(html))
   throw new Error("Unfilled marketplace template marker.");
